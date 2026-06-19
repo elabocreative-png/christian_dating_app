@@ -1,0 +1,8 @@
+{
+  "npm.exclude": [
+    "**/node_modules/**"
+  ],
+  "files.associations": {
+    "functions/package.json": "json"
+  }
+}

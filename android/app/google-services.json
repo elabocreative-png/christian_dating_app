@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "648127692866",
+    "firebase_url": "https://christian-dating-app-28f36-default-rtdb.firebaseio.com",
+    "project_id": "christian-dating-app-28f36",
+    "storage_bucket": "christian-dating-app-28f36.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648127692866:android:9d01d84f10ab27f623addb",
+        "android_client_info": {
+          "package_name": "com.example.christian_dating_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648127692866-rrku46681mvt5lhobqc75v961fj0igv0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.christian_dating_app",
+            "certificate_hash": "6fbe98463815a710a9bc6a1f9c40ed9fc7c4ca59"
+          }
+        },
+        {
+          "client_id": "648127692866-2m899fk8p4q21b90l9frcltgv5tgevkc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8tQWU9J2tuzwS4yv1TXRycqwiavlwx5s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648127692866-2m899fk8p4q21b90l9frcltgv5tgevkc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
