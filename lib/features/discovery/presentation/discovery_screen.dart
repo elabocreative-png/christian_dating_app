@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:christian_dating_app/app_illustrations.dart';
-import 'package:christian_dating_app/app_typography.dart';
-import 'package:christian_dating_app/block_source.dart';
+import 'package:christian_dating_app/core/theme/app_illustrations.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/features/matches/data/like_result.dart';

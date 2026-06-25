@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'app_illustrations.dart';
-import 'app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_illustrations.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'widgets/app_back_button.dart';
 import 'widgets/app_icon.dart';
 

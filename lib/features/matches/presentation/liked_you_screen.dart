@@ -1,23 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:christian_dating_app/app_typography.dart';
-import 'package:christian_dating_app/app_illustrations.dart';
-import 'package:christian_dating_app/app_icons.dart';
-import 'package:christian_dating_app/block_service.dart';
-import 'package:christian_dating_app/block_source.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_illustrations.dart';
+import 'package:christian_dating_app/core/theme/app_icons.dart';
+import 'package:christian_dating_app/core/services/block_service.dart';
+import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
-import 'package:christian_dating_app/users_batch_loader.dart';
-import 'package:christian_dating_app/profile_photo_urls.dart';
+import 'package:christian_dating_app/core/services/users_batch_loader.dart';
+import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/widgets/empty_state_illustration.dart';
 import 'package:christian_dating_app/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/liked_you_tab_pills.dart';
 import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
 import 'package:christian_dating_app/widgets/skeleton_loaders.dart';
-import 'package:christian_dating_app/denomination_options.dart';
+import 'package:christian_dating_app/core/constants/denomination_options.dart';
 
 /// Likes as a 2-column grid: full-bleed portrait image, name on top, denomination pill on bottom.
 ///

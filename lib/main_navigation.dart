@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'app_icons.dart';
+import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
-import 'match_read_state.dart';
+import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'widgets/app_icon.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_distance_filter_sheet.dart';
@@ -16,7 +16,7 @@ import 'package:christian_dating_app/features/matches/domain/liked_you_filters.d
 import 'package:christian_dating_app/features/matches/presentation/liked_you_screen.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_list_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/profile_screen.dart';
-import 'push_notification_service.dart';
+import 'package:christian_dating_app/core/services/push_notification_service.dart';
 
 /// Attached to [MainNavigation] so other UI (e.g. Liked You sheet) can switch tabs.
 final GlobalKey<MainNavigationState> mainNavigationKey =

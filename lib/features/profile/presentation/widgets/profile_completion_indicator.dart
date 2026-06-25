@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 
 /// Edit-profile card showing % complete and a horizontal progress bar.
 class ProfileCompletionIndicator extends StatelessWidget {

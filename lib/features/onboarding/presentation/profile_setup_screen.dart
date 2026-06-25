@@ -5,17 +5,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'package:christian_dating_app/app_typography.dart';
-import 'package:christian_dating_app/denomination_options.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/core/constants/denomination_options.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import 'package:christian_dating_app/gender_options.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
 import 'package:christian_dating_app/features/auth/data/auth_service.dart';
 import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
 import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
 import 'package:christian_dating_app/onboarding/onboarding_requirements.dart';
 import 'package:christian_dating_app/features/profile/data/profile_image_service.dart';
-import 'package:christian_dating_app/relationship_intent.dart';
-import 'package:christian_dating_app/location_service.dart';
+import 'package:christian_dating_app/core/constants/relationship_intent.dart';
+import 'package:christian_dating_app/core/services/location_service.dart';
 import 'package:christian_dating_app/widgets/local_profile_photo_grid.dart';
 import 'package:christian_dating_app/widgets/onboarding_birthday_input.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_pill_button.dart';
@@ -23,7 +23,7 @@ import 'package:christian_dating_app/features/onboarding/presentation/widgets/on
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_prompt_editor_section.dart';
 import 'package:christian_dating_app/widgets/app_icon.dart';
 import 'package:christian_dating_app/widgets/app_dialog.dart';
-import 'package:christian_dating_app/push_notification_service.dart';
+import 'package:christian_dating_app/core/services/push_notification_service.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_faith_declaration_content.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_notifications_step.dart';
 

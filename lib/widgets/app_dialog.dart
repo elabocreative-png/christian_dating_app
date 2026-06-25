@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 
 /// ChristMeets-styled modal shell (logout, confirmations, action sheets).
 class AppDialog extends StatelessWidget {

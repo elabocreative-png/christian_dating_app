@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:christian_dating_app/height_utils.dart';
+import 'package:christian_dating_app/features/profile/domain/height_utils.dart';
 import 'package:christian_dating_app/widgets/app_icon.dart';
 import 'package:christian_dating_app/widgets/app_back_button.dart';
 

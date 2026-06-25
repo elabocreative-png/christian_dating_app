@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'church_attendance_options.dart';
-import 'denomination_options.dart';
-import 'faith_options.dart';
-import 'gender_options.dart';
-import 'relationship_intent.dart';
+import 'package:christian_dating_app/core/constants/church_attendance_options.dart';
+import 'package:christian_dating_app/core/constants/denomination_options.dart';
+import 'package:christian_dating_app/core/constants/faith_options.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
+import 'package:christian_dating_app/core/constants/relationship_intent.dart';
 
 /// Resolved profile fields for cards — fills missing values with stable
 /// placeholders so mandatory sections always render.

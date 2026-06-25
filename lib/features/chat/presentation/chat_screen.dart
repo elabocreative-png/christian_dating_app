@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:christian_dating_app/app_typography.dart';
-import 'package:christian_dating_app/app_icons.dart';
-import 'package:christian_dating_app/block_source.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_icons.dart';
+import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/widgets/app_back_button.dart';
 import 'package:christian_dating_app/widgets/app_icon.dart';
 import 'package:christian_dating_app/widgets/profile_avatar.dart';
 import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/widgets/app_dialog.dart';
-import 'package:christian_dating_app/match_read_state.dart';
+import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 
 class ChatScreen extends StatefulWidget {

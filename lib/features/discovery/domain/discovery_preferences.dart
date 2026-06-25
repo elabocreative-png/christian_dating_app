@@ -1,4 +1,4 @@
-import 'package:christian_dating_app/gender_options.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
 
 const String kDiscoveryModeDating = 'dating';
 const String kDiscoveryModeSocial = 'social';

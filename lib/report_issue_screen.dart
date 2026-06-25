@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'issue_report_service.dart';
 import 'profile_photo_picker.dart';
 import 'widgets/app_back_button.dart';

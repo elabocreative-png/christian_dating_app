@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import 'package:christian_dating_app/gender_options.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
 
 void main() {
   group('interestedInForDiscoveryDeck', () {

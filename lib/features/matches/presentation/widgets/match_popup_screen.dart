@@ -4,12 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'package:christian_dating_app/app_navigator.dart';
-import 'package:christian_dating_app/app_icons.dart';
-import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/core/navigation/app_navigator.dart';
+import 'package:christian_dating_app/core/theme/app_icons.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
-import 'package:christian_dating_app/profile_photo_urls.dart';
+import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/widgets/app_icon.dart';
 import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
 

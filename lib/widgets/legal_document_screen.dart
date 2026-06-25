@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'app_back_button.dart';
 
 /// A titled section in a legal document (Terms, Privacy, etc.).

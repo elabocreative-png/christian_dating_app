@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'block_source.dart';
+import 'package:christian_dating_app/core/models/block_source.dart';
 
 class BlockedUserRecord {
   const BlockedUserRecord({

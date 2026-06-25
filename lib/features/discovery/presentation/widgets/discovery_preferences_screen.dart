@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
-import 'package:christian_dating_app/gender_options.dart';
-import 'package:christian_dating_app/geo_utils.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
+import 'package:christian_dating_app/core/utils/geo_utils.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
 import 'package:christian_dating_app/widgets/app_back_button.dart';
 

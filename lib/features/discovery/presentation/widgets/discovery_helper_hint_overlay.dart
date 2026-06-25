@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:christian_dating_app/app_icons.dart';
-import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_icons.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/widgets/app_icon.dart';
 
 /// First-time discovery tutorial steps for new sign-ups.

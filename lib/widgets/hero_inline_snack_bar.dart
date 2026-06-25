@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../app_icons.dart';
+import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'app_icon.dart';
 
 /// Orange pill shown on the discovery hero, directly below the location row.

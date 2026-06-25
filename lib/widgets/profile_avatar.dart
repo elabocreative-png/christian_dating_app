@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../profile_photo_urls.dart';
+import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'profile_photo_placeholder.dart';
 
 /// Circular avatar using [photoThumbs] when available (lists, chat header).

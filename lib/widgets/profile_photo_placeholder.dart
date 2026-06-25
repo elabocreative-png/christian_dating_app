@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../app_illustrations.dart';
-import '../gender_options.dart';
+import 'package:christian_dating_app/core/theme/app_illustrations.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
 
 const Color kProfilePhotoPlaceholderBg = Color(0xFFEEEEEE);
 

@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../app_typography.dart';
-import '../block_source.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
 import 'package:christian_dating_app/features/matches/data/likes_service.dart';
-import '../push_notification_service.dart';
+import 'package:christian_dating_app/core/services/push_notification_service.dart';
 import 'app_dialog.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/user_profile_discovery_card.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../gender_options.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
 
 /// Male / Female radio group used on sign up and in settings.
 class GenderRadioGroup extends StatelessWidget {

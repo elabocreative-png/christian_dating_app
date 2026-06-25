@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../app_typography.dart';
-import '../block_service.dart';
-import '../block_source.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/core/services/block_service.dart';
+import 'package:christian_dating_app/core/models/block_source.dart';
 import 'app_dialog.dart';
 
 /// Confirms then unblocks a user. Returns `true` when unblock succeeded.

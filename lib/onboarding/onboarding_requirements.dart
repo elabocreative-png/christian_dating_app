@@ -1,6 +1,6 @@
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import '../gender_options.dart';
-import '../relationship_intent.dart';
+import 'package:christian_dating_app/core/constants/gender_options.dart';
+import 'package:christian_dating_app/core/constants/relationship_intent.dart';
 
 /// Validation for each onboarding step and profile completion.
 class OnboardingRequirements {

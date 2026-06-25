@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../app_icons.dart';
+import 'package:christian_dating_app/core/theme/app_icons.dart';
 
 /// Brand teal used across the app (buttons, accents, progress, etc.).
 const Color kBrandAccent = Color(0xFF29B8D8);

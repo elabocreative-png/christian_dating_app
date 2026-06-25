@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'app_typography.dart';
+import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'faq_content.dart';
 import 'faq_detail_screen.dart';
 import 'widgets/app_back_button.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'widgets/app_icon.dart';
+import 'package:christian_dating_app/widgets/app_icon.dart';
 
 /// Root navigator for notification deep links and global routes.
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
