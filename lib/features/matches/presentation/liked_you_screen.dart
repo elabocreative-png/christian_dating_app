@@ -1,23 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'app_typography.dart';
-import 'app_illustrations.dart';
-import 'app_icons.dart';
-import 'block_service.dart';
-import 'block_source.dart';
-import 'discovery_preferences.dart';
-import 'discovery_users_service.dart';
-import 'liked_you_filters.dart';
-import 'users_batch_loader.dart';
-import 'profile_photo_urls.dart';
-import 'widgets/user_profile_bottom_sheet.dart';
-import 'widgets/empty_state_illustration.dart';
-import 'widgets/app_icon.dart';
-import 'widgets/liked_you_tab_pills.dart';
-import 'widgets/profile_photo_placeholder.dart';
-import 'widgets/skeleton_loaders.dart';
-import 'denomination_options.dart';
+import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/app_illustrations.dart';
+import 'package:christian_dating_app/app_icons.dart';
+import 'package:christian_dating_app/block_service.dart';
+import 'package:christian_dating_app/block_source.dart';
+import 'package:christian_dating_app/discovery_preferences.dart';
+import 'package:christian_dating_app/discovery_users_service.dart';
+import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
+import 'package:christian_dating_app/users_batch_loader.dart';
+import 'package:christian_dating_app/profile_photo_urls.dart';
+import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
+import 'package:christian_dating_app/widgets/empty_state_illustration.dart';
+import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/features/matches/presentation/widgets/liked_you_tab_pills.dart';
+import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
+import 'package:christian_dating_app/widgets/skeleton_loaders.dart';
+import 'package:christian_dating_app/denomination_options.dart';
 
 /// Likes as a 2-column grid: full-bleed portrait image, name on top, denomination pill on bottom.
 ///

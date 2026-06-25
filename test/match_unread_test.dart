@@ -1,4 +1,4 @@
-import 'package:christian_dating_app/match_unread.dart';
+import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import '../app_typography.dart';
 import '../block_source.dart';
 import '../discovery_screen.dart';
-import '../likes_service.dart';
+import 'package:christian_dating_app/features/matches/data/likes_service.dart';
 import '../push_notification_service.dart';
 import 'app_dialog.dart';
-import 'match_popup_screen.dart';
+import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
 import 'user_profile_discovery_card.dart';
 
 /// Same full-profile preview as [ProfileScreen] (scrollable discovery card).

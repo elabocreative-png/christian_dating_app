@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'like_result.dart';
-import 'match_unread.dart';
-import 'discovery_preferences.dart';
-import 'widgets/match_popup_screen.dart';
+import 'package:christian_dating_app/features/matches/data/like_result.dart';
+import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
+import 'package:christian_dating_app/discovery_preferences.dart';
+import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
 
 /// Firestore like + match flow shared by discovery and other surfaces.
 class LikesService {

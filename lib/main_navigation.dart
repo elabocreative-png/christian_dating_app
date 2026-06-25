@@ -6,16 +6,16 @@ import 'discovery_preferences.dart';
 import 'discovery_screen.dart';
 import 'discovery_users_service.dart';
 import 'match_read_state.dart';
-import 'match_unread.dart';
+import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'widgets/app_icon.dart';
 import 'widgets/discovery_distance_filter_sheet.dart';
 import 'widgets/discovery_mode_toggle.dart';
 import 'widgets/discovery_premium_pill.dart';
 import 'widgets/nav_tab_badge.dart';
-import 'liked_you_filters.dart';
-import 'liked_you_screen.dart';
-import 'match_list_screen.dart';
-import 'profile_screen.dart';
+import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
+import 'package:christian_dating_app/features/matches/presentation/liked_you_screen.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_list_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/profile_screen.dart';
 import 'push_notification_service.dart';
 
 /// Attached to [MainNavigation] so other UI (e.g. Liked You sheet) can switch tabs.
