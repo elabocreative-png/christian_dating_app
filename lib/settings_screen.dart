@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_service.dart';
 import 'blocked_users_screen.dart';
 import 'deactivate_account_screen.dart';
 import 'faq_screen.dart';

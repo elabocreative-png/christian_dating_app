@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../app_typography.dart';
-import 'app_back_button.dart';
-import 'app_icon.dart';
+import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/widgets/app_back_button.dart';
+import 'package:christian_dating_app/widgets/app_icon.dart';
 
 /// Onboarding step: request notification permission (black on blue).
 class OnboardingNotificationsStep extends StatelessWidget {

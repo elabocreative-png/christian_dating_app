@@ -5,27 +5,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'app_typography.dart';
-import 'denomination_options.dart';
+import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/denomination_options.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import 'gender_options.dart';
-import 'auth_service.dart';
-import 'auth_errors.dart';
-import 'pending_signup.dart';
-import 'onboarding/onboarding_requirements.dart';
+import 'package:christian_dating_app/gender_options.dart';
+import 'package:christian_dating_app/features/auth/data/auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
+import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
+import 'package:christian_dating_app/onboarding/onboarding_requirements.dart';
 import 'package:christian_dating_app/features/profile/data/profile_image_service.dart';
-import 'relationship_intent.dart';
-import 'location_service.dart';
-import 'widgets/local_profile_photo_grid.dart';
-import 'widgets/onboarding_birthday_input.dart';
-import 'widgets/onboarding_pill_button.dart';
-import 'widgets/onboarding_step_shell.dart';
+import 'package:christian_dating_app/relationship_intent.dart';
+import 'package:christian_dating_app/location_service.dart';
+import 'package:christian_dating_app/widgets/local_profile_photo_grid.dart';
+import 'package:christian_dating_app/widgets/onboarding_birthday_input.dart';
+import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_pill_button.dart';
+import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_step_shell.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_prompt_editor_section.dart';
-import 'widgets/app_icon.dart';
-import 'widgets/app_dialog.dart';
-import 'push_notification_service.dart';
-import 'widgets/onboarding_faith_declaration_content.dart';
-import 'widgets/onboarding_notifications_step.dart';
+import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/widgets/app_dialog.dart';
+import 'package:christian_dating_app/push_notification_service.dart';
+import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_faith_declaration_content.dart';
+import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_notifications_step.dart';
 
 /// Thirteen-step onboarding after sign-up (Bumble-style layout).
 class ProfileSetupScreen extends StatefulWidget {

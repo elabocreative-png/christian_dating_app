@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_typography.dart';
-import 'auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_service.dart';
 import 'widgets/app_back_button.dart';
 import 'widgets/app_dialog.dart';
 

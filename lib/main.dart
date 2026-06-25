@@ -4,11 +4,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'auth_errors.dart';
-import 'auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
+import 'package:christian_dating_app/features/auth/data/auth_service.dart';
 import 'app_navigator.dart';
-import 'pending_signup.dart';
-import 'profile_setup_screen.dart';
+import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
+import 'package:christian_dating_app/features/onboarding/presentation/profile_setup_screen.dart';
 import 'main_navigation.dart';
 import 'push_notification_service.dart';
 import 'widgets/app_icon.dart';

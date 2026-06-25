@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'match_read_state.dart';
-import 'push_notification_service.dart';
+import 'package:christian_dating_app/match_read_state.dart';
+import 'package:christian_dating_app/push_notification_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
