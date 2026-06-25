@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'discovery_preferences.dart';
-import 'geo_utils.dart';
-import 'account_visibility.dart';
-import 'block_service.dart';
+import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
+import 'package:christian_dating_app/geo_utils.dart';
+import 'package:christian_dating_app/account_visibility.dart';
+import 'package:christian_dating_app/block_service.dart';
 
 /// Cached viewer location for repeated distance lookups in a session.
 GeoPoint? _cachedViewerLocation;

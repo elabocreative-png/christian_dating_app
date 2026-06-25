@@ -7,7 +7,7 @@ import 'package:christian_dating_app/app_icons.dart';
 import 'package:christian_dating_app/block_service.dart';
 import 'package:christian_dating_app/block_source.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
-import 'package:christian_dating_app/discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/match_read_state.dart';

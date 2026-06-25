@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
-import 'package:christian_dating_app/discovery_preferences.dart';
+import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
 
 /// Firestore like + match flow shared by discovery and other surfaces.

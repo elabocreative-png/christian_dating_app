@@ -5,20 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'app_illustrations.dart';
-import 'app_typography.dart';
-import 'block_source.dart';
-import 'discovery_preferences.dart';
-import 'discovery_users_service.dart';
+import 'package:christian_dating_app/app_illustrations.dart';
+import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/block_source.dart';
+import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/data/likes_service.dart';
-import 'widgets/discovery_helper_hint_overlay.dart';
-import 'widgets/hero_inline_snack_bar.dart';
-import 'widgets/discovery_radar_loading.dart';
-import 'widgets/discovery_preferences_screen.dart';
-import 'widgets/discovery_swipe_stamp_overlay.dart';
-import 'widgets/user_profile_discovery_card.dart';
-import 'widgets/app_dialog.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_helper_hint_overlay.dart';
+import 'package:christian_dating_app/widgets/hero_inline_snack_bar.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_radar_loading.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_preferences_screen.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_swipe_stamp_overlay.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/user_profile_discovery_card.dart';
+import 'package:christian_dating_app/widgets/app_dialog.dart';
 
 /// Refreshes discovery after distance filter changes from [MainNavigation].
 final GlobalKey<DiscoveryScreenState> discoveryScreenKey =

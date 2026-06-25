@@ -3,24 +3,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
-import '../app_typography.dart';
-import '../app_icons.dart';
-import '../church_attendance_options.dart';
-import '../denomination_options.dart';
-import '../tongues_options.dart';
-import '../faith_options.dart';
-import '../geo_utils.dart';
-import '../interest_options.dart';
-import '../location_service.dart';
-import '../profile_about_options.dart';
-import '../profile_display_resolver.dart';
-import '../relationship_intent.dart';
-import '../block_source.dart';
-import 'app_icon.dart';
-import 'block_report_sheet.dart';
-import 'profile_photo_placeholder.dart';
-import 'profile_photo_viewer.dart';
-import 'verified_name_age.dart';
+import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/app_icons.dart';
+import 'package:christian_dating_app/church_attendance_options.dart';
+import 'package:christian_dating_app/denomination_options.dart';
+import 'package:christian_dating_app/tongues_options.dart';
+import 'package:christian_dating_app/faith_options.dart';
+import 'package:christian_dating_app/geo_utils.dart';
+import 'package:christian_dating_app/interest_options.dart';
+import 'package:christian_dating_app/location_service.dart';
+import 'package:christian_dating_app/profile_about_options.dart';
+import 'package:christian_dating_app/profile_display_resolver.dart';
+import 'package:christian_dating_app/relationship_intent.dart';
+import 'package:christian_dating_app/block_source.dart';
+import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/widgets/block_report_sheet.dart';
+import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
+import 'package:christian_dating_app/widgets/profile_photo_viewer.dart';
+import 'package:christian_dating_app/widgets/verified_name_age.dart';
 
 /// Full-profile card matching [DiscoveryScreen] swipe card layout and styling:
 /// hero, bio, church, basics, faith, photo, prompt, photo, prompt, interests, location.

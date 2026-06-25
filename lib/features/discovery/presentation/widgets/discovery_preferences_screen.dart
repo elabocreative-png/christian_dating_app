@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../discovery_preferences.dart';
-import '../discovery_users_service.dart';
-import '../gender_options.dart';
-import '../geo_utils.dart';
-import 'discovery_mode_toggle.dart';
-import 'app_back_button.dart';
+import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/gender_options.dart';
+import 'package:christian_dating_app/geo_utils.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
+import 'package:christian_dating_app/widgets/app_back_button.dart';
 
 /// Full-screen discovery preferences (replaces the distance bottom sheet).
 class DiscoveryPreferencesScreen extends StatefulWidget {

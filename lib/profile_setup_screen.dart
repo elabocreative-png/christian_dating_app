@@ -7,7 +7,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'app_typography.dart';
 import 'denomination_options.dart';
-import 'discovery_preferences.dart';
+import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'gender_options.dart';
 import 'auth_service.dart';
 import 'auth_errors.dart';

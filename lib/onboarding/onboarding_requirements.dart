@@ -1,4 +1,4 @@
-import '../discovery_preferences.dart';
+import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import '../gender_options.dart';
 import '../relationship_intent.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../app_icons.dart';
-import 'app_icon.dart';
+import 'package:christian_dating_app/app_icons.dart';
+import 'package:christian_dating_app/widgets/app_icon.dart';
 
 /// Discovery app bar premium affordance: diamond in a white circle on a beige pill.
 class DiscoveryPremiumPill extends StatelessWidget {

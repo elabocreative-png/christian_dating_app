@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'block_service.dart';
-import 'discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'users_batch_loader.dart';
 import 'widgets/app_back_button.dart';
 import 'widgets/block_report_sheet.dart';
