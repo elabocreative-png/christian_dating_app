@@ -1,0 +1,119 @@
+---
+description: Architecture and layering conventions for ChristMeets (Flutter app)
+globs: lib/**/*.dart
+alwaysApply: false
+---
+
+# Architecture — ChristMeets
+
+## Current layout (flat `lib/`)
+
+Most code lives directly under `lib/`:
+
+| Area | Examples |
+|------|----------|
+| Screens | `discovery_screen.dart`, `chat_screen.dart`, `profile_screen.dart` |
+| Services | `auth_service.dart`, `block_service.dart`, `likes_service.dart`, `discovery_users_service.dart` |
+| Shared widgets | `lib/widgets/` |
+| Pure logic | `liked_you_filters.dart`, `match_unread.dart`, `profile_completion.dart` |
+| App shell | `main.dart`, `main_navigation.dart`, `app_navigator.dart` |
+
+**Data access today:** Firestore calls often live in screens or `*Service` classes — this is intentional for now.
+
+## Target structure (migrating, not yet complete)
+
+Week 4 roadmap target:
+
+```
+lib/
+  core/           # theme, constants, router, shared widgets/utils
+  features/
+    auth/
+    discovery/
+    chat/
+    profile/
+    matches/      # likes / liked-you / connections
+```
+
+- `go_router` for auth gate and deep links — **not implemented yet**.
+- When migrating: move **one feature slice** at a time; do not big-bang rename the whole repo.
+- New feature work during migration: prefer the new path if that feature is already migrated; otherwise stay consistent with the file you are editing.
+
+## What goes in `core/`
+
+Keep `core/` intentionally minimal. Put something there **only if both** are true:
+
+1. It is used by **2+ features** (actually, not "might be someday").
+2. **No single feature owns it** — it is genuinely cross-cutting.
+
+If only one feature uses it, keep it inside that feature even if it feels generic.
+
+- **Default to the feature.** Promote to `core/` only when a **second** feature actually
+  needs it — do not pre-place things in `core/` "in case" they get shared.
+- Likely `core/` for this app: `app_typography.dart`, brand color constants
+  (`kBrandAccent`, `kMatchOrange`), `app_navigator.dart` / `rootNavigatorKey`,
+  shared UI primitives (`app_dialog.dart`, `app_back_button.dart`, `app_icon.dart`),
+  `UsersBatchLoader` (used by liked-you, matches, blocked-users).
+- Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/`,
+  `profile_completion.dart` → `profile/`, `discovery_*` widgets → `discovery/`.
+
+## Inside a feature folder
+
+```
+features/<name>/
+  data/           # Firebase/API access (existing *Service classes)
+  presentation/   # screens + widgets
+  domain/         # OPTIONAL — pure, Firebase-free logic; add only when such logic exists
+```
+
+- Use 2 layers by default (`data` + `presentation`); add `domain/` only when a feature
+  already has pure logic to hold (e.g. discovery filters, unread counts, completion %).
+- **No `domain/` for CRUD-only features** (e.g. `auth/` is mostly Firebase side effects).
+- `data/` never imports `presentation/`; `presentation/` never calls Firebase directly.
+- `domain/` has **no Firebase imports** — keeps it unit-testable.
+- Full Clean Architecture (entities + repository interfaces + use-cases) is **not** required;
+  this is a single-source (Firebase) app.
+
+## Enforced rules
+
+1. **No Firebase in widgets.** New Firestore / FirebaseAuth access goes in a service
+   (existing pattern: `AuthService`, `BlockService`, `LikesService`,
+   `DiscoveryUsersService`). Do **not** strip inline queries out of legacy screens
+   unless explicitly asked.
+2. **New features are feature-first** under `lib/features/<name>/`. Do **not** relocate
+   legacy files as a side effect of an unrelated edit.
+3. **One service owns each domain's data access.** Reuse an existing service before
+   adding a new query. (Services are the current form of "repositories"; they may move
+   under `features/<name>/data/` as each slice migrates.)
+4. **Data layer returns app types, not Firestore types.** New service/repository methods
+   return models, plain `Map`, or domain objects — never `DocumentSnapshot`,
+   `QuerySnapshot`, or `Timestamp`. Presentation and `domain/` must not import
+   `cloud_firestore`. (Legacy code still leaks Firestore types into UI; fix opportunistically,
+   not in bulk.)
+
+## Layer guidance (when adding or moving code)
+
+**Core principle:** the data layer returns app types; presentation never imports `cloud_firestore`.
+
+1. **UI** — screens and widgets; no direct Firestore in large widget trees when a service already exists.
+2. **Services** — Firestore reads/writes, auth side effects, batch loaders (`UsersBatchLoader`).
+3. **Pure logic** — filters, unread counts, completion %; no Firebase imports.
+
+Reuse existing services instead of duplicating queries:
+
+- Blocks → `BlockService`
+- Likes/matches → `LikesService`
+- Discovery deck → `DiscoveryUsersService`
+- Batch user profiles → `UsersBatchLoader.fetchByIds`
+- Push → `PushNotificationService`
+- Issue reports → `IssueReportService`
+
+## File size
+
+- Split files approaching ~1500+ lines when touching them for a large feature (e.g. `user_profile_discovery_card.dart`).
+- Prefer feature-specific widgets over growing a single mega-widget.
+
+## Cloud Functions
+
+- Node functions in `functions/`; region `africa-south1` for Firestore triggers.
+- FCM tokens stored on `users/{uid}.fcmTokens` (array).
