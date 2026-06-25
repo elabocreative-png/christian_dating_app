@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-import 'app_icons.dart';
-import 'profile_completion.dart';
-import 'profile_photo_urls.dart';
-import 'widgets/profile_photo_placeholder.dart';
-import 'widgets/verified_name_age.dart';
+import 'package:christian_dating_app/app_icons.dart';
+import 'package:christian_dating_app/features/profile/domain/profile_completion.dart';
+import 'package:christian_dating_app/profile_photo_urls.dart';
+import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
+import 'package:christian_dating_app/widgets/verified_name_age.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
-import 'edit_profile_screen.dart';
-import 'settings_screen.dart';
-import 'widgets/profile_plans_tab_content.dart';
-import 'widgets/profile_safety_tab_content.dart';
-import 'widgets/profile_tab_bar_delegate.dart';
-import 'widgets/user_profile_bottom_sheet.dart';
-import 'widgets/app_icon.dart';
+import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
+import 'package:christian_dating_app/settings_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/profile_plans_tab_content.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/profile_safety_tab_content.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/profile_tab_bar_delegate.dart';
+import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
+import 'package:christian_dating_app/widgets/app_icon.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

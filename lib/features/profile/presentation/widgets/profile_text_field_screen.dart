@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../app_typography.dart';
-import 'app_back_button.dart';
+import 'package:christian_dating_app/app_typography.dart';
+import 'package:christian_dating_app/widgets/app_back_button.dart';
 
 /// Full-screen text editor for Basic Info fields on Edit Profile.
 class ProfileTextFieldScreen extends StatefulWidget {

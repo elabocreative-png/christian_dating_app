@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../onboarding/onboarding_prompt_catalog.dart';
-import 'onboarding_prompt_answer_screen.dart';
+import 'package:christian_dating_app/onboarding/onboarding_prompt_catalog.dart';
+import 'package:christian_dating_app/widgets/onboarding_prompt_answer_screen.dart';
 
 /// One editable profile prompt (question + answer).
 class ProfilePromptSlot {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app_icons.dart';
 import '../app_typography.dart';
-import '../profile_completion.dart';
+import 'package:christian_dating_app/features/profile/domain/profile_completion.dart';
 import 'app_icon.dart';
 
 /// Name (and optionally ", age") with an optional verified badge inline.

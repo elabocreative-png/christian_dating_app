@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'onboarding_birthday_input.dart';
-import 'app_back_button.dart';
+import 'package:christian_dating_app/widgets/onboarding_birthday_input.dart';
+import 'package:christian_dating_app/widgets/app_back_button.dart';
 
 /// Result from [ProfileBirthdateScreen.push].
 typedef BirthdateEditResult = ({int age, String birthdayDigits});

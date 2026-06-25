@@ -1,4 +1,4 @@
-import 'onboarding/onboarding_requirements.dart';
+import 'package:christian_dating_app/onboarding/onboarding_requirements.dart';
 
 /// Profile completion as fraction (0..1) using the same key fields as [ProfileScreen].
 double profileCompletionFraction(Map<String, dynamic> data) {
