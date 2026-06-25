@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-import 'chat_screen.dart';
+import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'main_navigation.dart';
 
 /// Background FCM handler (must be top-level).
