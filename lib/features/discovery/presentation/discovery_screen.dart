@@ -13,7 +13,7 @@ import 'package:christian_dating_app/features/discovery/data/discovery_users_ser
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/data/likes_service.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_helper_hint_overlay.dart';
-import 'package:christian_dating_app/widgets/hero_inline_snack_bar.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/hero_inline_snack_bar.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_radar_loading.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_preferences_screen.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_swipe_stamp_overlay.dart';

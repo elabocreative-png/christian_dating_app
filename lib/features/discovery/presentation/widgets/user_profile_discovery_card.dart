@@ -19,7 +19,7 @@ import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/block_report_sheet.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
-import 'package:christian_dating_app/widgets/profile_photo_viewer.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/profile_photo_viewer.dart';
 import 'package:christian_dating_app/core/widgets/verified_name_age.dart';
 
 /// Full-profile card matching [DiscoveryScreen] swipe card layout and styling:

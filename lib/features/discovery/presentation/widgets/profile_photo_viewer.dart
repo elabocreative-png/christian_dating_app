@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'ios_style_image_crop_screen.dart';
+import 'package:christian_dating_app/widgets/ios_style_image_crop_screen.dart';
 
 /// Opens a fullscreen viewer for a single uploaded profile photo (2:3 crop).
 Future<void> showProfilePhotoViewer(

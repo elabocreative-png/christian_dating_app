@@ -12,11 +12,11 @@ import 'package:christian_dating_app/features/matches/domain/liked_you_filters.d
 import 'package:christian_dating_app/core/services/users_batch_loader.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
-import 'package:christian_dating_app/widgets/empty_state_illustration.dart';
+import 'package:christian_dating_app/features/matches/presentation/widgets/empty_state_illustration.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/liked_you_tab_pills.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
-import 'package:christian_dating_app/widgets/skeleton_loaders.dart';
+import 'package:christian_dating_app/features/matches/presentation/widgets/skeleton_loaders.dart';
 import 'package:christian_dating_app/core/constants/denomination_options.dart';
 
 /// Likes as a 2-column grid: full-bleed portrait image, name on top, denomination pill on bottom.

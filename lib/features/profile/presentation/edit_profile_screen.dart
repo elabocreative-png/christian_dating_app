@@ -26,7 +26,7 @@ import 'package:christian_dating_app/features/profile/presentation/widgets/profi
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_option_picker_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_text_field_screen.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
-import 'package:christian_dating_app/widgets/use_current_location_row.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/use_current_location_row.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
