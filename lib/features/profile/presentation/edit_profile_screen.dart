@@ -9,7 +9,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:christian_dating_app/features/profile/domain/profile_completion.dart';
 import 'package:christian_dating_app/features/profile/data/profile_image_service.dart';
-import 'package:christian_dating_app/profile_photo_picker.dart';
+import 'package:christian_dating_app/core/photo/profile_photo_picker.dart';
 import 'package:christian_dating_app/core/constants/denomination_options.dart';
 import 'package:christian_dating_app/core/constants/tongues_options.dart';
 import 'package:christian_dating_app/core/constants/church_attendance_options.dart';

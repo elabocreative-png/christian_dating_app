@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../face_crop_helper.dart';
-import 'static_square_crop_editor.dart';
+import 'package:christian_dating_app/core/photo/face_crop_helper.dart';
+import 'package:christian_dating_app/core/photo/static_square_crop_editor.dart';
 
 class CropImageSource {
   const CropImageSource({

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'widgets/ios_style_image_crop_screen.dart';
+import 'package:christian_dating_app/core/photo/ios_style_image_crop_screen.dart';
 
 /// Gallery multi-pick + sequential crop for profile photo slots.
 class ProfilePhotoPicker {
