@@ -1,28 +1,32 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Holds email/password during onboarding before Firebase Auth account creation.
-class PendingSignup extends ChangeNotifier {
-  PendingSignup._();
+class PendingSignupState {
+  const PendingSignupState({this.email, this.password});
 
-  static final PendingSignup instance = PendingSignup._();
+  final String? email;
+  final String? password;
 
-  String? _email;
-  String? _password;
+  bool get isActive => email != null && password != null;
+}
 
-  bool get isActive => _email != null && _password != null;
-  String? get email => _email;
-  String? get password => _password;
+class PendingSignupNotifier extends Notifier<PendingSignupState> {
+  @override
+  PendingSignupState build() => const PendingSignupState();
 
   void start(String email, String password) {
-    _email = email.trim();
-    _password = password;
-    notifyListeners();
+    state = PendingSignupState(
+      email: email.trim(),
+      password: password,
+    );
   }
 
   void clear() {
-    if (_email == null && _password == null) return;
-    _email = null;
-    _password = null;
-    notifyListeners();
+    state = const PendingSignupState();
   }
 }
+
+final pendingSignupProvider =
+    NotifierProvider<PendingSignupNotifier, PendingSignupState>(
+  PendingSignupNotifier.new,
+);

@@ -1,0 +1,46 @@
+---
+description: Flutter coding standards for ChristMeets — what to do now vs. what is planned
+globs: lib/**/*.dart
+alwaysApply: false
+---
+
+# Flutter Standards — ChristMeets
+
+These are the conventions to follow **right now**. See `architecture.mdc` for the
+folder layout and layering rules.
+
+## Enforced now
+
+1. **Feature-first structure.** New code goes under `lib/features/<name>/`
+   (`data/` · optional `domain/` · `presentation/`), or `lib/core/` if it is shared by
+   2+ features. Never add another feature's internals as a dependency.
+2. **No business logic in the UI.** Widgets render and dispatch; they do not contain
+   Firestore queries, filtering rules, or calculations. Put data access in a service
+   (`data/`) and pure logic in `domain/`.
+3. **Trimmed layers, not full Clean Architecture.** Use `data/ · domain/ · presentation/`.
+   Do **not** add `entities/`, `usecases/`, or repository interfaces — this is a
+   single-source (Firebase) app and that boilerplate is not warranted.
+4. **State management: Riverpod (in progress).** Use `flutter_riverpod` for shared/session
+   and server-backed state (`NotifierProvider`, `StreamProvider`, `Provider`). Use
+   `ConsumerWidget` / `ConsumerStatefulWidget` where widgets need `ref`. Keep `setState`
+   for purely local UI state (animations, text controllers, toggles).
+5. **Provider placement.** Put notifiers/providers with the concept they replace (e.g.
+   `pending_signup.dart` holds `pendingSignupProvider`). Cross-screen providers for a
+   feature go in `features/<name>/presentation/*_providers.dart`.
+6. **Navigation: `Navigator` + `rootNavigatorKey`** (`core/navigation/app_navigator.dart`).
+7. **Imports use `package:christian_dating_app/...`** — no cross-folder relative `../` imports.
+8. **Prefer `const` constructors** and keep widgets small; split feature-specific widgets
+   out rather than growing a mega-widget.
+
+## Planned — do NOT introduce unsolicited
+
+The following are intended directions but are **not adopted yet**. Do not add them to new
+code unless the change is explicitly a migration to that tool, otherwise the codebase ends
+up with two competing patterns.
+
+- **GoRouter** for routing / auth gate / deep links — planned; until then use `Navigator`.
+- **Repository interfaces / entities / use-cases** — only if the app gains a second data
+  source or genuinely complex domain logic.
+
+When you think one of these should finally be adopted, say so and propose a deliberate
+migration — do not start mixing it in piecemeal.

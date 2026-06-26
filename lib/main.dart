@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,7 +29,7 @@ void main() async {
   await PushNotificationService.initialize(
     navigatorKey: rootNavigatorKey,
   );
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -148,33 +149,13 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class AuthGate extends StatefulWidget {
+class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
 
   @override
-  State<AuthGate> createState() => _AuthGateState();
-}
-
-class _AuthGateState extends State<AuthGate> {
-  @override
-  void initState() {
-    super.initState();
-    PendingSignup.instance.addListener(_onPendingSignupChanged);
-  }
-
-  @override
-  void dispose() {
-    PendingSignup.instance.removeListener(_onPendingSignupChanged);
-    super.dispose();
-  }
-
-  void _onPendingSignupChanged() {
-    if (mounted) setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (PendingSignup.instance.isActive) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pending = ref.watch(pendingSignupProvider);
+    if (pending.isActive) {
       return const ProfileSetupScreen();
     }
 
@@ -225,14 +206,14 @@ class _AuthGateState extends State<AuthGate> {
   }
 }
 
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _AuthScreenState extends ConsumerState<AuthScreen> {
   static const Color _accent = kBrandAccent;
 
   final AuthService _auth = AuthService();
@@ -287,10 +268,10 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => _submitting = true);
     try {
       if (isLogin) {
-        PendingSignup.instance.clear();
+        ref.read(pendingSignupProvider.notifier).clear();
         await _auth.login(email, password);
       } else {
-        PendingSignup.instance.start(email, password);
+        ref.read(pendingSignupProvider.notifier).start(email, password);
       }
     } catch (e) {
       if (!mounted) return;

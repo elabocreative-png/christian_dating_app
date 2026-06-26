@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
@@ -28,7 +29,7 @@ import 'package:christian_dating_app/features/onboarding/presentation/widgets/on
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_notifications_step.dart';
 
 /// Thirteen-step onboarding after sign-up (Bumble-style layout).
-class ProfileSetupScreen extends StatefulWidget {
+class ProfileSetupScreen extends ConsumerStatefulWidget {
   const ProfileSetupScreen({super.key});
 
   static const int stepCount = 13;
@@ -37,10 +38,10 @@ class ProfileSetupScreen extends StatefulWidget {
   static const int onboardingFlowVersion = 4;
 
   @override
-  State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
+  ConsumerState<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
 }
 
-class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
+class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   final AuthService _authService = AuthService();
 
   int _step = 0;
@@ -113,7 +114,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     };
   }
 
-  bool get _isDeferredSignup => PendingSignup.instance.isActive;
+  bool get _isDeferredSignup => ref.read(pendingSignupProvider).isActive;
 
   Future<void> _loadDraft() async {
     if (_isDeferredSignup) {
@@ -305,7 +306,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final pending = PendingSignup.instance;
+      final pending = ref.read(pendingSignupProvider);
       final isDeferred = pending.isActive;
       final pendingEmail = pending.email;
       final pendingPassword = pending.password;
@@ -365,7 +366,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           ...AuthService.defaultUserFields(pendingEmail!),
           ...profileData,
         });
-        pending.clear();
+        ref.read(pendingSignupProvider.notifier).clear();
       } else {
         await FirebaseFirestore.instance
             .collection('users')
@@ -433,7 +434,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   Future<void> _exitOnboardingToAuth() async {
-    PendingSignup.instance.clear();
+    ref.read(pendingSignupProvider.notifier).clear();
     if (FirebaseAuth.instance.currentUser != null) {
       await _authService.logout();
     }
