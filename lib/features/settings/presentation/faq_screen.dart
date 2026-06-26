@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
-import 'faq_content.dart';
-import 'faq_detail_screen.dart';
+import 'package:christian_dating_app/features/settings/domain/faq_content.dart';
+import 'package:christian_dating_app/features/settings/presentation/faq_detail_screen.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
 /// Settings → ChristMeets FAQ list.

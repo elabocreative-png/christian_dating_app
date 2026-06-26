@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
-import 'issue_report_service.dart';
+import 'package:christian_dating_app/features/settings/data/issue_report_service.dart';
 import 'package:christian_dating_app/core/photo/profile_photo_picker.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';

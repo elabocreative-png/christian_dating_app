@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/features/auth/data/auth_service.dart';
-import 'blocked_users_screen.dart';
-import 'deactivate_account_screen.dart';
-import 'faq_screen.dart';
-import 'help_support_screen.dart';
-import 'privacy_policy_screen.dart';
-import 'report_issue_screen.dart';
-import 'terms_and_conditions_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/blocked_users_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/deactivate_account_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/faq_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/help_support_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/privacy_policy_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/report_issue_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/terms_and_conditions_screen.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 

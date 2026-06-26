@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
 import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
-import 'package:christian_dating_app/settings_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/settings_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_plans_tab_content.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_safety_tab_content.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_tab_bar_delegate.dart';

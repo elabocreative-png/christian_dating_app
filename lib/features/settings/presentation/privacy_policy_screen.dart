@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'help_support_screen.dart';
-import 'widgets/legal_document_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/help_support_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/widgets/legal_document_screen.dart';
 
 /// Settings → Privacy Policy.
 class PrivacyPolicyScreen extends StatelessWidget {
