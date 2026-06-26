@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 /// Tap-and-hold cross for the faith declaration onboarding step.
 class OnboardingFaithDeclarationContent extends StatefulWidget {

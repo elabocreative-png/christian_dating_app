@@ -7,7 +7,7 @@ import 'package:christian_dating_app/features/discovery/presentation/discovery_s
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
-import 'widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_distance_filter_sheet.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_premium_pill.dart';

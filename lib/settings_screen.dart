@@ -8,8 +8,8 @@ import 'help_support_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'report_issue_screen.dart';
 import 'terms_and_conditions_screen.dart';
-import 'widgets/app_back_button.dart';
-import 'widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
 /// Settings list (Help, Report, Blocked, Delete, Deactivate, Terms, Privacy, FAQ).
 class SettingsScreen extends StatefulWidget {

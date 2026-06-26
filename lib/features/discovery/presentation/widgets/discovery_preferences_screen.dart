@@ -7,7 +7,7 @@ import 'package:christian_dating_app/features/discovery/data/discovery_users_ser
 import 'package:christian_dating_app/core/constants/gender_options.dart';
 import 'package:christian_dating_app/core/utils/geo_utils.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
-import 'package:christian_dating_app/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
 /// Full-screen discovery preferences (replaces the distance bottom sheet).
 class DiscoveryPreferencesScreen extends StatefulWidget {

@@ -10,8 +10,8 @@ import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
-import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
 
 /// Where the app should land after the match celebration is dismissed.
 enum MatchPopupDismissDestination {

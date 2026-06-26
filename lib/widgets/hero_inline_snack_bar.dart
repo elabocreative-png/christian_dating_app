@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/core/theme/app_icons.dart';
-import 'app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 /// Orange pill shown on the discovery hero, directly below the location row.
 class HeroInlineSnackBar extends StatelessWidget {

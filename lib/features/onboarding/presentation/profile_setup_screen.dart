@@ -17,12 +17,12 @@ import 'package:christian_dating_app/features/profile/data/profile_image_service
 import 'package:christian_dating_app/core/constants/relationship_intent.dart';
 import 'package:christian_dating_app/core/services/location_service.dart';
 import 'package:christian_dating_app/widgets/local_profile_photo_grid.dart';
-import 'package:christian_dating_app/widgets/onboarding_birthday_input.dart';
+import 'package:christian_dating_app/core/widgets/onboarding_birthday_input.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_pill_button.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_step_shell.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_prompt_editor_section.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
-import 'package:christian_dating_app/widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/core/services/push_notification_service.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_faith_declaration_content.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_notifications_step.dart';

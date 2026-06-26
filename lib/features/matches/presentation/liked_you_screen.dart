@@ -11,11 +11,11 @@ import 'package:christian_dating_app/features/discovery/data/discovery_users_ser
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/core/services/users_batch_loader.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
-import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
+import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/widgets/empty_state_illustration.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/liked_you_tab_pills.dart';
-import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
+import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
 import 'package:christian_dating_app/widgets/skeleton_loaders.dart';
 import 'package:christian_dating_app/core/constants/denomination_options.dart';
 

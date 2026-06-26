@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/core/services/users_batch_loader.dart';
-import 'widgets/app_back_button.dart';
-import 'widgets/block_report_sheet.dart';
-import 'widgets/profile_avatar.dart';
-import 'widgets/user_profile_bottom_sheet.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/block_report_sheet.dart';
+import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
+import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 
 /// Settings → Blocked Users list with unblock actions.
 class BlockedUsersScreen extends StatelessWidget {

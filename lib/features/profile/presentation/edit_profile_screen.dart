@@ -25,14 +25,14 @@ import 'package:christian_dating_app/features/profile/presentation/widgets/profi
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_height_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_option_picker_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_text_field_screen.dart';
-import 'package:christian_dating_app/widgets/profile_photo_placeholder.dart';
+import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
 import 'package:christian_dating_app/widgets/use_current_location_row.dart';
-import 'package:christian_dating_app/widgets/app_back_button.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
-import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_completion_indicator.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_prompt_editor_section.dart';
-import 'package:christian_dating_app/widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
 /// Profile photo slot: network URL, or local file (optionally uploading).
 class _PhotoSlot {

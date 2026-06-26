@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/core/theme/app_icons.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
-import 'package:christian_dating_app/widgets/profile_avatar.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
 
 /// First item in the Chats tab “New Connections” row — opens Liked You.
 class LikesStripChip extends StatelessWidget {

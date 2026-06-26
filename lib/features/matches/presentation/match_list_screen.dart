@@ -13,14 +13,14 @@ import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'package:christian_dating_app/core/services/users_batch_loader.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/widgets/avatar_unread_dot.dart';
 import 'package:christian_dating_app/widgets/chat_messages_sort_sheet.dart';
 import 'package:christian_dating_app/widgets/empty_state_illustration.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/likes_strip_chip.dart';
-import 'package:christian_dating_app/widgets/profile_avatar.dart';
+import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
 import 'package:christian_dating_app/widgets/skeleton_loaders.dart';
-import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
+import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 
 String? otherUserIdFromMatch(
   Map<String, dynamic> matchData,

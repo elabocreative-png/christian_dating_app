@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/data/auth_service.dart';
-import 'widgets/app_back_button.dart';
-import 'widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
 /// Settings → Deactivate Account confirmation and reason form.
 class DeactivateAccountScreen extends StatefulWidget {

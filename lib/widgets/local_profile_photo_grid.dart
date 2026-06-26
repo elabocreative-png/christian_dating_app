@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../profile_photo_picker.dart';
-import 'app_dialog.dart';
-import 'app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 /// Three-slot local photo grid (same look as Edit Profile / settings flow).
 class LocalProfilePhotoGrid extends StatefulWidget {

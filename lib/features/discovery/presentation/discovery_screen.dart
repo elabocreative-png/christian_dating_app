@@ -18,7 +18,7 @@ import 'package:christian_dating_app/features/discovery/presentation/widgets/dis
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_preferences_screen.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_swipe_stamp_overlay.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/user_profile_discovery_card.dart';
-import 'package:christian_dating_app/widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
 /// Refreshes discovery after distance filter changes from [MainNavigation].
 final GlobalKey<DiscoveryScreenState> discoveryScreenKey =

@@ -6,11 +6,11 @@ import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
-import 'package:christian_dating_app/widgets/app_back_button.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
-import 'package:christian_dating_app/widgets/profile_avatar.dart';
-import 'package:christian_dating_app/widgets/user_profile_bottom_sheet.dart';
-import 'package:christian_dating_app/widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
+import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 

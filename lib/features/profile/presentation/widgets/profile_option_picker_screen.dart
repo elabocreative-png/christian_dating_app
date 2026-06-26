@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:christian_dating_app/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
 /// Full-screen single-choice picker (replaces bottom sheets on Edit Profile).
 class ProfileOptionPickerScreen extends StatelessWidget {

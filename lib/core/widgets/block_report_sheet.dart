@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
-import 'app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
 /// Confirms then unblocks a user. Returns `true` when unblock succeeded.
 Future<bool> confirmAndUnblockUser(

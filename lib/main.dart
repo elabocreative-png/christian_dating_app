@@ -11,7 +11,7 @@ import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/profile_setup_screen.dart';
 import 'main_navigation.dart';
 import 'package:christian_dating_app/core/services/push_notification_service.dart';
-import 'widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:flutter/services.dart';
 
 /// Light status bar + transparent system nav (fill painted in [MaterialApp.builder]).

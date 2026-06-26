@@ -6,8 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'issue_report_service.dart';
 import 'profile_photo_picker.dart';
-import 'widgets/app_back_button.dart';
-import 'widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
 /// Settings → Report an Issue (feedback form).
 class ReportIssueScreen extends StatefulWidget {

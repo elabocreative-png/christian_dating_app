@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 /// How the messages list is ordered / filtered on the Chats tab.
 enum ChatMessagesSort {

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/profile/domain/profile_completion.dart';
-import 'app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 /// Name (and optionally ", age") with an optional verified badge inline.
 class VerifiedNameAge extends StatelessWidget {

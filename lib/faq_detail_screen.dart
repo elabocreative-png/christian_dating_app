@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'faq_content.dart';
-import 'widgets/app_back_button.dart';
+import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
 /// Single FAQ question and answer.
 class FaqDetailScreen extends StatelessWidget {

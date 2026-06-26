@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 class ProfileSafetyTabContent extends StatelessWidget {
   const ProfileSafetyTabContent({super.key});

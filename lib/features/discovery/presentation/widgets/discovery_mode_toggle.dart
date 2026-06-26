@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import 'package:christian_dating_app/widgets/app_icon.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 /// Dating / Social pill toggle for the discovery app bar.
 class DiscoveryModeToggle extends StatelessWidget {
