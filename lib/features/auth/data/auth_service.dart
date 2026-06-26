@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/core/services/push_notification_service.dart';
 
 class AuthService {
@@ -163,7 +162,6 @@ class AuthService {
       'deactivatedAt': Timestamp.now(),
       'deactivationReason': trimmedReason,
     });
-    MatchReadState.instance.clear();
     await _auth.signOut();
   }
 
@@ -173,7 +171,6 @@ class AuthService {
     if (uid != null) {
       await PushNotificationService.clearTokenForUser(uid);
     }
-    MatchReadState.instance.clear();
     await _auth.signOut();
   }
 

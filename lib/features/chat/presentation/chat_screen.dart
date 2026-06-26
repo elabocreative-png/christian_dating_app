@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -14,16 +15,16 @@ import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   final String matchId;
 
   const ChatScreen({super.key, required this.matchId});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
   static const Color _chatBubbleColor = kBrandAccent;
   static const Color _incomingBubbleColor = Color(0xFFF2F2F2);
 
@@ -48,7 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return;
 
-    MatchReadState.instance.markRead(widget.matchId);
+    ref.read(matchReadStateProvider.notifier).markRead(widget.matchId);
     await MatchUnread.markChatOpened(
       matchId: widget.matchId,
       userId: currentUser.uid,

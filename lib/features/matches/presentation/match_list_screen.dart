@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
@@ -40,14 +41,14 @@ String firstNameFromUserData(Map<String, dynamic>? userData) {
 }
 
 /// Chats tab: fixed header (title, search, your matches, messages) + scrollable list.
-class MatchListScreen extends StatefulWidget {
+class MatchListScreen extends ConsumerStatefulWidget {
   const MatchListScreen({super.key});
 
   @override
-  State<MatchListScreen> createState() => _MatchListScreenState();
+  ConsumerState<MatchListScreen> createState() => _MatchListScreenState();
 }
 
-class _MatchListScreenState extends State<MatchListScreen> {
+class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   bool _isSearching = false;
   ChatMessagesSort _messagesSort = ChatMessagesSort.mostRecent;
   final TextEditingController _searchController = TextEditingController();
@@ -204,7 +205,7 @@ class _MatchListScreenState extends State<MatchListScreen> {
       ),
     );
     if (!mounted) return;
-    MatchReadState.instance.markRead(matchId);
+    ref.read(matchReadStateProvider.notifier).markRead(matchId);
     await MatchUnread.markChatOpened(
       matchId: matchId,
       userId: currentUserId,

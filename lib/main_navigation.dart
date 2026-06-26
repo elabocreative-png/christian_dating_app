@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
-import 'package:christian_dating_app/core/services/match_read_state.dart';
-import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
+import 'package:christian_dating_app/features/matches/presentation/nav_badge_providers.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_distance_filter_sheet.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_premium_pill.dart';
 import 'widgets/nav_tab_badge.dart';
-import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/presentation/liked_you_screen.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_list_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/profile_screen.dart';
@@ -22,14 +21,14 @@ import 'package:christian_dating_app/core/services/push_notification_service.dar
 final GlobalKey<MainNavigationState> mainNavigationKey =
     GlobalKey<MainNavigationState>();
 
-class MainNavigation extends StatefulWidget {
+class MainNavigation extends ConsumerStatefulWidget {
   const MainNavigation({super.key});
 
   @override
-  MainNavigationState createState() => MainNavigationState();
+  ConsumerState<MainNavigation> createState() => MainNavigationState();
 }
 
-class MainNavigationState extends State<MainNavigation> {
+class MainNavigationState extends ConsumerState<MainNavigation> {
   int _selectedIndex = 0;
   String _discoveryMode = kDiscoveryModeDating;
 
@@ -156,118 +155,81 @@ class MainNavigationState extends State<MainNavigation> {
   }
 
   Widget _buildBottomNavigationBar(String uid) {
-    final likesStream = FirebaseFirestore.instance
-        .collection('likes')
-        .where('toUserId', isEqualTo: uid)
-        .snapshots();
+    final likedYouCount = ref.watch(likedYouCountProvider(uid));
+    final unreadMessageThreads = ref.watch(unreadMessageThreadsProvider(uid));
 
-    final matchesStream = FirebaseFirestore.instance
-        .collection('matches')
-        .where('users', arrayContains: uid)
-        .snapshots();
-
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: likesStream,
-      builder: (context, likesSnapshot) {
-        final likedYouCount = likedYouVisibleIncomingLikes(
-          likesSnapshot.data?.docs ?? [],
-        ).length;
-
-        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: matchesStream,
-          builder: (context, matchesSnapshot) {
-            final matchDocs = matchesSnapshot.data?.docs ?? [];
-
-            return ListenableBuilder(
-              listenable: MatchReadState.instance,
-              builder: (context, _) {
-                final unreadMessageThreads =
-                    MatchUnread.unreadMessageThreadsCountFromDocs(
-                  matchDocs.map(
-                    (d) => (id: d.id, data: d.data()),
-                  ),
-                  uid,
-                  sessionReadMatchIds: MatchReadState.instance.readMatchIds,
-                );
-
-                return Theme(
-                  data: Theme.of(context).copyWith(
-                    splashFactory: NoSplash.splashFactory,
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                  ),
-                  child: BottomNavigationBar(
-                    currentIndex: _selectedIndex,
-                    onTap: _onItemTapped,
-                    type: BottomNavigationBarType.fixed,
-                    showSelectedLabels: false,
-                    showUnselectedLabels: false,
-                    items: [
-                      BottomNavigationBarItem(
-                        icon: _navIcon(
-                          solidAsset: AppIcons.cardsSolid,
-                          outlineAsset: AppIcons.cardsOutline,
-                          selected: false,
-                        ),
-                        activeIcon: _navIcon(
-                          solidAsset: AppIcons.cardsSolid,
-                          outlineAsset: AppIcons.cardsOutline,
-                          selected: true,
-                        ),
-                        label: 'Discover',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: _navIconWithBadge(
-                          solidAsset: AppIcons.heartSolid,
-                          outlineAsset: AppIcons.heartOutline,
-                          selected: false,
-                          badgeCount: likedYouCount,
-                        ),
-                        activeIcon: _navIconWithBadge(
-                          solidAsset: AppIcons.heartSolid,
-                          outlineAsset: AppIcons.heartOutline,
-                          selected: true,
-                          badgeCount: likedYouCount,
-                        ),
-                        label: 'Liked you',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: _navIconWithBadge(
-                          solidAsset: AppIcons.chatsSolid,
-                          outlineAsset: AppIcons.chatsOutline,
-                          selected: false,
-                          badgeCount: unreadMessageThreads,
-                        ),
-                        activeIcon: _navIconWithBadge(
-                          solidAsset: AppIcons.chatsSolid,
-                          outlineAsset: AppIcons.chatsOutline,
-                          selected: true,
-                          badgeCount: unreadMessageThreads,
-                        ),
-                        label: 'Chats',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: _navIcon(
-                          solidAsset: AppIcons.profileSolid,
-                          outlineAsset: AppIcons.profileOutline,
-                          selected: false,
-                        ),
-                        activeIcon: _navIcon(
-                          solidAsset: AppIcons.profileSolid,
-                          outlineAsset: AppIcons.profileOutline,
-                          selected: true,
-                        ),
-                        label: 'Profile',
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashFactory: NoSplash.splashFactory,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+      ),
+      child: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: [
+          BottomNavigationBarItem(
+            icon: _navIcon(
+              solidAsset: AppIcons.cardsSolid,
+              outlineAsset: AppIcons.cardsOutline,
+              selected: false,
+            ),
+            activeIcon: _navIcon(
+              solidAsset: AppIcons.cardsSolid,
+              outlineAsset: AppIcons.cardsOutline,
+              selected: true,
+            ),
+            label: 'Discover',
+          ),
+          BottomNavigationBarItem(
+            icon: _navIconWithBadge(
+              solidAsset: AppIcons.heartSolid,
+              outlineAsset: AppIcons.heartOutline,
+              selected: false,
+              badgeCount: likedYouCount,
+            ),
+            activeIcon: _navIconWithBadge(
+              solidAsset: AppIcons.heartSolid,
+              outlineAsset: AppIcons.heartOutline,
+              selected: true,
+              badgeCount: likedYouCount,
+            ),
+            label: 'Liked you',
+          ),
+          BottomNavigationBarItem(
+            icon: _navIconWithBadge(
+              solidAsset: AppIcons.chatsSolid,
+              outlineAsset: AppIcons.chatsOutline,
+              selected: false,
+              badgeCount: unreadMessageThreads,
+            ),
+            activeIcon: _navIconWithBadge(
+              solidAsset: AppIcons.chatsSolid,
+              outlineAsset: AppIcons.chatsOutline,
+              selected: true,
+              badgeCount: unreadMessageThreads,
+            ),
+            label: 'Chats',
+          ),
+          BottomNavigationBarItem(
+            icon: _navIcon(
+              solidAsset: AppIcons.profileSolid,
+              outlineAsset: AppIcons.profileOutline,
+              selected: false,
+            ),
+            activeIcon: _navIcon(
+              solidAsset: AppIcons.profileSolid,
+              outlineAsset: AppIcons.profileOutline,
+              selected: true,
+            ),
+            label: 'Profile',
+          ),
+        ],
+      ),
     );
   }
 

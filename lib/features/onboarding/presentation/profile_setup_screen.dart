@@ -24,6 +24,7 @@ import 'package:christian_dating_app/features/onboarding/presentation/widgets/on
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_prompt_editor_section.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
+import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/core/services/push_notification_service.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_faith_declaration_content.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_notifications_step.dart';
@@ -437,6 +438,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     ref.read(pendingSignupProvider.notifier).clear();
     if (FirebaseAuth.instance.currentUser != null) {
       await _authService.logout();
+      ref.read(matchReadStateProvider.notifier).clear();
     }
   }
 

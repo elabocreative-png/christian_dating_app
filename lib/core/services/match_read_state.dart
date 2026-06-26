@@ -1,24 +1,24 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// In-session read matches so bottom-nav badges update before Firestore syncs.
-class MatchReadState extends ChangeNotifier {
-  MatchReadState._();
-
-  static final MatchReadState instance = MatchReadState._();
-
-  final Set<String> _readMatchIds = <String>{};
-
-  Set<String> get readMatchIds => Set.unmodifiable(_readMatchIds);
+class MatchReadStateNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => <String>{};
 
   void markRead(String matchId) {
-    if (_readMatchIds.add(matchId)) {
-      notifyListeners();
+    if (!state.contains(matchId)) {
+      state = {...state, matchId};
     }
   }
 
   void clear() {
-    if (_readMatchIds.isEmpty) return;
-    _readMatchIds.clear();
-    notifyListeners();
+    if (state.isNotEmpty) {
+      state = <String>{};
+    }
   }
 }
+
+final matchReadStateProvider =
+    NotifierProvider<MatchReadStateNotifier, Set<String>>(
+  MatchReadStateNotifier.new,
+);
