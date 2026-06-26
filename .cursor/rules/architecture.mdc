@@ -6,38 +6,44 @@ alwaysApply: false
 
 # Architecture — ChristMeets
 
-## Current layout (flat `lib/`)
+## Layout
 
-Most code lives directly under `lib/`:
-
-| Area | Examples |
-|------|----------|
-| Screens | `discovery_screen.dart`, `chat_screen.dart`, `profile_screen.dart` |
-| Services | `auth_service.dart`, `block_service.dart`, `likes_service.dart`, `discovery_users_service.dart` |
-| Shared widgets | `lib/widgets/` |
-| Pure logic | `liked_you_filters.dart`, `match_unread.dart`, `profile_completion.dart` |
-| App shell | `main.dart`, `main_navigation.dart`, `app_navigator.dart` |
-
-**Data access today:** Firestore calls often live in screens or `*Service` classes — this is intentional for now.
-
-## Target structure (migrating, not yet complete)
-
-Week 4 roadmap target:
+The feature-first migration is complete. Code lives under `lib/core/` (cross-cutting)
+and `lib/features/<name>/` (feature slices). Only the app shell stays at the root.
 
 ```
 lib/
-  core/           # theme, constants, router, shared widgets/utils
+  core/
+    theme/         # app_typography, app_icons, app_illustrations
+    constants/     # *_options (gender, faith, denomination, ...), relationship_intent
+    utils/         # geo_utils
+    services/      # block_service, location_service, match_read_state,
+                   #   push_notification_service, users_batch_loader
+    models/        # block_source, profile_photo_urls
+    navigation/    # app_navigator (rootNavigatorKey)
+    widgets/       # app_icon, app_dialog, app_back_button, profile_avatar,
+                   #   profile_photo_placeholder, user_profile_bottom_sheet, ...
+    photo/         # profile_photo_picker + crop screens + face_crop_helper
+    onboarding/    # onboarding_requirements, onboarding_prompt_catalog (shared by
+                   #   onboarding + profile)
   features/
-    auth/
-    discovery/
-    chat/
-    profile/
-    matches/      # likes / liked-you / connections
+    auth/ chat/ discovery/ matches/ onboarding/ profile/ settings/
+      data/         # Firebase/API access (*Service classes, models from Firestore)
+      domain/       # OPTIONAL — pure, Firebase-free logic
+      presentation/ # screens + widgets/
+  main.dart            # entry point + auth UI
+  main_navigation.dart # app shell / bottom-nav host
+  widgets/nav_tab_badge.dart  # app-shell-only widget
 ```
 
-- `go_router` for auth gate and deep links — **not implemented yet**.
-- When migrating: move **one feature slice** at a time; do not big-bang rename the whole repo.
-- New feature work during migration: prefer the new path if that feature is already migrated; otherwise stay consistent with the file you are editing.
+- **All imports use `package:christian_dating_app/...`** — no relative `../` imports across
+  folders. Keep this when adding files.
+- `go_router` for auth gate and deep links — **not implemented yet** (navigation still uses
+  `Navigator` + `rootNavigatorKey` in `core/navigation/app_navigator.dart`).
+- **No feature imports another feature's internals.** If two features need the same code,
+  it belongs in `core/` (that is why `onboarding_requirements` lives in `core/onboarding/`).
+- When adding a new feature, create it under `lib/features/<name>/` with the same
+  `data/ · domain/ · presentation/` shape.
 
 ## What goes in `core/`
 
@@ -50,12 +56,16 @@ If only one feature uses it, keep it inside that feature even if it feels generi
 
 - **Default to the feature.** Promote to `core/` only when a **second** feature actually
   needs it — do not pre-place things in `core/` "in case" they get shared.
-- Likely `core/` for this app: `app_typography.dart`, brand color constants
-  (`kBrandAccent`, `kMatchOrange`), `app_navigator.dart` / `rootNavigatorKey`,
-  shared UI primitives (`app_dialog.dart`, `app_back_button.dart`, `app_icon.dart`),
-  `UsersBatchLoader` (used by liked-you, matches, blocked-users).
-- Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/`,
-  `profile_completion.dart` → `profile/`, `discovery_*` widgets → `discovery/`.
+- Already in `core/`: theme (`core/theme/app_typography.dart`), navigation
+  (`core/navigation/app_navigator.dart` / `rootNavigatorKey`), shared UI primitives
+  (`core/widgets/app_dialog.dart`, `app_back_button.dart`, `app_icon.dart`,
+  `profile_avatar.dart`), cross-cutting services (`core/services/users_batch_loader.dart`,
+  `block_service.dart`, `push_notification_service.dart`), shared constants
+  (`core/constants/*_options.dart`), and the photo-crop module (`core/photo/`).
+- Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/domain/`,
+  `profile_completion.dart` / `height_utils.dart` → `profile/domain/`, `discovery_*` widgets →
+  `discovery/presentation/widgets/`, `auth_service.dart` → `auth/data/`,
+  `issue_report_service.dart` → `settings/data/`.
 
 ## Inside a feature folder
 
@@ -83,8 +93,8 @@ features/<name>/
 2. **New features are feature-first** under `lib/features/<name>/`. Do **not** relocate
    legacy files as a side effect of an unrelated edit.
 3. **One service owns each domain's data access.** Reuse an existing service before
-   adding a new query. (Services are the current form of "repositories"; they may move
-   under `features/<name>/data/` as each slice migrates.)
+   adding a new query. (Services are the current form of "repositories"; feature-owned
+   ones live in `features/<name>/data/`, cross-cutting ones in `core/services/`.)
 4. **Data layer returns app types, not Firestore types.** New service/repository methods
    return models, plain `Map`, or domain objects — never `DocumentSnapshot`,
    `QuerySnapshot`, or `Timestamp`. Presentation and `domain/` must not import
@@ -101,12 +111,13 @@ features/<name>/
 
 Reuse existing services instead of duplicating queries:
 
-- Blocks → `BlockService`
-- Likes/matches → `LikesService`
-- Discovery deck → `DiscoveryUsersService`
-- Batch user profiles → `UsersBatchLoader.fetchByIds`
-- Push → `PushNotificationService`
-- Issue reports → `IssueReportService`
+- Blocks → `BlockService` (`core/services/`)
+- Likes/matches → `LikesService` (`features/matches/data/`)
+- Discovery deck → `DiscoveryUsersService` (`features/discovery/data/`)
+- Batch user profiles → `UsersBatchLoader.fetchByIds` (`core/services/`)
+- Push → `PushNotificationService` (`core/services/`)
+- Issue reports → `IssueReportService` (`features/settings/data/`)
+- Auth → `AuthService` (`features/auth/data/`)
 
 ## File size
 
