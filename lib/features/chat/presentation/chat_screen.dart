@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
@@ -38,21 +38,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     messageController.addListener(() => setState(() {}));
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      _chatContextFuture = _loadChatContext(currentUser.uid);
+    final uid = ref.read(currentUserIdProvider);
+    if (uid != null) {
+      _chatContextFuture = _loadChatContext(uid);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) => _markMatchRead());
   }
 
   Future<void> _markMatchRead() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) return;
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
 
     ref.read(matchReadStateProvider.notifier).markRead(widget.matchId);
     await MatchUnread.markChatOpened(
       matchId: widget.matchId,
-      userId: currentUser.uid,
+      userId: uid,
     );
   }
 
@@ -101,17 +101,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> _toggleMessageHeart(String messageId, bool currentlyLiked) async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
-    final ref = FirebaseFirestore.instance
+    final messageRef = FirebaseFirestore.instance
         .collection('matches')
         .doc(widget.matchId)
         .collection('messages')
         .doc(messageId);
 
     try {
-      await ref.update({
+      await messageRef.update({
         'likedBy': currentlyLiked
             ? FieldValue.arrayRemove([uid])
             : FieldValue.arrayUnion([uid]),
@@ -386,9 +386,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> sendMessage() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final uid = ref.read(currentUserIdProvider);
     if (messageController.text.trim().isEmpty) return;
-    if (currentUser == null) return;
+    if (uid == null) return;
 
     final text = messageController.text.trim();
 
@@ -397,7 +397,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         .doc(widget.matchId)
         .collection('messages')
         .add({
-      'senderId': currentUser.uid,
+      'senderId': uid,
       'text': text,
       'createdAt': Timestamp.now(),
     });
@@ -410,7 +410,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       {
         'lastMessage': text,
         'lastMessageAt': FieldValue.serverTimestamp(),
-        'lastMessageSenderId': currentUser.uid,
+        'lastMessageSenderId': uid,
       },
       SetOptions(merge: true),
     );
@@ -420,7 +420,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (users is List) {
       await MatchUnread.incrementForRecipient(
         matchRef: matchRef,
-        senderId: currentUser.uid,
+        senderId: uid,
         userIds: List<String>.from(users),
       );
     }
@@ -435,9 +435,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
-  Widget _buildChatAppBar(User currentUser) {
+  Widget _buildChatAppBar(String currentUserId) {
     return FutureBuilder<Map<String, dynamic>?>(
-      future: _loadOtherUser(currentUser.uid),
+      future: _loadOtherUser(currentUserId),
       builder: (context, snapshot) {
         final otherUser = snapshot.data;
         final name = otherUser?['name']?.toString().trim();
@@ -754,15 +754,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
+    final currentUserId = ref.watch(currentUserIdProvider);
+    if (currentUserId == null) {
       return const SizedBox.shrink();
     }
 
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
-        child: _buildChatAppBar(currentUser),
+        child: _buildChatAppBar(currentUserId),
       ),
       body: Column(
         children: [
@@ -796,7 +796,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
                     return _buildMessageList(
                       messages: messages,
-                      currentUserId: currentUser.uid,
+                      currentUserId: currentUserId,
                       otherUser: otherUser,
                       matchCreatedAt: matchCreatedAt,
                     );

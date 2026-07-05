@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/services/block_service.dart';
@@ -22,17 +23,17 @@ import 'package:christian_dating_app/core/constants/denomination_options.dart';
 /// Likes as a 2-column grid: full-bleed portrait image, name on top, denomination pill on bottom.
 ///
 /// Likes that include a message appear under **Intros**; outgoing likes under **Sent**.
-class LikedYouScreen extends StatefulWidget {
+class LikedYouScreen extends ConsumerStatefulWidget {
   const LikedYouScreen({super.key, this.isActive = true});
 
   /// False while another main tab is selected; used to reset sub-tabs on return.
   final bool isActive;
 
   @override
-  State<LikedYouScreen> createState() => _LikedYouScreenState();
+  ConsumerState<LikedYouScreen> createState() => _LikedYouScreenState();
 }
 
-class _LikedYouScreenState extends State<LikedYouScreen> {
+class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
   static const int _columns = 2;
   static const double _gridHPadding = 12;
   static const double _crossGap = 8;
@@ -246,15 +247,14 @@ class _LikedYouScreenState extends State<LikedYouScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final uid = ref.watch(currentUserIdProvider);
 
-    if (currentUser == null) {
+    if (uid == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    final uid = currentUser.uid;
     final incomingStream = FirebaseFirestore.instance
         .collection('likes')
         .where('toUserId', isEqualTo: uid)

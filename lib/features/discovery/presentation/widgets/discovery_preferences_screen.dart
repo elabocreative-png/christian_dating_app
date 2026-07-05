@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/core/constants/gender_options.dart';
@@ -10,7 +11,7 @@ import 'package:christian_dating_app/features/discovery/presentation/widgets/dis
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
 /// Full-screen discovery preferences (replaces the distance bottom sheet).
-class DiscoveryPreferencesScreen extends StatefulWidget {
+class DiscoveryPreferencesScreen extends ConsumerStatefulWidget {
   const DiscoveryPreferencesScreen({super.key});
 
   static Future<bool?> push(BuildContext context) {
@@ -21,11 +22,12 @@ class DiscoveryPreferencesScreen extends StatefulWidget {
   }
 
   @override
-  State<DiscoveryPreferencesScreen> createState() =>
+  ConsumerState<DiscoveryPreferencesScreen> createState() =>
       _DiscoveryPreferencesScreenState();
 }
 
-class _DiscoveryPreferencesScreenState extends State<DiscoveryPreferencesScreen> {
+class _DiscoveryPreferencesScreenState
+    extends ConsumerState<DiscoveryPreferencesScreen> {
   bool _loading = true;
   bool _saving = false;
 
@@ -64,14 +66,14 @@ class _DiscoveryPreferencesScreenState extends State<DiscoveryPreferencesScreen>
   }
 
   Future<void> _load() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) {
       if (mounted) setState(() => _loading = false);
       return;
     }
     final doc = await FirebaseFirestore.instance
         .collection('users')
-        .doc(user.uid)
+        .doc(uid)
         .get();
     final data = doc.data();
     final maxKm =
@@ -118,8 +120,8 @@ class _DiscoveryPreferencesScreenState extends State<DiscoveryPreferencesScreen>
       _popWithoutSaving();
       return;
     }
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) {
       _popWithoutSaving();
       return;
     }
@@ -129,7 +131,7 @@ class _DiscoveryPreferencesScreenState extends State<DiscoveryPreferencesScreen>
       final milesStop = kDistanceMilesStops[_distanceStopIndex];
       final maxKm = discoveryKmFromMilesStop(milesStop);
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+      await FirebaseFirestore.instance.collection('users').doc(uid).set(
         {
           'discoveryMode': _mode,
           'maxDistanceKm': maxKm.round(),

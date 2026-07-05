@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/constants/church_attendance_options.dart';
@@ -24,7 +25,7 @@ import 'package:christian_dating_app/core/widgets/verified_name_age.dart';
 
 /// Full-profile card matching [DiscoveryScreen] swipe card layout and styling:
 /// hero, bio, church, basics, faith, photo, prompt, photo, prompt, interests, location.
-class UserProfileDiscoveryCard extends StatefulWidget {
+class UserProfileDiscoveryCard extends ConsumerStatefulWidget {
   const UserProfileDiscoveryCard({
     super.key,
     required this.user,
@@ -100,11 +101,12 @@ class UserProfileDiscoveryCard extends StatefulWidget {
   final VoidCallback? onUserUnblocked;
 
   @override
-  State<UserProfileDiscoveryCard> createState() =>
+  ConsumerState<UserProfileDiscoveryCard> createState() =>
       _UserProfileDiscoveryCardState();
 }
 
-class _UserProfileDiscoveryCardState extends State<UserProfileDiscoveryCard> {
+class _UserProfileDiscoveryCardState
+    extends ConsumerState<UserProfileDiscoveryCard> {
   static const BorderRadius _heroPhotoBorderRadius = BorderRadius.all(
     Radius.circular(20),
   );
@@ -196,7 +198,7 @@ class _UserProfileDiscoveryCardState extends State<UserProfileDiscoveryCard> {
   Future<void> _loadViewerProfileForMatching() async {
     if (_viewerProfile != null && _viewerProfile!.isNotEmpty) return;
 
-    final viewerId = FirebaseAuth.instance.currentUser?.uid;
+    final viewerId = ref.read(currentUserIdProvider);
     if (viewerId == null) return;
     if (widget.profileUserId == viewerId) return;
 
@@ -210,7 +212,7 @@ class _UserProfileDiscoveryCardState extends State<UserProfileDiscoveryCard> {
   }
 
   bool get _shouldHighlightMatches {
-    final viewerId = FirebaseAuth.instance.currentUser?.uid;
+    final viewerId = ref.read(currentUserIdProvider);
     if (viewerId == null || _viewerProfile == null) return false;
     if (widget.profileUserId == viewerId) return false;
     return true;

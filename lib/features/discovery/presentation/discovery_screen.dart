@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
@@ -24,7 +25,7 @@ import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 final GlobalKey<DiscoveryScreenState> discoveryScreenKey =
     GlobalKey<DiscoveryScreenState>();
 
-class DiscoveryScreen extends StatefulWidget {
+class DiscoveryScreen extends ConsumerStatefulWidget {
   const DiscoveryScreen({super.key});
 
   @override
@@ -56,7 +57,7 @@ class _ModeDeckSnapshot {
 
 //Swipe animation code from https://github.com/CodemagicApps/bumble_flutter_clone/blob/main/lib/screens/discovery_screen.dart
 
-class DiscoveryScreenState extends State<DiscoveryScreen>
+class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     with TickerProviderStateMixin {
   static const double _swipeCommitThreshold = 120;
   static const double _swipeVelocityCommit = 700;
@@ -119,7 +120,7 @@ class DiscoveryScreenState extends State<DiscoveryScreen>
   }
 
   Future<void> _resolveDiscoveryHints() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) {
       if (mounted) setState(() => _hintsResolved = true);
       return;
@@ -144,7 +145,7 @@ class DiscoveryScreenState extends State<DiscoveryScreen>
   }
 
   Future<void> _completeDiscoveryHints() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid != null) {
       await FirebaseFirestore.instance.collection('users').doc(uid).set(
         {'discoveryHintsComplete': true},
@@ -164,7 +165,7 @@ class DiscoveryScreenState extends State<DiscoveryScreen>
   }
 
   Future<String> _readDiscoveryModeFromFirestore() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) return kDiscoveryModeDating;
     final doc =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -1042,9 +1043,9 @@ class DiscoveryScreenState extends State<DiscoveryScreen>
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final uid = ref.watch(currentUserIdProvider);
 
-    if (user == null) {
+    if (uid == null) {
       return const SizedBox.shrink();
     }
     return Scaffold(
@@ -1053,12 +1054,6 @@ class DiscoveryScreenState extends State<DiscoveryScreen>
         child: FutureBuilder<List<NearbyUser>>(
           future: usersFuture,
           builder: (context, snapshot) {
-            final authUser = FirebaseAuth.instance.currentUser;
-
-            if (authUser == null) {
-              return const SizedBox();
-            }
-
             if (snapshot.connectionState != ConnectionState.done) {
               return _buildDiscoveryLoading();
             }

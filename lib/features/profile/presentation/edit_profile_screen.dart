@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'dart:io';
@@ -67,16 +68,14 @@ class _PhotoSlot {
       isLocal && !uploadError && uploadProgress != null && uploadProgress! < 1.0;
 }
 
-class EditProfileScreen extends StatefulWidget {
+class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
-  User? user;
-
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final nameController = TextEditingController();
   final ageController = TextEditingController();
   final cityController = TextEditingController();
@@ -171,19 +170,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> loadUser() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final uid = ref.read(currentUserIdProvider);
 
-    if (currentUser == null) return;
+    if (uid == null) return;
 
     final doc = await FirebaseFirestore.instance
         .collection('users')
-        .doc(currentUser.uid)
+        .doc(uid)
         .get();
 
     if (!doc.exists) {
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUser.uid)
+          .doc(uid)
           .set({
         'name': '',
         'age': 18,
@@ -218,7 +217,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     final newDoc = await FirebaseFirestore.instance
         .collection('users')
-        .doc(currentUser.uid)
+        .doc(uid)
         .get();
 
     final data = newDoc.data();
@@ -350,7 +349,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final slot = _photoSlots[index];
     if (slot == null || !slot.isLocal) return;
     final file = slot.file!;
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) {
       _photoSlots[index] = _PhotoSlot.local(file, uploadError: true);
       if (mounted) setState(() {});
@@ -399,7 +398,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _persistPhotosToFirestore() async {
     _photosPersistDebounce?.cancel();
     _photosPersistDebounce = Timer(const Duration(milliseconds: 600), () async {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
+      final uid = ref.read(currentUserIdProvider);
       if (uid == null) return;
 
       final photoResult = _collectPhotoListsFromSlots();
@@ -572,7 +571,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _showProfilePreview() {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
     showUserProfileBottomSheet(
@@ -621,8 +620,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => isSaving = true);
 
     try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return false;
+      final uid = ref.read(currentUserIdProvider);
+      if (uid == null) return false;
 
       final updates = <String, dynamic>{
         'name': nameController.text.trim(),
@@ -660,7 +659,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(currentUser.uid)
+          .doc(uid)
           .update(updates);
 
       return true;
@@ -1035,9 +1034,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final currentUserId = ref.watch(currentUserIdProvider);
 
-    if (currentUser == null) {
+    if (currentUserId == null) {
       return const SizedBox.shrink();
     }
 

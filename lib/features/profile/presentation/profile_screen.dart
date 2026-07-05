@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_icons.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/profile/domain/profile_completion.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
 import 'package:christian_dating_app/core/widgets/verified_name_age.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
 import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
@@ -16,14 +17,14 @@ import 'package:christian_dating_app/features/profile/presentation/widgets/profi
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
+class _ProfileScreenState extends ConsumerState<ProfileScreen>
     with SingleTickerProviderStateMixin {
   static const Color _profileTeal = Color(0xFF000000);
   static const Color _profileOrange = Color(0xFF000000);
@@ -32,7 +33,6 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   late final TabController _tabController;
 
-  User? user;
   Map<String, dynamic>? userData;
 
   @override
@@ -42,21 +42,20 @@ class _ProfileScreenState extends State<ProfileScreen>
       ..addListener(() {
         if (mounted) setState(() {});
       });
-    user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
+    if (ref.read(currentUserIdProvider) != null) {
       loadUser();
     }
   }
 
   Future<void> loadUser() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final uid = ref.read(currentUserIdProvider);
 
-    if (currentUser == null) return; // 🔥 safety
+    if (uid == null) return; // 🔥 safety
 
     final doc = await FirebaseFirestore.instance
         .collection('users')
-        .doc(currentUser.uid)
+        .doc(uid)
         .get();
 
     if (!mounted) return;
@@ -67,11 +66,12 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _showProfileBottomSheet(BuildContext context) {
-    if (userData == null || FirebaseAuth.instance.currentUser == null) return;
+    final uid = ref.read(currentUserIdProvider);
+    if (userData == null || uid == null) return;
     showUserProfileBottomSheet(
       context,
       user: userData!,
-      profileUserId: FirebaseAuth.instance.currentUser?.uid,
+      profileUserId: uid,
       title: 'Me',
       onEdit: _openEditProfile,
     );
@@ -141,9 +141,9 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final currentUserId = ref.watch(currentUserIdProvider);
 
-    if (currentUser == null) {
+    if (currentUserId == null) {
       return const SizedBox();
     }
 

@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/navigation/app_navigator.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
@@ -60,7 +62,7 @@ Future<void> showMatchPopup(
   }
 }
 
-class MatchPopupScreen extends StatefulWidget {
+class MatchPopupScreen extends ConsumerStatefulWidget {
   const MatchPopupScreen({
     super.key,
     required this.matchId,
@@ -75,10 +77,10 @@ class MatchPopupScreen extends StatefulWidget {
   final MatchPopupDismissDestination dismissDestination;
 
   @override
-  State<MatchPopupScreen> createState() => _MatchPopupScreenState();
+  ConsumerState<MatchPopupScreen> createState() => _MatchPopupScreenState();
 }
 
-class _MatchPopupScreenState extends State<MatchPopupScreen>
+class _MatchPopupScreenState extends ConsumerState<MatchPopupScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _controller;
   late final Animation<double> _contentScale;
@@ -164,8 +166,8 @@ class _MatchPopupScreenState extends State<MatchPopupScreen>
     final text = _messageController.text.trim();
     if (text.isEmpty || _sending) return;
 
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) return;
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
 
     setState(() => _sending = true);
 
@@ -180,7 +182,7 @@ class _MatchPopupScreenState extends State<MatchPopupScreen>
           : <String>[];
 
       await matchRef.collection('messages').add({
-        'senderId': currentUser.uid,
+        'senderId': uid,
         'text': text,
         'content': 'Match message',
         'createdAt': Timestamp.now(),
@@ -190,7 +192,7 @@ class _MatchPopupScreenState extends State<MatchPopupScreen>
         {
           'lastMessage': text,
           'lastMessageAt': Timestamp.now(),
-          'lastMessageSenderId': currentUser.uid,
+          'lastMessageSenderId': uid,
         },
         SetOptions(merge: true),
       );
@@ -198,7 +200,7 @@ class _MatchPopupScreenState extends State<MatchPopupScreen>
       if (userIds.isNotEmpty) {
         await MatchUnread.incrementForRecipient(
           matchRef: matchRef,
-          senderId: currentUser.uid,
+          senderId: uid,
           userIds: userIds,
         );
       }

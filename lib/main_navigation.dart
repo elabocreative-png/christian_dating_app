@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/matches/presentation/nav_badge_providers.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_distance_filter_sheet.dart';
@@ -38,7 +38,7 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
     _loadDiscoveryMode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       PushNotificationService.handlePendingNotification();
-      final uid = FirebaseAuth.instance.currentUser?.uid;
+      final uid = ref.read(currentUserIdProvider);
       if (uid != null) {
         PushNotificationService.syncTokenForUser(uid);
       }
@@ -46,7 +46,7 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
   }
 
   Future<void> _loadDiscoveryMode() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
     final doc =
@@ -66,7 +66,7 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
 
     setState(() => _discoveryMode = mode);
 
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
     final doc =
@@ -352,7 +352,7 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.watch(currentUserIdProvider);
 
     return Scaffold(
       backgroundColor: kSystemNavigationBarBackground,

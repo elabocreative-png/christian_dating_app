@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/services/block_service.dart';
@@ -625,9 +625,9 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final currentUserId = ref.watch(currentUserIdProvider);
 
-    if (currentUser == null) {
+    if (currentUserId == null) {
       return const Scaffold(
         body: ChatListSkeleton(),
       );
@@ -643,7 +643,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: FirebaseFirestore.instance
             .collection('matches')
-            .where('users', arrayContains: currentUser.uid)
+            .where('users', arrayContains: currentUserId)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting &&
@@ -653,7 +653,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
               children: [
                 _buildChatsHeader(
                   context: context,
-                  currentUserId: currentUser.uid,
+                  currentUserId: currentUserId,
                   stripMatches: const [],
                   stripWhenEmptyText: '',
                   showNewConnectionsSection: false,
@@ -672,7 +672,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
               children: [
                 _buildChatsHeader(
                   context: context,
-                  currentUserId: currentUser.uid,
+                  currentUserId: currentUserId,
                   stripMatches: const [],
                   stripWhenEmptyText: '',
                   showNewConnectionsSection: false,
@@ -688,7 +688,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
               snapshot.data?.docs ?? <QueryDocumentSnapshot<Map<String, dynamic>>>[];
           final matches = _matchesWithoutBlocked(
             _sortedMatches(raw),
-            currentUser.uid,
+            currentUserId,
             blockedUserIds,
           );
           final chatMatches = matches
@@ -704,20 +704,20 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           if (matches.isEmpty) {
             return _buildNoConnectionsEmptyScreen(
               context: context,
-              currentUserId: currentUser.uid,
+              currentUserId: currentUserId,
             );
           }
 
           return FutureBuilder<Map<String, Map<String, dynamic>>>(
             key: ValueKey(matches.map((d) => d.id).join(',')),
             future: UsersBatchLoader.fetchByIds(
-              _otherUserIdsFromMatches(matches, currentUser.uid),
+              _otherUserIdsFromMatches(matches, currentUserId),
             ),
             builder: (context, usersSnapshot) {
               final userById = usersSnapshot.data;
               final filteredChatMatches = _filteredChatMatches(
                 chatMatches,
-                currentUser.uid,
+                currentUserId,
               );
 
               if (chatMatches.isNotEmpty && !usersSnapshot.hasData) {
@@ -726,7 +726,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                   children: [
                     _buildChatsHeader(
                       context: context,
-                      currentUserId: currentUser.uid,
+                      currentUserId: currentUserId,
                       stripMatches: stripMatches,
                       stripWhenEmptyText: stripWhenEmptyText,
                       userById: userById,
@@ -749,7 +749,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                   children: [
                     _buildChatsHeader(
                       context: context,
-                      currentUserId: currentUser.uid,
+                      currentUserId: currentUserId,
                       stripMatches: stripMatches,
                       stripWhenEmptyText: stripWhenEmptyText,
                       userById: userById,
@@ -780,7 +780,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                 children: [
                   _buildChatsHeader(
                     context: context,
-                    currentUserId: currentUser.uid,
+                    currentUserId: currentUserId,
                     stripMatches: stripMatches,
                     stripWhenEmptyText: stripWhenEmptyText,
                     userById: userById,
@@ -812,11 +812,11 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                                     final match = filteredChatMatches[index];
                                     final otherId = otherUserIdFromMatch(
                                       match.data(),
-                                      currentUser.uid,
+                                      currentUserId,
                                     );
                                     return _ChatListTile(
                                       match: match,
-                                      currentUserId: currentUser.uid,
+                                      currentUserId: currentUserId,
                                       userData: otherId == null
                                           ? null
                                           : userById?[otherId],
@@ -827,7 +827,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                                       onTap: () => _openMatchChat(
                                         context,
                                         matchId: match.id,
-                                        currentUserId: currentUser.uid,
+                                        currentUserId: currentUserId,
                                       ),
                                     );
                                   },
