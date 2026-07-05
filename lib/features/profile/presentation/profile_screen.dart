@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/profile/presentation/profile_providers.dart';
 import 'package:christian_dating_app/features/profile/domain/profile_completion.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
 import 'package:christian_dating_app/core/widgets/verified_name_age.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
 import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
 import 'package:christian_dating_app/features/settings/presentation/settings_screen.dart';
@@ -33,8 +33,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   late final TabController _tabController;
 
-  Map<String, dynamic>? userData;
-
   @override
   void initState() {
     super.initState();
@@ -42,35 +40,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       ..addListener(() {
         if (mounted) setState(() {});
       });
-
-    if (ref.read(currentUserIdProvider) != null) {
-      loadUser();
-    }
   }
 
-  Future<void> loadUser() async {
+  void _showProfileBottomSheet(
+    BuildContext context,
+    Map<String, dynamic> userData,
+  ) {
     final uid = ref.read(currentUserIdProvider);
-
-    if (uid == null) return; // 🔥 safety
-
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-
-    if (!mounted) return;
-
-    setState(() {
-      userData = doc.data();
-    });
-  }
-
-  void _showProfileBottomSheet(BuildContext context) {
-    final uid = ref.read(currentUserIdProvider);
-    if (userData == null || uid == null) return;
+    if (uid == null) return;
     showUserProfileBottomSheet(
       context,
-      user: userData!,
+      user: userData,
       profileUserId: uid,
       title: 'Me',
       onEdit: _openEditProfile,
@@ -78,13 +58,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Future<void> _openEditProfile() async {
+    // myProfileProvider streams live, so edits reflect on return automatically.
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
         builder: (_) => const EditProfileScreen(),
       ),
     );
-    if (mounted) await loadUser();
   }
 
   @override
@@ -93,7 +73,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     super.dispose();
   }
 
-  Widget _buildProfileHeader(String? photoUrl) {
+  Widget _buildProfileHeader(Map<String, dynamic> userData, String? photoUrl) {
     return ColoredBox(
       color: Colors.white,
       child: Padding(
@@ -103,9 +83,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           children: [
             _AvatarWithCompletion(
               photoUrl: photoUrl,
-              gender: userData!['gender']?.toString(),
-              completion: profileCompletionFraction(userData!),
-              onTap: () => _showProfileBottomSheet(context),
+              gender: userData['gender']?.toString(),
+              completion: profileCompletionFraction(userData),
+              onTap: () => _showProfileBottomSheet(context, userData),
               progressColor: _profileTeal,
               badgeColor: _profileOrange,
             ),
@@ -116,7 +96,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   VerifiedNameAge(
-                    userData: userData!,
+                    userData: userData,
                     textStyle: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -126,7 +106,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   ),
                   const SizedBox(height: 10),
                   _EditProfilePill(
-                    isComplete: isProfileFullyComplete(userData!),
+                    isComplete: isProfileFullyComplete(userData),
                     onTap: _openEditProfile,
                     backgroundColor: _editPillBg,
                   ),
@@ -147,11 +127,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       return const SizedBox();
     }
 
+    final userData = ref.watch(myProfileProvider).asData?.value;
+
     if (userData == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final photoUrl = ProfilePhotoUrls.photoAt(userData!);
+    final photoUrl = ProfilePhotoUrls.photoAt(userData);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
@@ -210,7 +192,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       body: CustomScrollView(
         physics: const ClampingScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(child: _buildProfileHeader(photoUrl)),
+          SliverToBoxAdapter(child: _buildProfileHeader(userData, photoUrl)),
           SliverPersistentHeader(
             pinned: true,
             delegate: ProfileTabBarDelegate(
