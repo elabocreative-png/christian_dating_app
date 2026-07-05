@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
 import 'package:christian_dating_app/features/auth/data/auth_service.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/navigation/app_navigator.dart';
 import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/profile_setup_screen.dart';
@@ -159,50 +158,42 @@ class AuthGate extends ConsumerWidget {
       return const ProfileSetupScreen();
     }
 
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-
-        // 🔄 Loading
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        // ❌ Not logged in
-        if (!snapshot.hasData) {
+    final authAsync = ref.watch(authStateProvider);
+    return authAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stackTrace) => const AuthScreen(),
+      data: (user) {
+        if (user == null) {
           return const AuthScreen();
         }
-
-        // ✅ Logged in → LIVE CHECK PROFILE COMPLETION
-        final uid = snapshot.data!.uid;
-        return StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(uid)
-              .snapshots(),
-          builder: (context, profileSnapshot) {
-            if (profileSnapshot.connectionState == ConnectionState.waiting ||
-                !profileSnapshot.hasData) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            final data =
-                profileSnapshot.data!.data() as Map<String, dynamic>?;
-            final isComplete = data?['profileComplete'] ?? false;
-
-            if (!isComplete) {
-              return const ProfileSetupScreen();
-            }
-
-            return MainNavigation(key: mainNavigationKey);
-          },
-        );
+        return _SignedInGate(uid: user.uid);
       },
     );
+  }
+}
+
+class _SignedInGate extends ConsumerWidget {
+  const _SignedInGate({required this.uid});
+
+  final String uid;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isComplete = ref.watch(profileCompleteProvider(uid));
+
+    if (isComplete == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (!isComplete) {
+      return const ProfileSetupScreen();
+    }
+
+    return MainNavigation(key: mainNavigationKey);
   }
 }
 
