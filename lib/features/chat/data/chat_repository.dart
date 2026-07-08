@@ -110,7 +110,7 @@ class ChatRepository {
     await _messagesRef(matchId).add({
       'senderId': senderId,
       'text': text,
-      if (likedContent != null) 'content': likedContent,
+      'content': ?likedContent,
       'createdAt': Timestamp.now(),
     });
 

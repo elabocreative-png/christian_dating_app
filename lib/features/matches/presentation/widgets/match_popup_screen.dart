@@ -48,13 +48,14 @@ Future<void> showMatchPopup(
         settings: const RouteSettings(name: kMatchPopupRouteName),
         opaque: true,
         barrierDismissible: false,
-        pageBuilder: (_, __, ___) => MatchPopupScreen(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            MatchPopupScreen(
           matchId: matchId,
           currentUser: profiles[0] ?? <String, dynamic>{},
           matchedUser: profiles[1] ?? <String, dynamic>{},
           dismissDestination: dismissDestination,
         ),
-        transitionsBuilder: (_, animation, __, child) {
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
       ),
@@ -538,7 +539,8 @@ class _MatchPhotoCard extends StatelessWidget {
                 width: width,
                 height: height,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => GenderSilhouettePlaceholder(
+                errorBuilder: (context, error, stackTrace) =>
+                    GenderSilhouettePlaceholder(
                   gender: gender,
                   style: GenderSilhouetteStyle.heroCard,
                 ),

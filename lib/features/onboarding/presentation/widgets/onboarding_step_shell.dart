@@ -126,7 +126,7 @@ class OnboardingStepShell extends StatelessWidget {
                 ),
               ),
             ),
-            if (bottomHint != null) bottomHint!,
+            ?bottomHint,
             if (showPrimaryButton)
               Padding(
                 padding: const EdgeInsets.fromLTRB(

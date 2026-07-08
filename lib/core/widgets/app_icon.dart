@@ -217,17 +217,25 @@ class SvgBlackReplacementMapper extends ColorMapper {
     String attributeName,
     Color color,
   ) {
-    if (color.alpha == 0) return color;
+    if (color.a == 0) return color;
     if (_isWhite(color)) return color;
     if (_isBlack(color)) return replacement;
     return color;
   }
 
-  static bool _isWhite(Color color) =>
-      color.red >= 240 && color.green >= 240 && color.blue >= 240;
+  static bool _isWhite(Color color) {
+    final r = (color.r * 255.0).round();
+    final g = (color.g * 255.0).round();
+    final b = (color.b * 255.0).round();
+    return r >= 240 && g >= 240 && b >= 240;
+  }
 
-  static bool _isBlack(Color color) =>
-      color.red <= 20 && color.green <= 20 && color.blue <= 20;
+  static bool _isBlack(Color color) {
+    final r = (color.r * 255.0).round();
+    final g = (color.g * 255.0).round();
+    final b = (color.b * 255.0).round();
+    return r <= 20 && g <= 20 && b <= 20;
+  }
 }
 
 /// Bottom-nav unselected grey; maps black SVG fills/strokes, keeps white as-is.

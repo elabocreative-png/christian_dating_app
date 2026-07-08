@@ -388,27 +388,32 @@ class _DiscoveryPreferencesScreenState
                     ),
                   ),
                   const SizedBox(height: 12),
-                  ...(_mode == kDiscoveryModeDating
-                          ? kInterestedInDatingOptions
-                          : kInterestedInSocialOptions)
-                      .map((option) {
-                    return RadioListTile<String>(
-                      value: option,
-                      groupValue: _interestedIn,
-                      contentPadding: EdgeInsets.zero,
-                      activeColor: Colors.black87,
-                      title: Text(
-                        option,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      onChanged: (v) {
-                        if (v != null) setState(() => _interestedIn = v);
-                      },
-                    );
-                  }),
+                  RadioGroup<String>(
+                    groupValue: _interestedIn,
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _interestedIn = value);
+                    },
+                    child: Column(
+                      children: (_mode == kDiscoveryModeDating
+                              ? kInterestedInDatingOptions
+                              : kInterestedInSocialOptions)
+                          .map((option) {
+                        return RadioListTile<String>(
+                          value: option,
+                          contentPadding: EdgeInsets.zero,
+                          activeColor: Colors.black87,
+                          title: Text(
+                            option,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Text.rich(
                     TextSpan(
