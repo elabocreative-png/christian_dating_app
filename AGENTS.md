@@ -20,7 +20,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Profiles | `ProfileRepository` | `profileRepositoryProvider`, `myProfileProvider`, `fetchProfilesByIds` |
 | Chat | `ChatRepository` | `chatRepositoryProvider`, `chatMessagesProvider` |
 | Matches / likes | `MatchesRepository` | `matchesRepositoryProvider`, `matchesStreamProvider`, `incomingLikesProvider`, `outgoingLikesProvider` |
-| Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider` |
+| Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider`, `enrichWithDistance` |
 
 **UI orchestration (presentation-only):**
 

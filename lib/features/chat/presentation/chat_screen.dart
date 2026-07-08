@@ -9,7 +9,7 @@ import 'package:christian_dating_app/features/chat/domain/chat_message.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_providers.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
@@ -266,8 +266,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     Map<String, dynamic> otherUser,
   ) async {
     final name = otherUser['name']?.toString().trim() ?? '';
-    final userWithDistance =
-        await DiscoveryUsersService.enrichWithDistance(otherUser);
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+
+    final userWithDistance = await ref
+        .read(discoveryRepositoryProvider)
+        .enrichWithDistance(otherUser, viewerUid: uid);
     if (!context.mounted) return;
     showUserProfileBottomSheet(
       context,

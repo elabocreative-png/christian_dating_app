@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/services/block_service.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/block_report_sheet.dart';
@@ -14,14 +15,18 @@ class BlockedUsersScreen extends ConsumerWidget {
   const BlockedUsersScreen({super.key});
 
   Future<void> _openBlockedProfile(
-    BuildContext context, {
+    BuildContext context,
+    WidgetRef ref, {
     required BlockedUserRecord record,
     required Map<String, dynamic>? userData,
     required String name,
   }) async {
-    final userWithDistance = userData == null
+    final uid = ref.read(currentUserIdProvider);
+    final userWithDistance = userData == null || uid == null
         ? <String, dynamic>{}
-        : await DiscoveryUsersService.enrichWithDistance(userData);
+        : await ref
+            .read(discoveryRepositoryProvider)
+            .enrichWithDistance(userData, viewerUid: uid);
     if (!context.mounted) return;
 
     showUserProfileBottomSheet(
@@ -122,6 +127,7 @@ class BlockedUsersScreen extends ConsumerWidget {
                     userData: userData,
                     onTap: () => _openBlockedProfile(
                       context,
+                      ref,
                       record: record,
                       userData: userData,
                       name: name,

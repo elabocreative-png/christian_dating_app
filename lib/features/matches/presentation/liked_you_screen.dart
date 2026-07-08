@@ -7,7 +7,7 @@ import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
@@ -185,9 +185,12 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
   ) async {
     final name = userData['name']?.toString().trim();
     final title = (name != null && name.isNotEmpty) ? name : 'Profile';
-    final userWithDistance = await DiscoveryUsersService.enrichWithDistance(
-      userData,
-    );
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+
+    final userWithDistance = await ref
+        .read(discoveryRepositoryProvider)
+        .enrichWithDistance(userData, viewerUid: uid);
     if (!context.mounted) return;
     showUserProfileBottomSheet(
       context,
@@ -208,9 +211,12 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
   ) async {
     final name = userData['name']?.toString().trim();
     final title = (name != null && name.isNotEmpty) ? name : 'Profile';
-    final userWithDistance = await DiscoveryUsersService.enrichWithDistance(
-      userData,
-    );
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+
+    final userWithDistance = await ref
+        .read(discoveryRepositoryProvider)
+        .enrichWithDistance(userData, viewerUid: uid);
     if (!context.mounted) return;
     showUserProfileBottomSheet(
       context,

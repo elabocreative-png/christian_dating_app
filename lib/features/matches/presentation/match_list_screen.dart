@@ -8,7 +8,7 @@ import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
@@ -220,9 +220,9 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   }) async {
     final name = userData['name']?.toString().trim();
     final title = (name != null && name.isNotEmpty) ? name : 'Profile';
-    final userWithDistance = await DiscoveryUsersService.enrichWithDistance(
-      userData,
-    );
+    final userWithDistance = await ref
+        .read(discoveryRepositoryProvider)
+        .enrichWithDistance(userData, viewerUid: currentUserId);
     if (!context.mounted) return;
     showUserProfileBottomSheet(
       context,
