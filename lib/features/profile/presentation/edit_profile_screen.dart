@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:flutter/services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -174,97 +174,51 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     if (uid == null) return;
 
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-
-    if (!doc.exists) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .set({
-        'name': '',
-        'age': 18,
-        'city': '',
-        'aboutMe': '',
-        'interests': <String>[],
-        'photos': [],
-        'photoThumbs': [],
-        'prompts': [
-          {'question': '', 'answer': ''},
-          {'question': '', 'answer': ''},
-        ],
-        'denomination': null,
-        'speaksInTongues': null,
-        'faithLevel': null,
-        'churchAttendance': null,
-        'churchName': '',
-        'exercise': null,
-        'lookingFor': kDefaultLookingFor,
-        'alcohol': null,
-        'smoking': null,
-        'gender': null,
-        'kids': null,
-        'bodyType': null,
-        'personality': null,
-        'tattoos': null,
-        'heightInches': null,
-        'profileComplete': false,
-        'maxDistanceKm': kDefaultMaxDistanceKm.round(),
-      });
-    }
-
-    final newDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-
-    final data = newDoc.data();
-    _baseUserData = Map<String, dynamic>.from(data ?? {});
+    final data = await ref.read(profileRepositoryProvider).fetchOrEnsureProfile(uid);
+    _baseUserData = Map<String, dynamic>.from(data);
 
     if (!mounted) return;
 
     loadProfilePromptSlots(
       _promptSlots,
-      promptsRaw: data?['prompts'],
+      promptsRaw: data['prompts'],
     );
 
-    nameController.text = data?['name'] ?? '';
-    ageController.text = data?['age']?.toString() ?? '';
-    final digits = data?['birthdayDigits']?.toString() ?? '';
+    nameController.text = data['name'] ?? '';
+    ageController.text = data['age']?.toString() ?? '';
+    final digits = data['birthdayDigits']?.toString() ?? '';
     final normalizedDigits = digits.replaceAll(RegExp(r'\D'), '');
     if (normalizedDigits.length == 8) {
       _birthdayDigits = normalizedDigits;
     }
-    cityController.text = data?['city'] ?? '';
-    if (parseUserGeoPoint(data?['location']) != null) {
+    cityController.text = data['city'] ?? '';
+    if (parseUserGeoPoint(data['location']) != null) {
       _locationHint = 'Location is saved on your profile. Tap below to refresh.';
     }
-    aboutMeController.text = data?['aboutMe']?.toString() ?? '';
-    churchNameController.text = data?['churchName']?.toString() ?? '';
+    aboutMeController.text = data['aboutMe']?.toString() ?? '';
+    churchNameController.text = data['churchName']?.toString() ?? '';
 
-    denomination = data?['denomination'];
-    speaksInTongues = canonicalTongues(data?['speaksInTongues']?.toString());
-    faithLevel = data?['faithLevel'];
+    denomination = data['denomination'];
+    speaksInTongues = canonicalTongues(data['speaksInTongues']?.toString());
+    faithLevel = data['faithLevel'];
     churchAttendance =
-        canonicalChurchAttendance(data?['churchAttendance']?.toString());
-    exercise = data?['exercise'];
-    final rawLookingFor = data?['lookingFor']?.toString().trim() ?? '';
+        canonicalChurchAttendance(data['churchAttendance']?.toString());
+    exercise = data['exercise'];
+    final rawLookingFor = data['lookingFor']?.toString().trim() ?? '';
     lookingFor = rawLookingFor.isEmpty
         ? kDefaultLookingFor
         : displayLookingForLabel(rawLookingFor);
-    alcohol = data?['alcohol'];
-    smoking = data?['smoking'];
-    gender = canonicalGender(data?['gender']?.toString());
-    kids = canonicalKids(data?['kids']?.toString());
-    bodyType = canonicalBodyType(data?['bodyType']?.toString());
-    personality = canonicalPersonality(data?['personality']?.toString());
-    tattoos = canonicalTattoos(data?['tattoos']?.toString());
-    _heightInches = parseHeightInches(data?['heightInches']);
+    alcohol = data['alcohol'];
+    smoking = data['smoking'];
+    gender = canonicalGender(data['gender']?.toString());
+    kids = canonicalKids(data['kids']?.toString());
+    bodyType = canonicalBodyType(data['bodyType']?.toString());
+    personality = canonicalPersonality(data['personality']?.toString());
+    tattoos = canonicalTattoos(data['tattoos']?.toString());
+    _heightInches = parseHeightInches(data['heightInches']);
 
     _interests.clear();
-    final interestRaw = data?['interests'];
+    final interestRaw = data['interests'];
     if (interestRaw is List) {
       for (final e in interestRaw) {
         final t = e?.toString().trim() ?? '';
@@ -276,8 +230,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
     }
 
-    final urls = List<String>.from(data?['photos'] ?? []);
-    final thumbUrls = List<String>.from(data?['photoThumbs'] ?? []);
+    final urls = List<String>.from(data['photos'] ?? []);
+    final thumbUrls = List<String>.from(data['photoThumbs'] ?? []);
     final normalized = urls
         .map((e) => e.toString().trim())
         .where((e) => e.isNotEmpty)
@@ -403,7 +357,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
       final photoResult = _collectPhotoListsFromSlots();
       try {
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        await ref.read(profileRepositoryProvider).updateProfile(uid, {
           'photos': photoResult.photos,
           'photoThumbs': photoResult.thumbs,
         });
@@ -657,10 +611,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         );
       }
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .update(updates);
+      await ref.read(profileRepositoryProvider).updateProfile(uid, updates);
 
       return true;
     } catch (e) {
