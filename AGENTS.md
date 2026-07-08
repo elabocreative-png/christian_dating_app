@@ -18,7 +18,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 |--------|--------|----------|
 | Auth session / uid | `auth_providers.dart` | `authStateProvider`, `currentUserIdProvider`, `profileCompleteProvider` |
 | Profiles | `ProfileRepository` | `profileRepositoryProvider`, `myProfileProvider`, `profilesByIdsProvider`, `fetchProfilesByIds` |
-| Chat | `ChatRepository` | `chatRepositoryProvider`, `chatMessagesProvider` |
+| Chat | `ChatRepository` | `chatRepositoryProvider`, `chatMessagesProvider`, `chatContextProvider` |
 | Matches / likes | `MatchesRepository` | `matchesRepositoryProvider`, `matchesStreamProvider`, `incomingLikesProvider`, `outgoingLikesProvider` |
 | Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider`, `enrichWithDistance` |
 | Settings / blocks | `BlockRepository` | `blockRepositoryProvider`, `blockedUserIdsProvider`, `blockedRecordsProvider` |

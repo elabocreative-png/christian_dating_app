@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
-import 'package:christian_dating_app/features/chat/domain/chat_context.dart';
 import 'package:christian_dating_app/features/chat/domain/chat_message.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_providers.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
@@ -33,19 +32,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final messageController = TextEditingController();
   final FocusNode _messageFocusNode = FocusNode();
   bool _isUnmatching = false;
-  Future<ChatContext>? _chatContextFuture;
 
   @override
   void initState() {
     super.initState();
     messageController.addListener(() => setState(() {}));
-    final uid = ref.read(currentUserIdProvider);
-    if (uid != null) {
-      _chatContextFuture = ref.read(chatRepositoryProvider).loadChatContext(
-            matchId: widget.matchId,
-            currentUserId: uid,
-          );
-    }
     WidgetsBinding.instance.addPostFrameCallback((_) => _markMatchRead());
   }
 
@@ -253,13 +244,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Future<Map<String, dynamic>?> _loadOtherUser(String currentUserId) async {
-    final chatContext = await ref.read(chatRepositoryProvider).loadChatContext(
-          matchId: widget.matchId,
-          currentUserId: currentUserId,
-        );
-    return chatContext.otherUser;
-  }
 
   Future<void> _openOtherUserProfile(
     BuildContext context,
@@ -351,14 +335,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildChatAppBar(String currentUserId) {
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: _loadOtherUser(currentUserId),
-      builder: (context, snapshot) {
-        final otherUser = snapshot.data;
-        final name = otherUser?['name']?.toString().trim();
-        final otherMap = otherUser ?? <String, dynamic>{};
+    final contextKey = chatContextCacheKey(
+      matchId: widget.matchId,
+      uid: currentUserId,
+    );
+    final chatContextAsync = ref.watch(chatContextProvider(contextKey));
 
-        return AppBar(
+    return chatContextAsync.when(
+      loading: () => _chatAppBar(otherUser: null),
+      error: (_, stackTrace) => _chatAppBar(otherUser: null),
+      data: (chatContext) => _chatAppBar(otherUser: chatContext.otherUser),
+    );
+  }
+
+  Widget _chatAppBar({required Map<String, dynamic>? otherUser}) {
+    final name = otherUser?['name']?.toString().trim();
+    final otherMap = otherUser ?? <String, dynamic>{};
+
+    return AppBar(
           toolbarHeight: 56,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
@@ -435,8 +429,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ],
         );
-      },
-    );
   }
 
   Widget _buildMessageBubble({
@@ -673,6 +665,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     final messagesAsync = ref.watch(chatMessagesProvider(widget.matchId));
+    final contextKey = chatContextCacheKey(
+      matchId: widget.matchId,
+      uid: currentUserId,
+    );
+    final chatContextAsync = ref.watch(chatContextProvider(contextKey));
 
     return Scaffold(
       appBar: PreferredSize(
@@ -689,23 +686,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 child: Text('Could not load messages: $error'),
               ),
               data: (messages) {
-                return FutureBuilder<ChatContext>(
-                  future: _chatContextFuture,
-                  builder: (context, contextSnapshot) {
-                    if (contextSnapshot.connectionState !=
-                        ConnectionState.done) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final otherUser = contextSnapshot.data?.otherUser;
-                    final matchCreatedAt =
-                        contextSnapshot.data?.matchCreatedAt;
-
+                return chatContextAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, stackTrace) => Center(
+                    child: Text('Could not load chat: $error'),
+                  ),
+                  data: (chatContext) {
                     return _buildMessageList(
                       messages: messages,
                       currentUserId: currentUserId,
-                      otherUser: otherUser,
-                      matchCreatedAt: matchCreatedAt,
+                      otherUser: chatContext.otherUser,
+                      matchCreatedAt: chatContext.matchCreatedAt,
                     );
                   },
                 );
