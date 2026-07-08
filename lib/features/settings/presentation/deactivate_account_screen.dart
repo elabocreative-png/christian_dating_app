@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
-import 'package:christian_dating_app/features/auth/data/auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
@@ -18,7 +18,6 @@ class DeactivateAccountScreen extends ConsumerStatefulWidget {
 
 class _DeactivateAccountScreenState
     extends ConsumerState<DeactivateAccountScreen> {
-  final AuthService _authService = AuthService();
   final TextEditingController _reasonController = TextEditingController();
   bool _submitting = false;
 
@@ -51,7 +50,7 @@ class _DeactivateAccountScreenState
 
     setState(() => _submitting = true);
     try {
-      await _authService.deactivateAccount(reason: reason);
+      await ref.read(authRepositoryProvider).deactivateAccount(reason: reason);
       ref.read(matchReadStateProvider.notifier).clear();
       if (!mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);

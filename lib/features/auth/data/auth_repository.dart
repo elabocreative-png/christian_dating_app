@@ -1,55 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/features/settings/data/push_notification_service.dart';
 
-class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+/// Firebase Auth sign-in/sign-up and account lifecycle orchestration.
+class AuthRepository {
+  AuthRepository({
+    FirebaseAuth? auth,
+    ProfileRepository? profileRepository,
+  })  : _auth = auth ?? FirebaseAuth.instance,
+        _profiles = profileRepository ?? ProfileRepository();
 
-  /// Default Firestore fields for a newly registered user.
-  static Map<String, dynamic> defaultUserFields(String email) {
-    return {
-      'email': email.trim(),
-      'createdAt': Timestamp.now(),
-      'name': '',
-      'city': '',
-      'gender': null,
-      'kids': null,
-      'bodyType': null,
-      'heightInches': null,
-      'maxDistanceKm': 100,
-      'discoveryMode': 'dating',
-      'datingDiscoveryEnabled': true,
-      'socialDiscoveryEnabled': true,
-      'discoveryMinAge': 18,
-      'discoveryMaxAge': 40,
-      'interestedIn': 'Anyone',
-      'aboutMe': '',
-      'interests': <String>[],
-      'photos': [],
-      'photoThumbs': [],
-      'prompts': [
-        {'question': 'My relationship with God is...', 'answer': ''},
-        {'question': 'My favorite Bible verse is...', 'answer': ''},
-      ],
-      'denomination': null,
-      'speaksInTongues': null,
-      'faithLevel': null,
-      'churchAttendance': null,
-      'churchName': '',
-      'exercise': null,
-      'personality': null,
-      'tattoos': null,
-      'alcohol': null,
-      'smoking': null,
-      'profileComplete': false,
-      'discoveryHintsComplete': false,
-      'onboardingStep': 0,
-      'onboardingDiscoveryPrefsComplete': false,
-      'fcmTokens': <String>[],
-    };
-  }
+  final FirebaseAuth _auth;
+  final ProfileRepository _profiles;
 
   /// Creates the Firebase Auth user only (no Firestore doc yet).
   Future<User> createAuthUser(String email, String password) async {
@@ -99,7 +63,7 @@ class AuthService {
                 'login screen to continue.',
           );
         }
-        await reactivateAccountIfNeeded(user.uid);
+        await _profiles.reactivateIfDeactivated(user.uid);
         return user;
       } on FirebaseAuthException catch (signInError) {
         if (signInError.code == 'wrong-password' ||
@@ -116,7 +80,6 @@ class AuthService {
     }
   }
 
-  // LOGIN
   Future<User?> login(String email, String password) async {
     try {
       final result = await _auth.signInWithEmailAndPassword(
@@ -125,7 +88,7 @@ class AuthService {
       );
       final user = result.user;
       if (user != null) {
-        await reactivateAccountIfNeeded(user.uid);
+        await _profiles.reactivateIfDeactivated(user.uid);
       }
       return user;
     } on FirebaseAuthException catch (e) {
@@ -133,18 +96,6 @@ class AuthService {
     }
   }
 
-  /// Clears deactivation when a user signs back in.
-  Future<void> reactivateAccountIfNeeded(String uid) async {
-    final ref = _db.collection('users').doc(uid);
-    final snap = await ref.get();
-    if (snap.data()?['accountDeactivated'] != true) return;
-    await ref.update({
-      'accountDeactivated': false,
-      'reactivatedAt': Timestamp.now(),
-    });
-  }
-
-  /// Hides the profile from other users while keeping data intact.
   Future<void> deactivateAccount({required String reason}) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -157,15 +108,10 @@ class AuthService {
 
     final uid = user.uid;
     await PushNotificationService.clearTokenForUser(uid);
-    await _db.collection('users').doc(uid).update({
-      'accountDeactivated': true,
-      'deactivatedAt': Timestamp.now(),
-      'deactivationReason': trimmedReason,
-    });
+    await _profiles.deactivateAccount(uid, reason: trimmedReason);
     await _auth.signOut();
   }
 
-  // LOGOUT
   Future<void> logout() async {
     final uid = _auth.currentUser?.uid;
     if (uid != null) {
@@ -174,7 +120,6 @@ class AuthService {
     await _auth.signOut();
   }
 
-  /// Deletes the Firestore user document then the Firebase Auth user.
   Future<void> deleteAccount() async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -183,7 +128,7 @@ class AuthService {
     final uid = user.uid;
     try {
       await PushNotificationService.clearTokenForUser(uid);
-      await _db.collection('users').doc(uid).delete();
+      await _profiles.deleteProfile(uid);
       await user.delete();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
@@ -195,3 +140,9 @@ class AuthService {
     }
   }
 }
+
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepository(
+    profileRepository: ref.watch(profileRepositoryProvider),
+  );
+});

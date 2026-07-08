@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:christian_dating_app/features/auth/data/auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/settings/presentation/blocked_users_screen.dart';
 import 'package:christian_dating_app/features/settings/presentation/deactivate_account_screen.dart';
@@ -22,7 +22,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  final AuthService _authService = AuthService();
   bool _deletingAccount = false;
   bool _loggingOut = false;
 
@@ -36,7 +35,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (confirmed != true || !mounted) return;
     setState(() => _loggingOut = true);
     try {
-      await _authService.logout();
+      await ref.read(authRepositoryProvider).logout();
       ref.read(matchReadStateProvider.notifier).clear();
       if (!mounted) return;
       // Settings was pushed on the root navigator; pop it so AuthGate's
@@ -57,7 +56,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (confirmed != true || !mounted) return;
     setState(() => _deletingAccount = true);
     try {
-      await _authService.deleteAccount();
+      await ref.read(authRepositoryProvider).deleteAccount();
       if (!mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {

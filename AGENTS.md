@@ -16,7 +16,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 | Concern | Class | Provider |
 |--------|--------|----------|
-| Auth session / uid | `auth_providers.dart` | `authStateProvider`, `currentUserIdProvider`, `profileCompleteProvider` |
+| Auth session / uid | `AuthRepository`, `auth_providers.dart` | `authRepositoryProvider`, `authStateProvider`, `currentUserIdProvider`, `profileCompleteProvider` |
 | Profiles | `ProfileRepository` | `profileRepositoryProvider`, `myProfileProvider`, `profilesByIdsProvider`, `fetchProfilesByIds` |
 | Chat | `ChatRepository` | `chatRepositoryProvider`, `chatMessagesProvider`, `chatContextProvider` |
 | Matches / likes | `MatchesRepository` | `matchesRepositoryProvider`, `matchesStreamProvider`, `incomingLikesProvider`, `outgoingLikesProvider` |
@@ -48,8 +48,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 `cloud_firestore` belongs only in:
 
-- `features/*/data/*` — repositories and feature services (incl. `location_service.dart`, `push_notification_service.dart`)
-- `features/auth/data/auth_service.dart`
+- `features/*/data/*` — repositories and feature services (incl. `location_service.dart`, `push_notification_service.dart`, `auth_repository.dart`)
 
 **Not** in `presentation/`, `domain/`, or widgets (migration complete).
 

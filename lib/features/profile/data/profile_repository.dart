@@ -103,6 +103,54 @@ class ProfileRepository {
     return results;
   }
 
+  /// Default Firestore fields for a newly registered user at first profile save.
+  Map<String, dynamic> initialSignupProfileFields(String email) {
+    return {
+      ..._defaultProfileFields(),
+      'email': email.trim(),
+      'createdAt': Timestamp.now(),
+      'maxDistanceKm': 100,
+      'discoveryMode': 'dating',
+      'datingDiscoveryEnabled': true,
+      'socialDiscoveryEnabled': true,
+      'discoveryMinAge': 18,
+      'discoveryMaxAge': 40,
+      'interestedIn': 'Anyone',
+      'prompts': [
+        {'question': 'My relationship with God is...', 'answer': ''},
+        {'question': 'My favorite Bible verse is...', 'answer': ''},
+      ],
+      'discoveryHintsComplete': false,
+      'onboardingStep': 0,
+      'onboardingDiscoveryPrefsComplete': false,
+      'fcmTokens': <String>[],
+    };
+  }
+
+  /// Clears deactivation flags when a user signs back in.
+  Future<void> reactivateIfDeactivated(String uid) async {
+    final data = await fetchProfile(uid);
+    if (data?['accountDeactivated'] != true) return;
+    await updateProfile(uid, {
+      'accountDeactivated': false,
+      'reactivatedAt': Timestamp.now(),
+    });
+  }
+
+  /// Hides the profile from other users while keeping data intact.
+  Future<void> deactivateAccount(String uid, {required String reason}) async {
+    await updateProfile(uid, {
+      'accountDeactivated': true,
+      'deactivatedAt': Timestamp.now(),
+      'deactivationReason': reason.trim(),
+    });
+  }
+
+  /// Deletes the user's Firestore profile document.
+  Future<void> deleteProfile(String uid) async {
+    await _userRef(uid).delete();
+  }
+
   Map<String, dynamic> _defaultProfileFields() {
     return {
       'name': '',

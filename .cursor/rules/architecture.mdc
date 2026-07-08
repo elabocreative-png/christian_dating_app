@@ -65,7 +65,7 @@ If only one feature uses it, keep it inside that feature even if it feels generi
   Batch profile loads use `ProfileRepository.fetchProfilesByIds`.
 - Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/domain/` (pure logic; unread writes in `ChatRepository`),
   `profile_completion.dart` / `height_utils.dart` → `profile/domain/`, `discovery_*` widgets →
-  `discovery/presentation/widgets/`, `auth_service.dart` → `auth/data/`,
+  `discovery/presentation/widgets/`, `auth_repository.dart` → `auth/data/`,
   `issue_report_repository.dart` → `settings/data/`.
 
 ## Inside a feature folder
@@ -120,7 +120,7 @@ Reuse existing services/repositories instead of duplicating queries:
 - Push → `PushNotificationService` (`features/settings/data/`); FCM tokens → `ProfileRepository.addFcmToken` / `removeFcmToken`
 - Issue reports → `IssueReportRepository` (`features/settings/data/`)
 - Location / GPS → `LocationService` (`features/profile/data/`)
-- Auth → `AuthService` (`features/auth/data/`)
+- Auth → `AuthRepository` (`features/auth/data/`)
 
 **Riverpod pattern (server-backed state):**
 

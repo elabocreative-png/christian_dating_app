@@ -9,7 +9,7 @@ import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/constants/denomination_options.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/core/constants/gender_options.dart';
-import 'package:christian_dating_app/features/auth/data/auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
 import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
@@ -44,7 +44,6 @@ class ProfileSetupScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
-  final AuthService _authService = AuthService();
 
   int _step = 0;
   bool _isSaving = false;
@@ -316,7 +315,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         if (pendingEmail == null || pendingPassword == null) {
           throw Exception('Missing sign-up credentials');
         }
-        user = await _authService.createOrSignInForDeferredSignup(
+        user = await ref.read(authRepositoryProvider).createOrSignInForDeferredSignup(
           pendingEmail,
           pendingPassword,
         );
@@ -363,7 +362,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
       if (isDeferred) {
         await ref.read(profileRepositoryProvider).setProfile(user.uid, {
-          ...AuthService.defaultUserFields(pendingEmail!),
+          ...ref.read(profileRepositoryProvider).initialSignupProfileFields(
+                pendingEmail!,
+              ),
           ...profileData,
         });
         ref.read(pendingSignupProvider.notifier).clear();
@@ -435,7 +436,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   Future<void> _exitOnboardingToAuth() async {
     ref.read(pendingSignupProvider.notifier).clear();
     if (FirebaseAuth.instance.currentUser != null) {
-      await _authService.logout();
+      await ref.read(authRepositoryProvider).logout();
       ref.read(matchReadStateProvider.notifier).clear();
     }
   }

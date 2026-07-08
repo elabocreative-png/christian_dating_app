@@ -4,7 +4,7 @@ import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
-import 'package:christian_dating_app/features/auth/data/auth_service.dart';
+import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/navigation/app_navigator.dart';
 import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
@@ -207,7 +207,6 @@ class AuthScreen extends ConsumerStatefulWidget {
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   static const Color _accent = kBrandAccent;
 
-  final AuthService _auth = AuthService();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -260,7 +259,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     try {
       if (isLogin) {
         ref.read(pendingSignupProvider.notifier).clear();
-        await _auth.login(email, password);
+        await ref.read(authRepositoryProvider).login(email, password);
       } else {
         ref.read(pendingSignupProvider.notifier).start(email, password);
       }
