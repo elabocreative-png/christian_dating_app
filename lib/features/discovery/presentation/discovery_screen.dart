@@ -10,6 +10,7 @@ import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
+import 'package:christian_dating_app/features/discovery/presentation/discovery_deck_providers.dart';
 import 'package:christian_dating_app/features/discovery/domain/nearby_user.dart';
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/data/likes_service.dart';
@@ -73,8 +74,6 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     bottom: 6,
   );
 
-  late Future<List<NearbyUser>> usersFuture;
-
   double dragX = 0;
   double dragY = 0;
   int currentIndex = 0;
@@ -86,7 +85,6 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
   /// Passed profile user ids left to show after "Review skipped profiles".
   List<String> _skippedReviewUserIds = [];
   bool _reviewingSkipped = false;
-  int _usersCount = 0;
 
   String _activeDiscoveryMode = kDiscoveryModeDating;
   List<NearbyUser>? _lastFetchedUsers;
@@ -115,8 +113,16 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
   @override
   void initState() {
     super.initState();
-    usersFuture = _initialUsersLoad();
+    _loadActiveDiscoveryMode();
     _resolveDiscoveryHints();
+  }
+
+  Future<void> _loadActiveDiscoveryMode() async {
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+    final mode =
+        await ref.read(discoveryRepositoryProvider).fetchDiscoveryMode(uid);
+    if (mounted) setState(() => _activeDiscoveryMode = mode);
   }
 
   Future<void> _resolveDiscoveryHints() async {
@@ -162,18 +168,12 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     });
   }
 
-  Future<List<NearbyUser>> _fetchNearbyUsers() async {
-    final uid = ref.read(currentUserIdProvider);
-    if (uid == null) return [];
-    return ref.read(discoveryRepositoryProvider).fetchNearbyUsers(uid);
-  }
-
-  Future<List<NearbyUser>> _initialUsersLoad() async {
-    final uid = ref.read(currentUserIdProvider);
-    if (uid == null) return [];
-    _activeDiscoveryMode =
-        await ref.read(discoveryRepositoryProvider).fetchDiscoveryMode(uid);
-    return _fetchNearbyUsers();
+  void _syncDeckFromProvider(List<NearbyUser> fetched) {
+    if (_deckOverride != null) return;
+    setState(() {
+      _lastFetchedUsers = fetched;
+      _lastFetchedUsersMode = _activeDiscoveryMode;
+    });
   }
 
   void _persistDeckForMode(String mode) {
@@ -202,7 +202,6 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
       _deckOverride = null;
       _lastFetchedUsers = users;
       _lastFetchedUsersMode = _activeDiscoveryMode;
-      usersFuture = Future.value(users);
       currentIndex = index;
       dragX = 0;
       dragY = 0;
@@ -265,8 +264,9 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
 
     if (!mounted) return;
 
-    // Drop stale index from the other mode so we never show its empty state here.
-    final pending = _fetchNearbyUsers();
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+
     setState(() {
       currentIndex = 0;
       dragX = 0;
@@ -274,10 +274,12 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
       _passedUserIds.clear();
       _skippedReviewUserIds = [];
       _reviewingSkipped = false;
-      usersFuture = pending;
+      _lastFetchedUsers = null;
+      _lastFetchedUsersMode = null;
+      _deckOverride = null;
     });
 
-    final users = await pending;
+    final users = await fetchDiscoveryDeck(ref, uid);
     if (!mounted) return;
 
     _lastFetchedUsers = users;
@@ -414,6 +416,9 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
   }
 
   void refreshUsers() {
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+
     _deckByMode.remove(_activeDiscoveryMode);
     setState(() {
       if (!_reviewingSkipped) {
@@ -426,8 +431,8 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
       _lastFetchedUsers = null;
       _lastFetchedUsersMode = null;
       _deckOverride = null;
-      usersFuture = _fetchNearbyUsers();
     });
+    invalidateDiscoveryDeck(ref, uid);
   }
 
   List<NearbyUser> _activeUsers() =>
@@ -486,7 +491,6 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     setState(() {
       _deckOverride = newUsers;
       _lastFetchedUsers = newUsers;
-      _usersCount = newUsers.length;
       currentIndex = newIndex;
       dragX = 0;
       dragY = 0;
@@ -680,14 +684,14 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     if (!_canReviewSkippedProfiles || _swipeAnimating) return;
 
     if (users.isEmpty) {
-      final fetched = await _fetchNearbyUsers();
+      final uid = ref.read(currentUserIdProvider);
+      if (uid == null) return;
+      final fetched = await ref.read(discoveryDeckProvider(uid).future);
       if (!mounted) return;
       setState(() {
         _deckOverride = null;
         _lastFetchedUsers = fetched;
         _lastFetchedUsersMode = _activeDiscoveryMode;
-        _usersCount = fetched.length;
-        usersFuture = Future.value(fetched);
         currentIndex = 0;
       });
       _reviewSkippedProfiles(fetched);
@@ -1045,120 +1049,123 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     if (uid == null) {
       return const SizedBox.shrink();
     }
+
+    ref.listen(discoveryDeckProvider(uid), (previous, next) {
+      next.whenData(_syncDeckFromProvider);
+    });
+
+    final deckAsync = ref.watch(discoveryDeckProvider(uid));
+    final skipStaleProviderDeck =
+        _deckOverride == null &&
+            _lastFetchedUsers == null &&
+            deckAsync.isLoading;
+    final providerDeck =
+        skipStaleProviderDeck ? null : deckAsync.asData?.value;
+    final users =
+        _deckOverride ?? _lastFetchedUsers ?? providerDeck ?? const <NearbyUser>[];
+    final awaitingFirstDeck = users.isEmpty && deckAsync.isLoading;
+
     return Scaffold(
       body: SafeArea(
         top: false,
-        child: FutureBuilder<List<NearbyUser>>(
-          future: usersFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return _buildDiscoveryLoading();
-            }
-
-            if (snapshot.hasError) {
-              return Center(child: Text('Could not load users: ${snapshot.error}'));
-            }
-
-            final fetched = snapshot.data ?? [];
-            final users = _deckOverride ?? fetched;
-            if (_deckOverride == null) {
-              _lastFetchedUsers = fetched;
-              _lastFetchedUsersMode = _activeDiscoveryMode;
-            } else {
-              _lastFetchedUsers = users;
-            }
-            _usersCount = users.length;
-
-            if (users.isEmpty) {
-              return _buildNoNearbyUsersState();
-            }
-
-            if (currentIndex >= users.length) {
-              return _buildNoMoreUsersState(users);
-            }
-
-            final swipeT = _swipeProgress;
-            final backScale = _backCardScaleMin +
-                (_backCardScaleMax - _backCardScaleMin) * swipeT;
-            final backLift = _backCardLiftMax * (1 - swipeT);
-            final frontRotation = dragX * -0.002; // Top pivot + inverted angle = Klim-style fan (bottom swings wider).
-            final backIndex = _reviewingSkipped
-                ? _backCardIndexDuringSkippedReview(users)
-                : (currentIndex + 1 < users.length ? currentIndex + 1 : null);
-
-            return Padding(
-              padding: _cardStackPadding,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  if (backIndex != null)
-                    Align(
-                      alignment: Alignment.center,
-                      child: Transform.translate(
-                        offset: Offset(0, backLift),
-                        child: Transform.scale(
-                          scale: backScale,
-                          alignment: Alignment.center,
-                          child: _discoveryUserCard(
-                            users[backIndex].profileData,
-                            users[backIndex].id,
-                            context,
-                            heroActions: true,
-                            users: users,
-                          ),
-                        ),
-                      ),
-                    ),
-                  GestureDetector(
-                    onPanUpdate: (details) {
-                      if (_swipeAnimating || _activeHintStep != null) return;
-                      setState(() {
-                        dragX += details.delta.dx;
-                        dragY = 0;
-                      });
-                    },
-                    onPanEnd: (details) {
-                      if (_swipeAnimating || _activeHintStep != null) return;
-                      final vx = details.velocity.pixelsPerSecond.dx;
-                      final effective = _effectiveDragX(vx);
-
-                      final commitRight = effective > _swipeCommitThreshold ||
-                          (dragX > 0 && vx > _swipeVelocityCommit);
-                      final commitLeft = effective < -_swipeCommitThreshold ||
-                          (dragX < 0 && vx < -_swipeVelocityCommit);
-
-                      if (commitRight && !commitLeft) {
-                        _completeSwipe(users: users, toRight: true);
-                      } else if (commitLeft && !commitRight) {
-                        _completeSwipe(users: users, toRight: false);
-                      } else if (commitRight && commitLeft) {
-                        _completeSwipe(
-                          users: users,
-                          toRight: dragX >= 0,
-                        );
-                      } else {
-                        _snapCardBack();
-                      }
-                    },
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Transform.translate(
-                        offset: Offset(dragX, dragY),
-                        child: Transform.rotate(
-                          angle: frontRotation,
-                          alignment: Alignment.topCenter, // Top pivot + inverted angle = Klim-style fan (bottom swings wider).
-                          child: _frontCardStack(users: users),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_hintsResolved && _activeHintStep != null)
-                    Positioned.fill(child: _buildHintCardOverlay()),
-                ],
-              ),
-            );
-          },
+        child: deckAsync.when(
+          loading: () =>
+              awaitingFirstDeck ? _buildDiscoveryLoading() : _buildDeckBody(users),
+          error: (error, _) =>
+              Center(child: Text('Could not load users: $error')),
+          data: (_) => _buildDeckBody(users),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDeckBody(List<NearbyUser> users) {
+    if (users.isEmpty) {
+      return _buildNoNearbyUsersState();
+    }
+
+    if (currentIndex >= users.length) {
+      return _buildNoMoreUsersState(users);
+    }
+
+    final swipeT = _swipeProgress;
+    final backScale =
+        _backCardScaleMin + (_backCardScaleMax - _backCardScaleMin) * swipeT;
+    final backLift = _backCardLiftMax * (1 - swipeT);
+    final frontRotation = dragX * -0.002;
+    final backIndex = _reviewingSkipped
+        ? _backCardIndexDuringSkippedReview(users)
+        : (currentIndex + 1 < users.length ? currentIndex + 1 : null);
+
+    return Padding(
+      padding: _cardStackPadding,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          if (backIndex != null)
+            Align(
+              alignment: Alignment.center,
+              child: Transform.translate(
+                offset: Offset(0, backLift),
+                child: Transform.scale(
+                  scale: backScale,
+                  alignment: Alignment.center,
+                  child: _discoveryUserCard(
+                    users[backIndex].profileData,
+                    users[backIndex].id,
+                    context,
+                    heroActions: true,
+                    users: users,
+                  ),
+                ),
+              ),
+            ),
+          GestureDetector(
+            onPanUpdate: (details) {
+              if (_swipeAnimating || _activeHintStep != null) return;
+              setState(() {
+                dragX += details.delta.dx;
+                dragY = 0;
+              });
+            },
+            onPanEnd: (details) {
+              if (_swipeAnimating || _activeHintStep != null) return;
+              final vx = details.velocity.pixelsPerSecond.dx;
+              final effective = _effectiveDragX(vx);
+
+              final commitRight = effective > _swipeCommitThreshold ||
+                  (dragX > 0 && vx > _swipeVelocityCommit);
+              final commitLeft = effective < -_swipeCommitThreshold ||
+                  (dragX < 0 && vx < -_swipeVelocityCommit);
+
+              if (commitRight && !commitLeft) {
+                _completeSwipe(users: users, toRight: true);
+              } else if (commitLeft && !commitRight) {
+                _completeSwipe(users: users, toRight: false);
+              } else if (commitRight && commitLeft) {
+                _completeSwipe(
+                  users: users,
+                  toRight: dragX >= 0,
+                );
+              } else {
+                _snapCardBack();
+              }
+            },
+            child: Align(
+              alignment: Alignment.center,
+              child: Transform.translate(
+                offset: Offset(dragX, dragY),
+                child: Transform.rotate(
+                  angle: frontRotation,
+                  alignment: Alignment.topCenter,
+                  child: _frontCardStack(users: users),
+                ),
+              ),
+            ),
+          ),
+          if (_hintsResolved && _activeHintStep != null)
+            Positioned.fill(child: _buildHintCardOverlay()),
+        ],
       ),
     );
   }

@@ -116,7 +116,7 @@ Reuse existing services/repositories instead of duplicating queries:
 - Blocks → `BlockService` (`core/services/`)
 - Likes/matches list → `MatchesRepository` + `LikesService` (`features/matches/data/`)
 - Chat → `ChatRepository` (`features/chat/data/`)
-- Discovery deck → `DiscoveryRepository` / `DiscoveryUsersService` (`features/discovery/data/`)
+- Discovery deck → `DiscoveryRepository` / `discoveryDeckProvider` (`features/discovery/presentation/discovery_deck_providers.dart`)
 - Batch user profiles → `UsersBatchLoader.fetchByIds` (`core/services/`)
 - Push → `PushNotificationService` (`core/services/`)
 - Issue reports → `IssueReportService` (`features/settings/data/`)
