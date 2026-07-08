@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
+import 'package:christian_dating_app/core/navigation/app_router.dart';
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 
@@ -19,16 +20,16 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 /// Android push notifications: chat messages + mutual matches.
 class PushNotificationService {
   PushNotificationService({
-    required GlobalKey<NavigatorState> navigatorKey,
+    required GoRouter router,
     FirebaseMessaging? messaging,
     FirebaseAuth? auth,
     ProfileRepository? profileRepository,
-  })  : _navigatorKey = navigatorKey,
+  })  : _router = router,
         _messaging = messaging ?? FirebaseMessaging.instance,
         _auth = auth ?? FirebaseAuth.instance,
         _profiles = profileRepository ?? ProfileRepository();
 
-  final GlobalKey<NavigatorState> _navigatorKey;
+  final GoRouter _router;
   final FirebaseMessaging _messaging;
   final FirebaseAuth _auth;
   final ProfileRepository _profiles;
@@ -116,18 +117,7 @@ class PushNotificationService {
     if (matchId.isEmpty) return;
 
     mainNavigationKey.currentState?.selectChatsTab();
-
-    final navigator = _navigatorKey.currentState;
-    if (navigator == null) {
-      _pendingMatchId = matchId;
-      return;
-    }
-
-    navigator.push(
-      MaterialPageRoute<void>(
-        builder: (_) => ChatScreen(matchId: matchId),
-      ),
-    );
+    _router.push(AppRoutes.chat(matchId));
   }
 
   Future<void> _requestPermission() async {
@@ -166,7 +156,8 @@ class PushNotificationService {
 }
 
 final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) {
-  throw UnimplementedError(
-    'pushNotificationServiceProvider must be overridden in main.dart',
+  return PushNotificationService(
+    router: ref.watch(goRouterProvider),
+    profileRepository: ref.watch(profileRepositoryProvider),
   );
 });

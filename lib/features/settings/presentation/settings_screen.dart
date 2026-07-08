@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
 import 'package:christian_dating_app/features/settings/presentation/blocked_users_screen.dart';
@@ -38,9 +40,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await ref.read(authRepositoryProvider).logout();
       ref.read(matchReadStateProvider.notifier).clear();
       if (!mounted) return;
-      // Settings was pushed on the root navigator; pop it so AuthGate's
-      // login screen is visible (auth already changed underneath).
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      context.go(AppRoutes.login);
     } finally {
       if (mounted) setState(() => _loggingOut = false);
     }
@@ -58,7 +58,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     try {
       await ref.read(authRepositoryProvider).deleteAccount();
       if (!mounted) return;
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      context.go(AppRoutes.login);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

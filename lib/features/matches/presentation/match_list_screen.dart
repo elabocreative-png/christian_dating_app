@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/settings/presentation/block_providers.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
-import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
@@ -192,12 +194,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     required String matchId,
     required String currentUserId,
   }) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => ChatScreen(matchId: matchId),
-      ),
-    );
+    await context.push(AppRoutes.chat(matchId));
     if (!mounted) return;
     ref.read(matchReadStateProvider.notifier).markRead(matchId);
     await ref.read(chatRepositoryProvider).markChatOpened(

@@ -26,7 +26,13 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider`, `enrichWithDistance` |
 | Settings / blocks | `BlockRepository` | `blockRepositoryProvider`, `blockedUserIdsProvider`, `blockedRecordsProvider` |
 | Settings / reports | `IssueReportRepository` | `issueReportRepositoryProvider` |
-| Settings / push | `PushNotificationService` | `pushNotificationServiceProvider` (overridden in `main.dart`) |
+| Settings / push | `PushNotificationService` | `pushNotificationServiceProvider`, `goRouterProvider` |
+
+**Routing (GoRouter):**
+
+- `goRouterProvider` — auth redirect + `/login`, `/onboarding`, `/home`, `/chat/:matchId`
+- `AppRoutes` — path constants in `core/navigation/app_routes.dart`
+- Push deep links → `AppRoutes.chat(matchId)` via `PushNotificationService.openChat`
 
 **UI orchestration (presentation-only):**
 

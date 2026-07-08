@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
@@ -53,7 +55,7 @@ class _DeactivateAccountScreenState
       await ref.read(authRepositoryProvider).deactivateAccount(reason: reason);
       ref.read(matchReadStateProvider.notifier).clear();
       if (!mounted) return;
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      context.go(AppRoutes.login);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
