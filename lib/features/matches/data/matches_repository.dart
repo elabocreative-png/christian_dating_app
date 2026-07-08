@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 
 /// Data access for the matches list and incoming likes.
@@ -23,13 +24,24 @@ class MatchesRepository {
             snap.docs.map((d) => (id: d.id, data: d.data())).toList());
   }
 
-  /// Live incoming likes addressed to the user (raw like data maps).
-  Stream<List<Map<String, dynamic>>> watchIncomingLikes(String uid) {
+  /// Live incoming likes addressed to the user.
+  Stream<List<LikeEntry>> watchIncomingLikes(String uid) {
     return _firestore
         .collection('likes')
         .where('toUserId', isEqualTo: uid)
         .snapshots()
-        .map((snap) => snap.docs.map((d) => d.data()).toList());
+        .map((snap) =>
+            snap.docs.map((d) => (id: d.id, data: d.data())).toList());
+  }
+
+  /// Live outgoing likes sent by the user.
+  Stream<List<LikeEntry>> watchOutgoingLikes(String uid) {
+    return _firestore
+        .collection('likes')
+        .where('fromUserId', isEqualTo: uid)
+        .snapshots()
+        .map((snap) =>
+            snap.docs.map((d) => (id: d.id, data: d.data())).toList());
   }
 }
 

@@ -1,5 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
+
+/// A like document expressed in app types: its id and raw data map.
+typedef LikeEntry = ({String id, Map<String, dynamic> data});
+
 /// True when an incoming like included a message (profile intro, prompt comment, etc.).
 ///
 /// These are delivered to Chats instead of the Liked You grid.
@@ -11,27 +16,21 @@ bool isLikedYouMessageIntro(Map<String, dynamic> data) {
 }
 
 /// Incoming likes that should appear on [LikedYouScreen] and the heart tab badge.
-List<QueryDocumentSnapshot<Map<String, dynamic>>> likedYouVisibleIncomingLikes(
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-) {
-  return docs.where((d) => !isLikedYouMessageIntro(d.data())).toList();
+List<LikeEntry> likedYouVisibleIncomingLikes(List<LikeEntry> docs) {
+  return docs.where((d) => !isLikedYouMessageIntro(d.data)).toList();
 }
 
 /// Incoming likes with a message for the Liked You **Intros** tab.
-List<QueryDocumentSnapshot<Map<String, dynamic>>> likedYouIncomingIntros(
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-) {
-  return docs.where((d) => isLikedYouMessageIntro(d.data())).toList();
+List<LikeEntry> likedYouIncomingIntros(List<LikeEntry> docs) {
+  return docs.where((d) => isLikedYouMessageIntro(d.data)).toList();
 }
 
 /// One outgoing like per target user (newest [createdAt] wins).
-List<QueryDocumentSnapshot<Map<String, dynamic>>> likedYouOutgoingLikes(
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-) {
-  final byTargetId = <String, QueryDocumentSnapshot<Map<String, dynamic>>>{};
+List<LikeEntry> likedYouOutgoingLikes(List<LikeEntry> docs) {
+  final byTargetId = <String, LikeEntry>{};
 
   for (final doc in docs) {
-    final targetId = doc.data()['toUserId']?.toString() ?? '';
+    final targetId = doc.data['toUserId']?.toString() ?? '';
     if (targetId.isEmpty) continue;
 
     final existing = byTargetId[targetId];
@@ -40,8 +39,8 @@ List<QueryDocumentSnapshot<Map<String, dynamic>>> likedYouOutgoingLikes(
       continue;
     }
 
-    final existingAt = existing.data()['createdAt'];
-    final docAt = doc.data()['createdAt'];
+    final existingAt = existing.data['createdAt'];
+    final docAt = doc.data['createdAt'];
     if (existingAt is! Timestamp) {
       byTargetId[targetId] = doc;
       continue;
@@ -56,12 +55,12 @@ List<QueryDocumentSnapshot<Map<String, dynamic>>> likedYouOutgoingLikes(
 
 /// Other user IDs from match documents involving [currentUserId].
 Set<String> matchedUserIdsFromMatches(
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> matchDocs,
+  List<MatchEntry> matchDocs,
   String currentUserId,
 ) {
   final ids = <String>{};
   for (final doc in matchDocs) {
-    final users = doc.data()['users'];
+    final users = doc.data['users'];
     if (users is! List) continue;
     for (final userId in users) {
       final id = userId.toString();
@@ -74,12 +73,12 @@ Set<String> matchedUserIdsFromMatches(
 }
 
 /// Outgoing likes for the Sent tab, excluding anyone you already have a match with.
-List<QueryDocumentSnapshot<Map<String, dynamic>>> likedYouOutgoingUnmatchedLikes(
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> outgoingDocs,
+List<LikeEntry> likedYouOutgoingUnmatchedLikes(
+  List<LikeEntry> outgoingDocs,
   Set<String> matchedUserIds,
 ) {
   return likedYouOutgoingLikes(outgoingDocs).where((doc) {
-    final targetId = doc.data()['toUserId']?.toString() ?? '';
+    final targetId = doc.data['toUserId']?.toString() ?? '';
     return targetId.isNotEmpty && !matchedUserIds.contains(targetId);
   }).toList();
 }

@@ -11,8 +11,8 @@ import 'package:christian_dating_app/features/matches/presentation/matches_provi
 final likedYouCountProvider =
     Provider.autoDispose.family<int, String>((ref, uid) {
   final likes = ref.watch(incomingLikesProvider(uid)).asData?.value ??
-      const <Map<String, dynamic>>[];
-  return likes.where((data) => !isLikedYouMessageIntro(data)).length;
+      const <LikeEntry>[];
+  return likes.where((entry) => !isLikedYouMessageIntro(entry.data)).length;
 });
 
 /// Message threads with an unread indicator (excludes session reads). Shares the

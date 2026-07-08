@@ -339,16 +339,16 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   }) {
     final incomingLikes =
         ref.watch(incomingLikesProvider(currentUserId)).asData?.value ??
-            const <Map<String, dynamic>>[];
+            const <LikeEntry>[];
 
-    final likes = incomingLikes.where((data) {
-      if (isLikedYouMessageIntro(data)) return false;
-      final fromUserId = data['fromUserId']?.toString() ?? '';
+    final likes = incomingLikes.where((entry) {
+      if (isLikedYouMessageIntro(entry.data)) return false;
+      final fromUserId = entry.data['fromUserId']?.toString() ?? '';
       return fromUserId.isNotEmpty && !blockedUserIds.contains(fromUserId);
     }).toList();
     final likesCount = likes.length;
     final firstLikerId = likes.isNotEmpty
-        ? likes.first['fromUserId']?.toString()
+        ? likes.first.data['fromUserId']?.toString()
         : null;
     final firstLikerFromBatch = firstLikerId == null
         ? null

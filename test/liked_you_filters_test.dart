@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
+import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 
 void main() {
   group('isLikedYouMessageIntro', () {
@@ -36,8 +37,8 @@ void main() {
   group('likedYouIncomingIntros', () {
     test('returns only message intros', () {
       final docs = [
-        _doc('a', {'message': 'Hi'}),
-        _doc('b', {'message': ''}),
+        _like('a', {'message': 'Hi'}),
+        _like('b', {'message': ''}),
       ];
       expect(likedYouIncomingIntros(docs).map((d) => d.id), ['a']);
     });
@@ -46,21 +47,21 @@ void main() {
   group('likedYouOutgoingLikes', () {
     test('dedupes by target user keeping newest', () {
       final docs = [
-        _doc(
+        _like(
           'old',
           {
             'toUserId': 'u2',
             'createdAt': Timestamp.fromMillisecondsSinceEpoch(1000),
           },
         ),
-        _doc(
+        _like(
           'new',
           {
             'toUserId': 'u2',
             'createdAt': Timestamp.fromMillisecondsSinceEpoch(2000),
           },
         ),
-        _doc(
+        _like(
           'other',
           {
             'toUserId': 'u3',
@@ -77,14 +78,14 @@ void main() {
   group('likedYouOutgoingUnmatchedLikes', () {
     test('excludes outgoing likes that already have a match', () {
       final docs = [
-        _doc(
+        _like(
           'like1',
           {
             'toUserId': 'matched',
             'createdAt': Timestamp.fromMillisecondsSinceEpoch(1000),
           },
         ),
-        _doc(
+        _like(
           'like2',
           {
             'toUserId': 'pending',
@@ -101,8 +102,8 @@ void main() {
   group('matchedUserIdsFromMatches', () {
     test('returns other user ids from match docs', () {
       final matches = [
-        _doc('m1', {'users': ['me', 'u2']}),
-        _doc('m2', {'users': ['u3', 'me']}),
+        _match('m1', {'users': ['me', 'u2']}),
+        _match('m2', {'users': ['u3', 'me']}),
       ];
 
       expect(
@@ -113,24 +114,6 @@ void main() {
   });
 }
 
-QueryDocumentSnapshot<Map<String, dynamic>> _doc(
-  String id,
-  Map<String, dynamic> data,
-) {
-  return _FakeLikeDoc(id, data);
-}
+LikeEntry _like(String id, Map<String, dynamic> data) => (id: id, data: data);
 
-class _FakeLikeDoc implements QueryDocumentSnapshot<Map<String, dynamic>> {
-  _FakeLikeDoc(this.id, this._data);
-
-  @override
-  final String id;
-
-  final Map<String, dynamic> _data;
-
-  @override
-  Map<String, dynamic> data() => _data;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+MatchEntry _match(String id, Map<String, dynamic> data) => (id: id, data: data);

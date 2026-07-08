@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
@@ -10,6 +9,8 @@ import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
+import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
+import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
 import 'package:christian_dating_app/core/services/users_batch_loader.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
@@ -83,13 +84,13 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
   }
 
   Widget _buildLikesGrid({
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> likes,
+    required List<LikeEntry> likes,
     required String Function(Map<String, dynamic> data) profileUserIdFor,
     required void Function(
       BuildContext context,
       Map<String, dynamic> userData,
       String profileUserId,
-      QueryDocumentSnapshot<Map<String, dynamic>> like,
+      LikeEntry like,
     ) onOpenProfile,
   }) {
     if (likes.isEmpty) {
@@ -114,7 +115,7 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
         '${_selectedTab.name}:${likes.map((d) => d.id).join(',')}',
       ),
       future: UsersBatchLoader.fetchByIds(
-        likes.map((d) => profileUserIdFor(d.data())),
+        likes.map((d) => profileUserIdFor(d.data)),
       ),
       builder: (context, usersSnapshot) {
         if (!usersSnapshot.hasData) {
@@ -154,7 +155,7 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
           itemCount: likes.length,
           itemBuilder: (context, index) {
             final like = likes[index];
-            final profileUserId = profileUserIdFor(like.data());
+            final profileUserId = profileUserIdFor(like.data);
 
             if (profileUserId.isEmpty) {
               return const SizedBox.shrink();
@@ -167,7 +168,7 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
 
             return _LikedUserCard(
               userData: userData,
-              discoveryMode: like.data()['discoveryMode']?.toString(),
+              discoveryMode: like.data['discoveryMode']?.toString(),
               onTap: () => onOpenProfile(context, userData, profileUserId, like),
             );
           },
@@ -180,7 +181,7 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
     BuildContext context,
     Map<String, dynamic> userData,
     String profileUserId,
-    QueryDocumentSnapshot<Map<String, dynamic>> like,
+    LikeEntry like,
   ) async {
     final name = userData['name']?.toString().trim();
     final title = (name != null && name.isNotEmpty) ? name : 'Profile';
@@ -203,7 +204,7 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
     BuildContext context,
     Map<String, dynamic> userData,
     String profileUserId,
-    QueryDocumentSnapshot<Map<String, dynamic>> like,
+    LikeEntry like,
   ) async {
     final name = userData['name']?.toString().trim();
     final title = (name != null && name.isNotEmpty) ? name : 'Profile';
@@ -222,9 +223,9 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
   }
 
   Widget _buildTabContent({
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> incomingLikes,
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> incomingIntros,
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> sentLikes,
+    required List<LikeEntry> incomingLikes,
+    required List<LikeEntry> incomingIntros,
+    required List<LikeEntry> sentLikes,
   }) {
     return switch (_selectedTab) {
       LikedYouListTab.likes => _buildLikesGrid(
@@ -245,6 +246,61 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
     };
   }
 
+  Widget _buildLoadedContent({
+    required String uid,
+    required Set<String> blockedUserIds,
+    required List<LikeEntry> incomingDocs,
+    required List<LikeEntry> outgoingDocs,
+    required List<MatchEntry> matchDocs,
+  }) {
+    final incomingLikes = likedYouVisibleIncomingLikes(incomingDocs)
+        .where(
+          (entry) => !blockedUserIds.contains(
+            entry.data['fromUserId']?.toString(),
+          ),
+        )
+        .toList();
+    final incomingIntros = likedYouIncomingIntros(incomingDocs)
+        .where(
+          (entry) => !blockedUserIds.contains(
+            entry.data['fromUserId']?.toString(),
+          ),
+        )
+        .toList();
+    final matchedUserIds = matchedUserIdsFromMatches(matchDocs, uid);
+    final sentLikes = likedYouOutgoingUnmatchedLikes(
+      outgoingDocs,
+      matchedUserIds,
+    ).where(
+      (entry) => !blockedUserIds.contains(
+        entry.data['toUserId']?.toString(),
+      ),
+    ).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+          child: LikedYouTabPills(
+            selected: _selectedTab,
+            likesCount: incomingLikes.length,
+            introsCount: incomingIntros.length,
+            sentCount: sentLikes.length,
+            onChanged: (tab) => setState(() => _selectedTab = tab),
+          ),
+        ),
+        Expanded(
+          child: _buildTabContent(
+            incomingLikes: incomingLikes,
+            incomingIntros: incomingIntros,
+            sentLikes: sentLikes,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final uid = ref.watch(currentUserIdProvider);
@@ -255,18 +311,9 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
       );
     }
 
-    final incomingStream = FirebaseFirestore.instance
-        .collection('likes')
-        .where('toUserId', isEqualTo: uid)
-        .snapshots();
-    final outgoingStream = FirebaseFirestore.instance
-        .collection('likes')
-        .where('fromUserId', isEqualTo: uid)
-        .snapshots();
-    final matchesStream = FirebaseFirestore.instance
-        .collection('matches')
-        .where('users', arrayContains: uid)
-        .snapshots();
+    final incomingAsync = ref.watch(incomingLikesProvider(uid));
+    final outgoingAsync = ref.watch(outgoingLikesProvider(uid));
+    final matchesAsync = ref.watch(matchesStreamProvider(uid));
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -275,76 +322,28 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
         builder: (context, blockedSnapshot) {
           final blockedUserIds = blockedSnapshot.data ?? const {};
 
-          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: incomingStream,
-        builder: (context, incomingSnapshot) {
-          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: outgoingStream,
-            builder: (context, outgoingSnapshot) {
-              return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: matchesStream,
-                builder: (context, matchesSnapshot) {
-              if (!incomingSnapshot.hasData ||
-                  !outgoingSnapshot.hasData ||
-                  !matchesSnapshot.hasData) {
-                return const LikedYouScreenSkeleton();
-              }
+          if (incomingAsync.isLoading ||
+              outgoingAsync.isLoading ||
+              matchesAsync.isLoading) {
+            return const LikedYouScreenSkeleton();
+          }
 
-              final incomingDocs = incomingSnapshot.data!.docs;
-              final incomingLikes = likedYouVisibleIncomingLikes(incomingDocs)
-                  .where(
-                    (doc) => !blockedUserIds.contains(
-                      doc.data()['fromUserId']?.toString(),
-                    ),
-                  )
-                  .toList();
-              final incomingIntros = likedYouIncomingIntros(incomingDocs)
-                  .where(
-                    (doc) => !blockedUserIds.contains(
-                      doc.data()['fromUserId']?.toString(),
-                    ),
-                  )
-                  .toList();
-              final matchedUserIds = matchedUserIdsFromMatches(
-                matchesSnapshot.data!.docs,
-                uid,
-              );
-              final sentLikes = likedYouOutgoingUnmatchedLikes(
-                outgoingSnapshot.data!.docs,
-                matchedUserIds,
-              ).where(
-                (doc) => !blockedUserIds.contains(
-                  doc.data()['toUserId']?.toString(),
-                ),
-              ).toList();
+          if (incomingAsync.hasError) {
+            return Center(child: Text('Error: ${incomingAsync.error}'));
+          }
+          if (outgoingAsync.hasError) {
+            return Center(child: Text('Error: ${outgoingAsync.error}'));
+          }
+          if (matchesAsync.hasError) {
+            return Center(child: Text('Error: ${matchesAsync.error}'));
+          }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
-                    child: LikedYouTabPills(
-                      selected: _selectedTab,
-                      likesCount: incomingLikes.length,
-                      introsCount: incomingIntros.length,
-                      sentCount: sentLikes.length,
-                      onChanged: (tab) => setState(() => _selectedTab = tab),
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildTabContent(
-                      incomingLikes: incomingLikes,
-                      incomingIntros: incomingIntros,
-                      sentLikes: sentLikes,
-                    ),
-                  ),
-                ],
-              );
-                },
-              );
-            },
-          );
-        },
+          return _buildLoadedContent(
+            uid: uid,
+            blockedUserIds: blockedUserIds,
+            incomingDocs: incomingAsync.value ?? const [],
+            outgoingDocs: outgoingAsync.value ?? const [],
+            matchDocs: matchesAsync.value ?? const [],
           );
         },
       ),
