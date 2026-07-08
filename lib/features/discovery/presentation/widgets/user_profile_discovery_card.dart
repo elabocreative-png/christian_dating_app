@@ -13,7 +13,7 @@ import 'package:christian_dating_app/core/constants/tongues_options.dart';
 import 'package:christian_dating_app/core/constants/faith_options.dart';
 import 'package:christian_dating_app/core/utils/geo_utils.dart';
 import 'package:christian_dating_app/core/constants/interest_options.dart';
-import 'package:christian_dating_app/core/services/location_service.dart';
+import 'package:christian_dating_app/features/profile/data/location_service.dart';
 import 'package:christian_dating_app/core/constants/profile_about_options.dart';
 import 'package:christian_dating_app/features/discovery/domain/profile_display_resolver.dart';
 import 'package:christian_dating_app/core/constants/relationship_intent.dart';

@@ -22,6 +22,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Matches / likes | `MatchesRepository` | `matchesRepositoryProvider`, `matchesStreamProvider`, `incomingLikesProvider`, `outgoingLikesProvider` |
 | Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider`, `enrichWithDistance` |
 | Settings / blocks | `BlockRepository` | `blockRepositoryProvider`, `blockedUserIdsProvider`, `blockedRecordsProvider` |
+| Settings / reports | `IssueReportRepository` | `issueReportRepositoryProvider` |
 
 **UI orchestration (presentation-only):**
 
@@ -47,9 +48,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 `cloud_firestore` belongs only in:
 
-- `features/*/data/*` — repositories and feature services
-- `core/services/` — `LocationService`
-- `features/settings/data/push_notification_service.dart` — FCM init + navigation; token I/O via `ProfileRepository`
+- `features/*/data/*` — repositories and feature services (incl. `location_service.dart`, `push_notification_service.dart`)
 - `features/auth/data/auth_service.dart`
 
 **Not** in `presentation/`, `domain/`, or widgets (migration complete).
@@ -58,7 +57,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 - `FirebaseAuth` in onboarding deferred sign-up (`profile_setup_screen.dart`) and logout flows
 - `core/utils/geo_utils.dart` — `GeoCoordinate`, distance helpers (no Firestore types)
-- `LocationService` — device GPS; stores `GeoCoordinate`, writes `GeoPoint` at Firestore boundary
+- `features/profile/data/location_service.dart` — device GPS; stores `GeoCoordinate`, writes `GeoPoint` at Firestore boundary
 
 ## Verification
 

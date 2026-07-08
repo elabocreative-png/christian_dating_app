@@ -1,23 +1,25 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
-import 'package:christian_dating_app/features/settings/data/issue_report_service.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/settings/data/issue_report_repository.dart';
 import 'package:christian_dating_app/core/photo/profile_photo_picker.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
 /// Settings → Report an Issue (feedback form).
-class ReportIssueScreen extends StatefulWidget {
+class ReportIssueScreen extends ConsumerStatefulWidget {
   const ReportIssueScreen({super.key});
 
   @override
-  State<ReportIssueScreen> createState() => _ReportIssueScreenState();
+  ConsumerState<ReportIssueScreen> createState() => _ReportIssueScreenState();
 }
 
-class _ReportIssueScreenState extends State<ReportIssueScreen> {
+class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
   static const Color _photoPlaceholder = Color(0xFFF0F0F2);
   static const Color _fieldBorder = Color(0xFFE2E2E6);
 
@@ -65,10 +67,19 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
     setState(() => _submitting = true);
     try {
-      final ok = await IssueReportService.submit(
-        description: description,
-        image: _image,
-      );
+      final uid = ref.read(currentUserIdProvider);
+      if (uid == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please sign in to send a report')),
+        );
+        return;
+      }
+
+      final ok = await ref.read(issueReportRepositoryProvider).submit(
+            uid: uid,
+            description: description,
+            image: _image,
+          );
       if (!mounted) return;
       if (!ok) {
         ScaffoldMessenger.of(context).showSnackBar(

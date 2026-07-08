@@ -1,25 +1,34 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Persists in-app issue reports from Settings → Report an Issue.
-abstract final class IssueReportService {
-  static Future<bool> submit({
+class IssueReportRepository {
+  IssueReportRepository({
+    FirebaseFirestore? firestore,
+    FirebaseStorage? storage,
+  })  : _firestore = firestore,
+        _storage = storage;
+
+  final FirebaseFirestore? _firestore;
+  final FirebaseStorage? _storage;
+
+  FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
+  FirebaseStorage get _bucket => _storage ?? FirebaseStorage.instance;
+
+  Future<bool> submit({
+    required String uid,
     required String description,
     File? image,
   }) async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return false;
-
     final trimmed = description.trim();
     if (trimmed.isEmpty) return false;
 
     try {
-      final docRef =
-          FirebaseFirestore.instance.collection('issue_reports').doc();
+      final docRef = _db.collection('issue_reports').doc();
       String? imageUrl;
 
       if (image != null) {
@@ -39,7 +48,7 @@ abstract final class IssueReportService {
     }
   }
 
-  static Future<String?> _uploadImage({
+  Future<String?> _uploadImage({
     required String uid,
     required String reportId,
     required File file,
@@ -52,7 +61,7 @@ abstract final class IssueReportService {
     );
     if (compressed == null) return null;
 
-    final ref = FirebaseStorage.instance
+    final ref = _bucket
         .ref()
         .child('issue_reports')
         .child(uid)
@@ -65,3 +74,7 @@ abstract final class IssueReportService {
     return ref.getDownloadURL();
   }
 }
+
+final issueReportRepositoryProvider = Provider<IssueReportRepository>((ref) {
+  return IssueReportRepository();
+});

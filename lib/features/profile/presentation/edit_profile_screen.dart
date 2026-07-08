@@ -21,7 +21,7 @@ import 'package:christian_dating_app/core/constants/profile_about_options.dart';
 import 'package:christian_dating_app/core/constants/relationship_intent.dart';
 import 'package:christian_dating_app/core/utils/geo_utils.dart';
 import 'package:christian_dating_app/features/profile/domain/height_utils.dart';
-import 'package:christian_dating_app/core/services/location_service.dart';
+import 'package:christian_dating_app/features/profile/data/location_service.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_birthdate_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_height_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_option_picker_screen.dart';

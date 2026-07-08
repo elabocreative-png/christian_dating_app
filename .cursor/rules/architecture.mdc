@@ -17,7 +17,7 @@ lib/
     theme/         # app_typography, app_icons, app_illustrations
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
     utils/         # geo_utils, firestore_value_utils
-    services/      # location_service, match_read_state,
+    services/      # match_read_state (session UI state)
                    #   push_notification_service
     models/        # block_source, profile_photo_urls
     navigation/    # app_navigator (rootNavigatorKey)
@@ -59,14 +59,14 @@ If only one feature uses it, keep it inside that feature even if it feels generi
 - Already in `core/`: theme (`core/theme/app_typography.dart`), navigation
   (`core/navigation/app_navigator.dart` / `rootNavigatorKey`), shared UI primitives
   (`core/widgets/app_dialog.dart`, `app_back_button.dart`, `app_icon.dart`,
-  `profile_avatar.dart`), cross-cutting services (`location_service.dart`,
-  `push_notification_service.dart`, `location_service.dart`), shared constants
+  `profile_avatar.dart`), feature data helpers (`location_service.dart`,
+  `push_notification_service.dart`), shared constants
   (`core/constants/*_options.dart`), and the photo-crop module (`core/photo/`).
   Batch profile loads use `ProfileRepository.fetchProfilesByIds`.
 - Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/domain/` (pure logic; unread writes in `ChatRepository`),
   `profile_completion.dart` / `height_utils.dart` → `profile/domain/`, `discovery_*` widgets →
   `discovery/presentation/widgets/`, `auth_service.dart` → `auth/data/`,
-  `issue_report_service.dart` → `settings/data/`.
+  `issue_report_repository.dart` → `settings/data/`.
 
 ## Inside a feature folder
 
@@ -93,8 +93,8 @@ features/<name>/
    legacy files as a side effect of an unrelated edit.
 3. **One repository owns each domain's data access.** Reuse before adding queries.
    Feature repositories: `ProfileRepository`, `ChatRepository`, `MatchesRepository`,
-   `DiscoveryRepository`. Cross-cutting: `LocationService`, etc. in
-   `core/services/`.
+   `DiscoveryRepository`. Device helpers live in feature `data/` layers
+   (e.g. `LocationService` in `profile/data/`).
 4. **Data layer returns app types, not Firestore types.** Never expose
    `DocumentSnapshot`, `QuerySnapshot`, or `Timestamp` to presentation/domain.
    Use `firestore_value_utils.dart` when parsing timestamp fields in pure logic.
@@ -118,7 +118,8 @@ Reuse existing services/repositories instead of duplicating queries:
 - Discovery deck → `DiscoveryRepository` / `discoveryDeckProvider` (`features/discovery/presentation/discovery_deck_providers.dart`)
 - Batch user profiles → `ProfileRepository.fetchProfilesByIds`
 - Push → `PushNotificationService` (`features/settings/data/`); FCM tokens → `ProfileRepository.addFcmToken` / `removeFcmToken`
-- Issue reports → `IssueReportService` (`features/settings/data/`)
+- Issue reports → `IssueReportRepository` (`features/settings/data/`)
+- Location / GPS → `LocationService` (`features/profile/data/`)
 - Auth → `AuthService` (`features/auth/data/`)
 
 **Riverpod pattern (server-backed state):**

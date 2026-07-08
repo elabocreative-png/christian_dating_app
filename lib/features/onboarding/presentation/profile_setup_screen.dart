@@ -17,7 +17,7 @@ import 'package:christian_dating_app/core/onboarding/onboarding_requirements.dar
 import 'package:christian_dating_app/features/profile/data/profile_image_service.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/constants/relationship_intent.dart';
-import 'package:christian_dating_app/core/services/location_service.dart';
+import 'package:christian_dating_app/features/profile/data/location_service.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/local_profile_photo_grid.dart';
 import 'package:christian_dating_app/core/widgets/onboarding_birthday_input.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_pill_button.dart';
