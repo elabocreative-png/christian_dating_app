@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/matches/presentation/nav_badge_providers.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
@@ -49,16 +48,11 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final mode =
+        await ref.read(discoveryRepositoryProvider).fetchDiscoveryMode(uid);
     if (!mounted) return;
 
-    final mode = doc.data()?['discoveryMode']?.toString();
-    setState(() {
-      _discoveryMode = mode == kDiscoveryModeSocial
-          ? kDiscoveryModeSocial
-          : kDiscoveryModeDating;
-    });
+    setState(() => _discoveryMode = mode);
   }
 
   Future<void> _setDiscoveryMode(String mode) async {
@@ -69,26 +63,7 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    final data = doc.data();
-    final interestedIn = interestedInForModeSwitch(
-      newMode: mode,
-      currentInterestedIn: data?['interestedIn']?.toString(),
-      viewerGender: data?['gender']?.toString(),
-    );
-
-    await FirebaseFirestore.instance.collection('users').doc(uid).set(
-      {
-        'discoveryMode': mode,
-        'datingDiscoveryEnabled': mode == kDiscoveryModeDating,
-        'socialDiscoveryEnabled': mode == kDiscoveryModeSocial,
-        'interestedIn': interestedIn,
-      },
-      SetOptions(merge: true),
-    );
-
-    DiscoveryUsersService.invalidateViewerCache();
+    await ref.read(discoveryRepositoryProvider).saveDiscoveryMode(uid, mode);
     await discoveryScreenKey.currentState?.onDiscoveryModeChanged(mode);
   }
 

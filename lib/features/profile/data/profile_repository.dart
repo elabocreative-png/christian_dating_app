@@ -43,6 +43,11 @@ class ProfileRepository {
     await _userRef(uid).update(updates);
   }
 
+  /// Creates or merges profile fields for [uid] without replacing the document.
+  Future<void> mergeProfile(String uid, Map<String, dynamic> updates) async {
+    await _userRef(uid).set(updates, SetOptions(merge: true));
+  }
+
   Map<String, dynamic> _defaultProfileFields() {
     return {
       'name': '',

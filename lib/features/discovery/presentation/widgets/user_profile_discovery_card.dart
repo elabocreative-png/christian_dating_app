@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/constants/church_attendance_options.dart';
@@ -202,12 +202,11 @@ class _UserProfileDiscoveryCardState
     if (viewerId == null) return;
     if (widget.profileUserId == viewerId) return;
 
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(viewerId).get();
+    final data =
+        await ref.read(discoveryRepositoryProvider).fetchViewerProfile(viewerId);
     if (!mounted) return;
 
-    final data = doc.data();
-    if (data == null || data.isEmpty) return;
+    if (data.isEmpty) return;
     setState(() => _viewerProfile = data);
   }
 
@@ -597,15 +596,18 @@ class _UserProfileDiscoveryCardState
   }
 
   bool _isNewHereUser() {
-    final created = widget.user['createdAt'];
-    DateTime? createdAt;
-    if (created is Timestamp) {
-      createdAt = created.toDate();
-    } else if (created is DateTime) {
-      createdAt = created;
-    }
+    final createdAt = _createdAtFrom(widget.user['createdAt']);
     if (createdAt == null) return false;
     return DateTime.now().difference(createdAt).inDays <= 14;
+  }
+
+  DateTime? _createdAtFrom(dynamic value) {
+    if (value is DateTime) return value;
+    try {
+      return (value as dynamic)?.toDate() as DateTime?;
+    } catch (_) {
+      return null;
+    }
   }
 
   TextStyle _heroNameStyle({required bool onPhoto}) {

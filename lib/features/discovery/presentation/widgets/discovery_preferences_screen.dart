@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/core/constants/gender_options.dart';
 import 'package:christian_dating_app/core/utils/geo_utils.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
@@ -71,28 +70,25 @@ class _DiscoveryPreferencesScreenState
       if (mounted) setState(() => _loading = false);
       return;
     }
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-    final data = doc.data();
+    final data =
+        await ref.read(discoveryRepositoryProvider).fetchViewerProfile(uid);
     final maxKm =
-        (data?['maxDistanceKm'] as num?)?.toDouble() ?? kDefaultMaxDistanceKm;
+        (data['maxDistanceKm'] as num?)?.toDouble() ?? kDefaultMaxDistanceKm;
     final milesStop = discoveryMilesFromKm(maxKm);
 
     if (!mounted) return;
     setState(() {
-      _viewerGender = canonicalGender(data?['gender']?.toString());
-      _mode = data?['discoveryMode']?.toString() == kDiscoveryModeSocial
+      _viewerGender = canonicalGender(data['gender']?.toString());
+      _mode = data['discoveryMode']?.toString() == kDiscoveryModeSocial
           ? kDiscoveryModeSocial
           : kDiscoveryModeDating;
       _distanceStopIndex = discoveryMilesStopIndex(milesStop);
-      _minAge = (data?['discoveryMinAge'] as num?)?.round() ??
+      _minAge = (data['discoveryMinAge'] as num?)?.round() ??
           kDefaultDiscoveryMinAge;
-      _maxAge = (data?['discoveryMaxAge'] as num?)?.round() ??
+      _maxAge = (data['discoveryMaxAge'] as num?)?.round() ??
           kDefaultDiscoveryMaxAge;
       _interestedIn = resolvedInterestedInForMode(
-        data?['interestedIn']?.toString(),
+        data['interestedIn']?.toString(),
         _mode,
         viewerGender: _viewerGender,
       );
@@ -131,17 +127,14 @@ class _DiscoveryPreferencesScreenState
       final milesStop = kDistanceMilesStops[_distanceStopIndex];
       final maxKm = discoveryKmFromMilesStop(milesStop);
 
-      await FirebaseFirestore.instance.collection('users').doc(uid).set(
-        {
-          'discoveryMode': _mode,
-          'maxDistanceKm': maxKm.round(),
-          'discoveryMinAge': _minAge,
-          'discoveryMaxAge': _maxAge,
-          'interestedIn': _interestedIn,
-        },
-        SetOptions(merge: true),
-      );
-      DiscoveryUsersService.invalidateViewerCache();
+      await ref.read(discoveryRepositoryProvider).saveDiscoveryPreferences(
+            uid,
+            mode: _mode,
+            maxDistanceKm: maxKm.round(),
+            minAge: _minAge,
+            maxAge: _maxAge,
+            interestedIn: _interestedIn,
+          );
       if (mounted) Navigator.pop(context, true);
     } finally {
       if (mounted) setState(() => _saving = false);

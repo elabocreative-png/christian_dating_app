@@ -35,6 +35,40 @@ class DiscoveryRepository {
     return DiscoveryUsersService.fetchNearbyUsers(uid);
   }
 
+  Future<void> saveDiscoveryPreferences(
+    String uid, {
+    required String mode,
+    required int maxDistanceKm,
+    required int minAge,
+    required int maxAge,
+    required String interestedIn,
+  }) async {
+    await _profileRepository.mergeProfile(uid, {
+      'discoveryMode': mode,
+      'maxDistanceKm': maxDistanceKm,
+      'discoveryMinAge': minAge,
+      'discoveryMaxAge': maxAge,
+      'interestedIn': interestedIn,
+    });
+    invalidateViewerCache();
+  }
+
+  Future<void> saveDiscoveryMode(String uid, String mode) async {
+    final data = await _profileRepository.fetchProfile(uid);
+    final interestedIn = interestedInForModeSwitch(
+      newMode: mode,
+      currentInterestedIn: data?['interestedIn']?.toString(),
+      viewerGender: data?['gender']?.toString(),
+    );
+    await _profileRepository.mergeProfile(uid, {
+      'discoveryMode': mode,
+      'datingDiscoveryEnabled': mode == kDiscoveryModeDating,
+      'socialDiscoveryEnabled': mode == kDiscoveryModeSocial,
+      'interestedIn': interestedIn,
+    });
+    invalidateViewerCache();
+  }
+
   void invalidateViewerCache() {
     DiscoveryUsersService.invalidateViewerCache();
   }
