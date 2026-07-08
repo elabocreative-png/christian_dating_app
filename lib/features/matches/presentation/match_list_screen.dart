@@ -6,6 +6,7 @@ import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
+import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
@@ -202,10 +203,10 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     );
     if (!mounted) return;
     ref.read(matchReadStateProvider.notifier).markRead(matchId);
-    await MatchUnread.markChatOpened(
-      matchId: matchId,
-      userId: currentUserId,
-    );
+    await ref.read(chatRepositoryProvider).markChatOpened(
+          matchId: matchId,
+          userId: currentUserId,
+        );
     if (!mounted) return;
     setState(() => _openedMatchIds.add(matchId));
   }

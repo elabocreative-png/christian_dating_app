@@ -1,6 +1,6 @@
-import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 
 void main() {
   group('MatchUnread', () {
@@ -24,7 +24,7 @@ void main() {
     test('isUnopenedNewConnection false when conversation exists', () {
       expect(
         MatchUnread.isUnopenedNewConnection(
-          {'lastMessageAt': Timestamp.now()},
+          {'lastMessageAt': DateTime(2026, 6, 1)},
           'user_a',
         ),
         isFalse,
@@ -35,7 +35,7 @@ void main() {
       expect(
         MatchUnread.hasUnreadMessages(
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'unreadCountBy': {'user_a': 2},
           },
           'user_a',
@@ -45,7 +45,7 @@ void main() {
       expect(
         MatchUnread.hasUnreadMessages(
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'unreadCountBy': {'user_a': 0},
           },
           'user_a',
@@ -55,8 +55,8 @@ void main() {
     });
 
     test('hasUnreadMessages false when lastReadAt covers last message', () {
-      final msgTime = Timestamp.fromDate(DateTime(2026, 6, 1, 12));
-      final readTime = Timestamp.fromDate(DateTime(2026, 6, 1, 13));
+      final msgTime = DateTime(2026, 6, 1, 12);
+      final readTime = DateTime(2026, 6, 1, 13);
 
       expect(
         MatchUnread.hasUnreadMessages(
@@ -72,8 +72,8 @@ void main() {
     });
 
     test('hasUnreadMessages true when new message after lastReadAt', () {
-      final msgTime = Timestamp.fromDate(DateTime(2026, 6, 1, 14));
-      final readTime = Timestamp.fromDate(DateTime(2026, 6, 1, 13));
+      final msgTime = DateTime(2026, 6, 1, 14);
+      final readTime = DateTime(2026, 6, 1, 13);
 
       expect(
         MatchUnread.hasUnreadMessages(
@@ -92,7 +92,7 @@ void main() {
       expect(
         MatchUnread.countForUser(
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'lastMessageSenderId': 'other',
             'openedBy': {'user_a': true},
           },
@@ -106,7 +106,7 @@ void main() {
       expect(
         MatchUnread.isYourMoveThread(
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'lastMessageSenderId': 'other',
           },
           'user_a',
@@ -119,10 +119,10 @@ void main() {
       expect(
         MatchUnread.isYourMoveThread(
           {
-            'lastMessageAt': Timestamp.fromDate(DateTime(2026, 6, 1, 12)),
+            'lastMessageAt': DateTime(2026, 6, 1, 12),
             'lastMessageSenderId': 'other',
             'lastReadAt': {
-              'user_a': Timestamp.fromDate(DateTime(2026, 6, 1, 13)),
+              'user_a': DateTime(2026, 6, 1, 13),
             },
           },
           'user_a',
@@ -135,7 +135,7 @@ void main() {
       expect(
         MatchUnread.isYourMoveThread(
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'lastMessageSenderId': 'user_a',
             'openedBy': {'user_a': true},
           },
@@ -151,14 +151,14 @@ void main() {
           (
             id: 'm1',
             data: {
-              'lastMessageAt': Timestamp.now(),
+              'lastMessageAt': DateTime(2026, 6, 1),
               'lastMessageSenderId': 'other',
             },
           ),
           (
             id: 'm2',
             data: {
-              'lastMessageAt': Timestamp.now(),
+              'lastMessageAt': DateTime(2026, 6, 1),
               'lastMessageSenderId': 'other',
             },
           ),
@@ -174,11 +174,11 @@ void main() {
         [
           const {},
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'unreadCountBy': {'user_a': 2},
           },
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'unreadCountBy': {'user_a': 0},
             'lastMessageSenderId': 'user_a',
           },
@@ -194,7 +194,7 @@ void main() {
           const {},
           {'openedBy': {'user_a': true}},
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'unreadCountBy': {'user_a': 1},
           },
         ],
@@ -208,11 +208,11 @@ void main() {
         [
           const {},
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'unreadCountBy': {'user_a': 3},
           },
           {
-            'lastMessageAt': Timestamp.now(),
+            'lastMessageAt': DateTime(2026, 6, 1),
             'unreadCountBy': {'user_a': 0},
             'lastMessageSenderId': 'user_a',
           },

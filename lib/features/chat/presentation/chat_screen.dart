@@ -16,7 +16,6 @@ import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
-import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String matchId;
@@ -55,10 +54,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (uid == null) return;
 
     ref.read(matchReadStateProvider.notifier).markRead(widget.matchId);
-    await MatchUnread.markChatOpened(
-      matchId: widget.matchId,
-      userId: uid,
-    );
+    await ref.read(chatRepositoryProvider).markChatOpened(
+          matchId: widget.matchId,
+          userId: uid,
+        );
   }
 
   String _formatRelativeMatchTime(DateTime date) {

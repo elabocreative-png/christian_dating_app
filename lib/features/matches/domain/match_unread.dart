@@ -1,74 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:christian_dating_app/core/utils/firestore_value_utils.dart';
 
-/// Per-user unread message counts stored on match documents as `unreadCountBy`.
-/// Per-user chat open state is stored as `openedBy.{userId}`.
-/// Per-user last-read time is stored as `lastReadAt.{userId}`.
+/// Pure unread/open-state logic for match documents.
+///
+/// Firestore writes live in [ChatRepository].
 abstract final class MatchUnread {
-  static String countField(String userId) => 'unreadCountBy.$userId';
-
-  static String openedField(String userId) => 'openedBy.$userId';
-
-  static String lastReadField(String userId) => 'lastReadAt.$userId';
-
-  static Future<void> incrementForRecipient({
-    required DocumentReference<Map<String, dynamic>> matchRef,
-    required String senderId,
-    required List<String> userIds,
-  }) async {
-    final recipientId = userIds.firstWhere(
-      (id) => id != senderId,
-      orElse: () => '',
-    );
-    if (recipientId.isEmpty) return;
-
-    await matchRef.set(
-      {countField(recipientId): FieldValue.increment(1)},
-      SetOptions(merge: true),
-    );
-  }
-
-  static Future<void> clearForUser({
-    required DocumentReference<Map<String, dynamic>> matchRef,
-    required String userId,
-  }) async {
-    await matchRef.set(
-      {countField(userId): 0},
-      SetOptions(merge: true),
-    );
-  }
-
-  static Future<void> markOpenedForUser({
-    required DocumentReference<Map<String, dynamic>> matchRef,
-    required String userId,
-  }) async {
-    await matchRef.set(
-      {openedField(userId): true},
-      SetOptions(merge: true),
-    );
-  }
-
-  /// Clears unread count and marks the chat read/opened for [userId].
-  static Future<void> markChatOpened({
-    required String matchId,
-    required String userId,
-  }) async {
-    final matchRef =
-        FirebaseFirestore.instance.collection('matches').doc(matchId);
-    final now = Timestamp.now();
-    final payload = <String, dynamic>{
-      countField(userId): 0,
-      openedField(userId): true,
-      lastReadField(userId): now,
-    };
-
-    try {
-      await matchRef.update(payload);
-    } on FirebaseException catch (e) {
-      if (e.code != 'not-found') rethrow;
-      await matchRef.set(payload, SetOptions(merge: true));
-    }
-  }
-
   static bool isOpenedByUser(Map<String, dynamic> data, String userId) {
     final raw = data['openedBy'];
     if (raw is Map) {
@@ -81,16 +16,16 @@ abstract final class MatchUnread {
     Map<String, dynamic> data,
     String userId,
   ) {
-    final lastMsg = data['lastMessageAt'];
-    if (lastMsg is! Timestamp) return false;
+    final lastMsgAt = firestoreDateTimeFrom(data['lastMessageAt']);
+    if (lastMsgAt == null) return false;
 
     final lastReadRaw = data['lastReadAt'];
     if (lastReadRaw is! Map) return false;
 
-    final readAt = lastReadRaw[userId];
-    if (readAt is! Timestamp) return false;
+    final readAt = firestoreDateTimeFrom(lastReadRaw[userId]);
+    if (readAt == null) return false;
 
-    return !readAt.toDate().isBefore(lastMsg.toDate());
+    return !readAt.isBefore(lastMsgAt);
   }
 
   /// Match with no messages yet that this user has not opened in chat.

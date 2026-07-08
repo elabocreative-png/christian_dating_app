@@ -62,7 +62,7 @@ If only one feature uses it, keep it inside that feature even if it feels generi
   `profile_avatar.dart`), cross-cutting services (`core/services/users_batch_loader.dart`,
   `block_service.dart`, `push_notification_service.dart`), shared constants
   (`core/constants/*_options.dart`), and the photo-crop module (`core/photo/`).
-- Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/domain/`,
+- Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/domain/` (pure logic; unread writes in `ChatRepository`),
   `profile_completion.dart` / `height_utils.dart` → `profile/domain/`, `discovery_*` widgets →
   `discovery/presentation/widgets/`, `auth_service.dart` → `auth/data/`,
   `issue_report_service.dart` → `settings/data/`.

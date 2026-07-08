@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/features/chat/domain/chat_context.dart';
 import 'package:christian_dating_app/features/chat/domain/chat_message.dart';
-import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
+import 'package:christian_dating_app/core/utils/firestore_value_utils.dart';
 
 /// All chat-related Firestore access. Returns app types (domain models / maps)
 /// so the presentation layer never touches cloud_firestore directly.
@@ -18,6 +18,49 @@ class ChatRepository {
 
   CollectionReference<Map<String, dynamic>> _messagesRef(String matchId) =>
       _matchRef(matchId).collection('messages');
+
+  String _countField(String userId) => 'unreadCountBy.$userId';
+
+  String _openedField(String userId) => 'openedBy.$userId';
+
+  String _lastReadField(String userId) => 'lastReadAt.$userId';
+
+  Future<void> _incrementUnreadForRecipient({
+    required DocumentReference<Map<String, dynamic>> matchRef,
+    required String senderId,
+    required List<String> userIds,
+  }) async {
+    final recipientId = userIds.firstWhere(
+      (id) => id != senderId,
+      orElse: () => '',
+    );
+    if (recipientId.isEmpty) return;
+
+    await matchRef.set(
+      {_countField(recipientId): FieldValue.increment(1)},
+      SetOptions(merge: true),
+    );
+  }
+
+  /// Clears unread count and marks the chat read/opened for [userId].
+  Future<void> markChatOpened({
+    required String matchId,
+    required String userId,
+  }) async {
+    final matchRef = _matchRef(matchId);
+    final payload = <String, dynamic>{
+      _countField(userId): 0,
+      _openedField(userId): true,
+      _lastReadField(userId): Timestamp.now(),
+    };
+
+    try {
+      await matchRef.update(payload);
+    } on FirebaseException catch (e) {
+      if (e.code != 'not-found') rethrow;
+      await matchRef.set(payload, SetOptions(merge: true));
+    }
+  }
 
   /// Live, chronologically-ordered messages for a match.
   Stream<List<ChatMessage>> watchMessages(String matchId) {
@@ -84,7 +127,7 @@ class ChatRepository {
     final matchSnap = await matchRef.get();
     final users = matchSnap.data()?['users'];
     if (users is List) {
-      await MatchUnread.incrementForRecipient(
+      await _incrementUnreadForRecipient(
         matchRef: matchRef,
         senderId: senderId,
         userIds: List<String>.from(users),
@@ -101,9 +144,7 @@ class ChatRepository {
 
     DateTime? matchCreatedAt;
     final createdAt = matchDoc.data()?['createdAt'];
-    if (createdAt is Timestamp) {
-      matchCreatedAt = createdAt.toDate();
-    }
+    matchCreatedAt = firestoreDateTimeFrom(createdAt);
 
     final matchData = matchDoc.data();
     if (!matchDoc.exists || matchData == null || matchData['users'] == null) {
