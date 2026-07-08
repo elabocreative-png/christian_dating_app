@@ -141,6 +141,7 @@ void showUserProfileBottomSheet(
         final previewUserId = connectionUserId;
         onConnectionNotForMe = () async {
           final ok = await LikesService.dismissConnectionAndReturnToDiscovery(
+            context: sheetContext,
             matchId: previewMatchId,
             otherUserId: previewUserId,
           );
@@ -166,7 +167,10 @@ void showUserProfileBottomSheet(
       if (showSentActions) {
         final targetUserId = sentProfileUserId;
         onSentDislike = () async {
-          final ok = await LikesService.revokeOutgoingLike(targetUserId);
+          final ok = await LikesService.revokeOutgoingLike(
+            sheetContext,
+            targetUserId,
+          );
           if (!sheetContext.mounted) return;
           if (!ok) {
             ScaffoldMessenger.of(sheetContext).showSnackBar(

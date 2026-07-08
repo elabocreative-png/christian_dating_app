@@ -1,4 +1,4 @@
-/// Outcome of [LikesService.likeUser].
+/// Outcome of [MatchesRepository.sendLike] / [LikesService.likeUser].
 class LikeResult {
   const LikeResult({
     required this.liked,
