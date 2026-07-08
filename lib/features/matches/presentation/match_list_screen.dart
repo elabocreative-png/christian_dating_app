@@ -4,7 +4,7 @@ import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
-import 'package:christian_dating_app/core/services/block_service.dart';
+import 'package:christian_dating_app/features/settings/presentation/block_providers.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
@@ -626,15 +626,12 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     }
 
     final matchesAsync = ref.watch(matchesStreamProvider(currentUserId));
+    final blockedUserIds =
+        ref.watch(blockedUserIdsProvider(currentUserId)).value ?? const {};
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: StreamBuilder<Set<String>>(
-        stream: BlockService.streamBlockedUserIds(),
-        builder: (context, blockedSnapshot) {
-          final blockedUserIds = blockedSnapshot.data ?? const {};
-
-          return matchesAsync.when(
+      body: matchesAsync.when(
         loading: () => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -824,8 +821,6 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                 ],
               );
             },
-          );
-        },
           );
         },
       ),

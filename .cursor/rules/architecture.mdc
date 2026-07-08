@@ -17,7 +17,7 @@ lib/
     theme/         # app_typography, app_icons, app_illustrations
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
     utils/         # geo_utils, firestore_value_utils
-    services/      # block_service, location_service, match_read_state,
+    services/      # location_service, match_read_state,
                    #   push_notification_service
     models/        # block_source, profile_photo_urls
     navigation/    # app_navigator (rootNavigatorKey)
@@ -59,7 +59,7 @@ If only one feature uses it, keep it inside that feature even if it feels generi
 - Already in `core/`: theme (`core/theme/app_typography.dart`), navigation
   (`core/navigation/app_navigator.dart` / `rootNavigatorKey`), shared UI primitives
   (`core/widgets/app_dialog.dart`, `app_back_button.dart`, `app_icon.dart`,
-  `profile_avatar.dart`), cross-cutting services (`block_service.dart`,
+  `profile_avatar.dart`), cross-cutting services (`location_service.dart`,
   `push_notification_service.dart`, `location_service.dart`), shared constants
   (`core/constants/*_options.dart`), and the photo-crop module (`core/photo/`).
   Batch profile loads use `ProfileRepository.fetchProfilesByIds`.
@@ -93,7 +93,7 @@ features/<name>/
    legacy files as a side effect of an unrelated edit.
 3. **One repository owns each domain's data access.** Reuse before adding queries.
    Feature repositories: `ProfileRepository`, `ChatRepository`, `MatchesRepository`,
-   `DiscoveryRepository`. Cross-cutting: `BlockService`, `LocationService`, etc. in
+   `DiscoveryRepository`. Cross-cutting: `LocationService`, etc. in
    `core/services/`.
 4. **Data layer returns app types, not Firestore types.** Never expose
    `DocumentSnapshot`, `QuerySnapshot`, or `Timestamp` to presentation/domain.
@@ -112,7 +112,7 @@ features/<name>/
 Reuse existing services/repositories instead of duplicating queries:
 
 - Profiles → `ProfileRepository` (`features/profile/data/`)
-- Blocks → `BlockService` (`core/services/`)
+- Blocks → `BlockRepository` (`features/settings/data/`)
 - Likes/matches list → `MatchesRepository` (`features/matches/data/`)
 - Chat → `ChatRepository` (`features/chat/data/`)
 - Discovery deck → `DiscoveryRepository` / `discoveryDeckProvider` (`features/discovery/presentation/discovery_deck_providers.dart`)

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
+import 'package:christian_dating_app/features/settings/domain/blocked_user_record.dart';
+import 'package:christian_dating_app/features/settings/presentation/block_providers.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/block_report_sheet.dart';
@@ -52,6 +53,8 @@ class BlockedUsersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final uid = ref.watch(currentUserIdProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -71,79 +74,84 @@ class BlockedUsersScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: StreamBuilder<List<BlockedUserRecord>>(
-        stream: BlockService.streamBlockedRecords(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: uid == null
+          ? const Center(child: CircularProgressIndicator())
+          : ref.watch(blockedRecordsProvider(uid)).when(
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
+                error: (error, stackTrace) =>
+                    Center(child: Text('Error: $error')),
+                data: (records) {
+                  if (records.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          'No blocked users',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
 
-          final records = snapshot.data!;
-          if (records.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'No blocked users',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-            );
-          }
-
-          return FutureBuilder<Map<String, Map<String, dynamic>>>(
-            key: ValueKey(records.map((r) => r.blockedUserId).join(',')),
-            future: ref.read(profileRepositoryProvider).fetchProfilesByIds(
-              records.map((r) => r.blockedUserId),
-            ),
-            builder: (context, usersSnapshot) {
-              final userById = usersSnapshot.data ?? {};
-
-              return ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: records.length,
-                separatorBuilder: (_, _) => const Divider(
-                  height: 1,
-                  thickness: 0.6,
-                  indent: 16,
-                  endIndent: 16,
-                  color: Color(0xFFE5E7EB),
-                ),
-                itemBuilder: (context, index) {
-                  final record = records[index];
-                  final userData = userById[record.blockedUserId];
-                  final name =
-                      userData?['name']?.toString().trim().isNotEmpty == true
-                          ? userData!['name'].toString().trim()
-                          : 'User';
-
-                  return _BlockedUserRow(
-                    name: name,
-                    userData: userData,
-                    onTap: () => _openBlockedProfile(
-                      context,
-                      ref,
-                      record: record,
-                      userData: userData,
-                      name: name,
+                  return FutureBuilder<Map<String, Map<String, dynamic>>>(
+                    key: ValueKey(
+                      records.map((r) => r.blockedUserId).join(','),
                     ),
-                    onUnblock: () => _confirmUnblockFromList(
-                      context,
-                      blockedUserId: record.blockedUserId,
-                      name: name,
-                    ),
+                    future: ref
+                        .read(profileRepositoryProvider)
+                        .fetchProfilesByIds(
+                          records.map((r) => r.blockedUserId),
+                        ),
+                    builder: (context, usersSnapshot) {
+                      final userById = usersSnapshot.data ?? {};
+
+                      return ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: records.length,
+                        separatorBuilder: (_, _) => const Divider(
+                          height: 1,
+                          thickness: 0.6,
+                          indent: 16,
+                          endIndent: 16,
+                          color: Color(0xFFE5E7EB),
+                        ),
+                        itemBuilder: (context, index) {
+                          final record = records[index];
+                          final userData = userById[record.blockedUserId];
+                          final name =
+                              userData?['name']?.toString().trim().isNotEmpty ==
+                                      true
+                                  ? userData!['name'].toString().trim()
+                                  : 'User';
+
+                          return _BlockedUserRow(
+                            name: name,
+                            userData: userData,
+                            onTap: () => _openBlockedProfile(
+                              context,
+                              ref,
+                              record: record,
+                              userData: userData,
+                              name: name,
+                            ),
+                            onUnblock: () => _confirmUnblockFromList(
+                              context,
+                              blockedUserId: record.blockedUserId,
+                              name: name,
+                            ),
+                          );
+                        },
+                      );
+                    },
                   );
                 },
-              );
-            },
-          );
-        },
-      ),
+              ),
     );
   }
 }

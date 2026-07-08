@@ -21,6 +21,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Chat | `ChatRepository` | `chatRepositoryProvider`, `chatMessagesProvider` |
 | Matches / likes | `MatchesRepository` | `matchesRepositoryProvider`, `matchesStreamProvider`, `incomingLikesProvider`, `outgoingLikesProvider` |
 | Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider`, `enrichWithDistance` |
+| Settings / blocks | `BlockRepository` | `blockRepositoryProvider`, `blockedUserIdsProvider`, `blockedRecordsProvider` |
 
 **UI orchestration (presentation-only):**
 
@@ -47,7 +48,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 `cloud_firestore` belongs only in:
 
 - `features/*/data/*` — repositories and feature services
-- `core/services/` — `BlockService`, `LocationService`, `PushNotificationService`
+- `core/services/` — `LocationService`, `PushNotificationService`
 - `features/auth/data/auth_service.dart`
 
 **Not** in `presentation/`, `domain/`, or widgets (migration complete).

@@ -1,21 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/core/utils/geo_utils.dart';
 import 'package:christian_dating_app/features/discovery/domain/account_visibility.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/domain/nearby_user.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
+import 'package:christian_dating_app/features/settings/data/block_repository.dart';
 
 /// Discovery-specific data access: deck loading, distance enrichment, preferences.
 class DiscoveryRepository {
   DiscoveryRepository(
-    this._profileRepository, {
+    this._profileRepository,
+    this._blockRepository, {
     FirebaseFirestore? firestore,
   }) : _firestore = firestore;
 
   final ProfileRepository _profileRepository;
+  final BlockRepository _blockRepository;
   final FirebaseFirestore? _firestore;
 
   FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
@@ -129,7 +131,7 @@ class DiscoveryRepository {
       incomingLikes: incomingLikes.docs.map((doc) => doc.data()),
       matchedUserIds: matchedUserIds,
     );
-    final blockedUserIds = await BlockService.fetchBlockedUserIds();
+    final blockedUserIds = await _blockRepository.fetchBlockedUserIds(uid);
 
     final ranked = <NearbyUser>[];
 
@@ -221,5 +223,8 @@ class DiscoveryRepository {
 }
 
 final discoveryRepositoryProvider = Provider<DiscoveryRepository>((ref) {
-  return DiscoveryRepository(ref.watch(profileRepositoryProvider));
+  return DiscoveryRepository(
+    ref.watch(profileRepositoryProvider),
+    ref.watch(blockRepositoryProvider),
+  );
 });

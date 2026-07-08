@@ -4,7 +4,7 @@ import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
-import 'package:christian_dating_app/core/services/block_service.dart';
+import 'package:christian_dating_app/features/settings/presentation/block_providers.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
@@ -320,38 +320,45 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
     final incomingAsync = ref.watch(incomingLikesProvider(uid));
     final outgoingAsync = ref.watch(outgoingLikesProvider(uid));
     final matchesAsync = ref.watch(matchesStreamProvider(uid));
+    final blockedUserIds =
+        ref.watch(blockedUserIdsProvider(uid)).value ?? const {};
+
+    if (incomingAsync.isLoading ||
+        outgoingAsync.isLoading ||
+        matchesAsync.isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: LikedYouScreenSkeleton(),
+      );
+    }
+
+    if (incomingAsync.hasError) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: Text('Error: ${incomingAsync.error}')),
+      );
+    }
+    if (outgoingAsync.hasError) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: Text('Error: ${outgoingAsync.error}')),
+      );
+    }
+    if (matchesAsync.hasError) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: Text('Error: ${matchesAsync.error}')),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: StreamBuilder<Set<String>>(
-        stream: BlockService.streamBlockedUserIds(),
-        builder: (context, blockedSnapshot) {
-          final blockedUserIds = blockedSnapshot.data ?? const {};
-
-          if (incomingAsync.isLoading ||
-              outgoingAsync.isLoading ||
-              matchesAsync.isLoading) {
-            return const LikedYouScreenSkeleton();
-          }
-
-          if (incomingAsync.hasError) {
-            return Center(child: Text('Error: ${incomingAsync.error}'));
-          }
-          if (outgoingAsync.hasError) {
-            return Center(child: Text('Error: ${outgoingAsync.error}'));
-          }
-          if (matchesAsync.hasError) {
-            return Center(child: Text('Error: ${matchesAsync.error}'));
-          }
-
-          return _buildLoadedContent(
-            uid: uid,
-            blockedUserIds: blockedUserIds,
-            incomingDocs: incomingAsync.value ?? const [],
-            outgoingDocs: outgoingAsync.value ?? const [],
-            matchDocs: matchesAsync.value ?? const [],
-          );
-        },
+      body: _buildLoadedContent(
+        uid: uid,
+        blockedUserIds: blockedUserIds,
+        incomingDocs: incomingAsync.value ?? const [],
+        outgoingDocs: outgoingAsync.value ?? const [],
+        matchDocs: matchesAsync.value ?? const [],
       ),
     );
   }

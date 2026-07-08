@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
-import 'package:christian_dating_app/core/services/block_service.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/settings/data/block_repository.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
@@ -23,7 +25,14 @@ Future<bool> confirmAndUnblockUser(
   );
   if (confirmed != true || !context.mounted) return false;
 
-  final ok = await BlockService.unblockUser(blockedUserId);
+  final container = ProviderScope.containerOf(context);
+  final uid = container.read(currentUserIdProvider);
+  if (uid == null) return false;
+
+  final ok = await container.read(blockRepositoryProvider).unblockUser(
+        uid: uid,
+        blockedUserId: blockedUserId,
+      );
   if (!context.mounted) return ok;
   if (!ok) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -80,10 +89,17 @@ Future<void> showBlockReportSheet(
                   );
                   if (confirmed != true || !context.mounted) return;
 
-                  final ok = await BlockService.blockUser(
-                    blockedUserId: blockedUserId,
-                    source: source,
-                  );
+                  final container = ProviderScope.containerOf(context);
+                  final uid = container.read(currentUserIdProvider);
+                  if (uid == null) return;
+
+                  final ok = await container
+                      .read(blockRepositoryProvider)
+                      .blockUser(
+                        uid: uid,
+                        blockedUserId: blockedUserId,
+                        source: source,
+                      );
                   if (!context.mounted) return;
                   if (!ok) {
                     ScaffoldMessenger.of(context).showSnackBar(
