@@ -9,13 +9,14 @@ import 'package:christian_dating_app/core/utils/geo_utils.dart';
 /// Returns plain app maps so the presentation layer never touches
 /// cloud_firestore types directly.
 class ProfileRepository {
-  ProfileRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  ProfileRepository({FirebaseFirestore? firestore}) : _firestore = firestore;
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? _firestore;
+
+  FirebaseFirestore get _db => _firestore ?? FirebaseFirestore.instance;
 
   DocumentReference<Map<String, dynamic>> _userRef(String uid) =>
-      _firestore.collection('users').doc(uid);
+      _db.collection('users').doc(uid);
 
   /// Live profile document for [uid]; emits null when the document is absent.
   Stream<Map<String, dynamic>?> watchProfile(String uid) {
@@ -51,6 +52,38 @@ class ProfileRepository {
   /// Writes a full profile document (e.g. first save after deferred sign-up).
   Future<void> setProfile(String uid, Map<String, dynamic> data) async {
     await _userRef(uid).set(data);
+  }
+
+  /// Fetches multiple user profiles by id in Firestore `whereIn` chunks.
+  Future<Map<String, Map<String, dynamic>>> fetchProfilesByIds(
+    Iterable<String> userIds,
+  ) async {
+    const whereInLimit = 30;
+    final ids = userIds
+        .map((id) => id.trim())
+        .where((id) => id.isNotEmpty)
+        .toSet()
+        .toList();
+    if (ids.isEmpty) return {};
+
+    final results = <String, Map<String, dynamic>>{};
+
+    for (var i = 0; i < ids.length; i += whereInLimit) {
+      final end =
+          i + whereInLimit > ids.length ? ids.length : i + whereInLimit;
+      final chunk = ids.sublist(i, end);
+
+      final snapshot = await _db
+          .collection('users')
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+
+      for (final doc in snapshot.docs) {
+        results[doc.id] = doc.data();
+      }
+    }
+
+    return results;
   }
 
   Map<String, dynamic> _defaultProfileFields() {

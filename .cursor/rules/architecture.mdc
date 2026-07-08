@@ -18,7 +18,7 @@ lib/
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
     utils/         # geo_utils, firestore_value_utils
     services/      # block_service, location_service, match_read_state,
-                   #   push_notification_service, users_batch_loader
+                   #   push_notification_service
     models/        # block_source, profile_photo_urls
     navigation/    # app_navigator (rootNavigatorKey)
     widgets/       # app_icon, app_dialog, app_back_button, profile_avatar,
@@ -59,9 +59,10 @@ If only one feature uses it, keep it inside that feature even if it feels generi
 - Already in `core/`: theme (`core/theme/app_typography.dart`), navigation
   (`core/navigation/app_navigator.dart` / `rootNavigatorKey`), shared UI primitives
   (`core/widgets/app_dialog.dart`, `app_back_button.dart`, `app_icon.dart`,
-  `profile_avatar.dart`), cross-cutting services (`core/services/users_batch_loader.dart`,
-  `block_service.dart`, `push_notification_service.dart`), shared constants
+  `profile_avatar.dart`), cross-cutting services (`block_service.dart`,
+  `push_notification_service.dart`, `location_service.dart`), shared constants
   (`core/constants/*_options.dart`), and the photo-crop module (`core/photo/`).
+  Batch profile loads use `ProfileRepository.fetchProfilesByIds`.
 - Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/domain/` (pure logic; unread writes in `ChatRepository`),
   `profile_completion.dart` / `height_utils.dart` → `profile/domain/`, `discovery_*` widgets →
   `discovery/presentation/widgets/`, `auth_service.dart` → `auth/data/`,
@@ -92,7 +93,7 @@ features/<name>/
    legacy files as a side effect of an unrelated edit.
 3. **One repository owns each domain's data access.** Reuse before adding queries.
    Feature repositories: `ProfileRepository`, `ChatRepository`, `MatchesRepository`,
-   `DiscoveryRepository`. Cross-cutting: `BlockService`, `UsersBatchLoader`, etc. in
+   `DiscoveryRepository`. Cross-cutting: `BlockService`, `LocationService`, etc. in
    `core/services/`.
 4. **Data layer returns app types, not Firestore types.** Never expose
    `DocumentSnapshot`, `QuerySnapshot`, or `Timestamp` to presentation/domain.
@@ -105,7 +106,7 @@ features/<name>/
 **Core principle:** the data layer returns app types; presentation never imports `cloud_firestore`.
 
 1. **UI** — screens and widgets; no direct Firestore in large widget trees when a service already exists.
-2. **Services** — Firestore reads/writes, auth side effects, batch loaders (`UsersBatchLoader`).
+2. **Services** — Firestore reads/writes, auth side effects, location/push helpers.
 3. **Pure logic** — filters, unread counts, completion %; no Firebase imports.
 
 Reuse existing services/repositories instead of duplicating queries:
@@ -115,7 +116,7 @@ Reuse existing services/repositories instead of duplicating queries:
 - Likes/matches list → `MatchesRepository` (+ `LikesService` for UI orchestration) (`features/matches/data/`)
 - Chat → `ChatRepository` (`features/chat/data/`)
 - Discovery deck → `DiscoveryRepository` / `discoveryDeckProvider` (`features/discovery/presentation/discovery_deck_providers.dart`)
-- Batch user profiles → `UsersBatchLoader.fetchByIds` (`core/services/`)
+- Batch user profiles → `ProfileRepository.fetchProfilesByIds`
 - Push → `PushNotificationService` (`core/services/`)
 - Issue reports → `IssueReportService` (`features/settings/data/`)
 - Auth → `AuthService` (`features/auth/data/`)

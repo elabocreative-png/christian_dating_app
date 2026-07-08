@@ -15,7 +15,7 @@ import 'package:christian_dating_app/features/matches/presentation/matches_provi
 import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
-import 'package:christian_dating_app/core/services/users_batch_loader.dart';
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/avatar_unread_dot.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/chat_messages_sort_sheet.dart';
@@ -372,7 +372,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
         firstLikerId.isNotEmpty &&
         firstLikerFromBatch == null) {
       return FutureBuilder<Map<String, Map<String, dynamic>>>(
-        future: UsersBatchLoader.fetchByIds([firstLikerId]),
+        future: ref.read(profileRepositoryProvider).fetchProfilesByIds([firstLikerId]),
         builder: (context, likerSnapshot) {
           final likerData = likerSnapshot.data?[firstLikerId];
           return _buildNewConnectionsListView(
@@ -691,7 +691,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
 
           return FutureBuilder<Map<String, Map<String, dynamic>>>(
             key: ValueKey(matches.map((d) => d.id).join(',')),
-            future: UsersBatchLoader.fetchByIds(
+            future: ref.read(profileRepositoryProvider).fetchProfilesByIds(
               _otherUserIdsFromMatches(matches, currentUserId),
             ),
             builder: (context, usersSnapshot) {

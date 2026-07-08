@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/services/block_service.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
-import 'package:christian_dating_app/core/services/users_batch_loader.dart';
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/block_report_sheet.dart';
 import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 
 /// Settings → Blocked Users list with unblock actions.
-class BlockedUsersScreen extends StatelessWidget {
+class BlockedUsersScreen extends ConsumerWidget {
   const BlockedUsersScreen({super.key});
 
   Future<void> _openBlockedProfile(
@@ -45,7 +46,7 @@ class BlockedUsersScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -92,7 +93,7 @@ class BlockedUsersScreen extends StatelessWidget {
 
           return FutureBuilder<Map<String, Map<String, dynamic>>>(
             key: ValueKey(records.map((r) => r.blockedUserId).join(',')),
-            future: UsersBatchLoader.fetchByIds(
+            future: ref.read(profileRepositoryProvider).fetchProfilesByIds(
               records.map((r) => r.blockedUserId),
             ),
             builder: (context, usersSnapshot) {

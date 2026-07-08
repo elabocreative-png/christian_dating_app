@@ -8,7 +8,7 @@ import 'package:christian_dating_app/features/discovery/domain/account_visibilit
 import 'package:christian_dating_app/core/services/block_service.dart';
 
 /// Cached viewer location for repeated distance lookups in a session.
-GeoPoint? _cachedViewerLocation;
+GeoCoordinate? _cachedViewerLocation;
 String? _cachedViewerUid;
 
 /// Loads users for discovery, sorted by distance when coordinates exist.
@@ -18,7 +18,7 @@ class DiscoveryUsersService {
     _cachedViewerUid = null;
   }
 
-  static Future<GeoPoint?> _viewerLocation([String? uid]) async {
+  static Future<GeoCoordinate?> _viewerLocation([String? uid]) async {
     final viewerId = uid ?? FirebaseAuth.instance.currentUser?.uid;
     if (viewerId == null) return null;
     if (_cachedViewerUid == viewerId && _cachedViewerLocation != null) {

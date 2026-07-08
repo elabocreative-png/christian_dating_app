@@ -11,7 +11,7 @@ import 'package:christian_dating_app/features/discovery/data/discovery_users_ser
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
-import 'package:christian_dating_app/core/services/users_batch_loader.dart';
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/empty_state_illustration.dart';
@@ -114,7 +114,7 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
       key: ValueKey(
         '${_selectedTab.name}:${likes.map((d) => d.id).join(',')}',
       ),
-      future: UsersBatchLoader.fetchByIds(
+      future: ref.read(profileRepositoryProvider).fetchProfilesByIds(
         likes.map((d) => profileUserIdFor(d.data)),
       ),
       builder: (context, usersSnapshot) {

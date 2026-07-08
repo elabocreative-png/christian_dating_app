@@ -1,25 +1,48 @@
 import 'dart:math' as math;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+/// A latitude/longitude pair without Firestore types.
+class GeoCoordinate {
+  const GeoCoordinate({required this.latitude, required this.longitude});
+
+  final double latitude;
+  final double longitude;
+}
 
 /// Default discovery radius when the user has not set a preference.
 const double kDefaultMaxDistanceKm = 100;
 
-/// Parses a Firestore [GeoPoint] or legacy `{latitude, longitude}` map.
-GeoPoint? parseUserGeoPoint(dynamic value) {
-  if (value is GeoPoint) return value;
+/// Parses a Firestore GeoPoint-like value or legacy `{latitude, longitude}` map.
+GeoCoordinate? parseUserGeoPoint(dynamic value) {
+  if (value == null) return null;
+
+  if (value is GeoCoordinate) return value;
+
+  try {
+    final lat = (value as dynamic).latitude;
+    final lng = (value as dynamic).longitude;
+    if (lat is num && lng is num) {
+      return GeoCoordinate(
+        latitude: lat.toDouble(),
+        longitude: lng.toDouble(),
+      );
+    }
+  } catch (_) {}
+
   if (value is Map) {
     final lat = value['latitude'] ?? value['lat'];
     final lng = value['longitude'] ?? value['lng'];
     if (lat is num && lng is num) {
-      return GeoPoint(lat.toDouble(), lng.toDouble());
+      return GeoCoordinate(
+        latitude: lat.toDouble(),
+        longitude: lng.toDouble(),
+      );
     }
   }
   return null;
 }
 
 /// Great-circle distance in kilometers (Haversine).
-double distanceKmBetween(GeoPoint a, GeoPoint b) {
+double distanceKmBetween(GeoCoordinate a, GeoCoordinate b) {
   const earthRadiusKm = 6371.0;
   final lat1 = _toRadians(a.latitude);
   final lat2 = _toRadians(b.latitude);

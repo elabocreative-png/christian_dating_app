@@ -17,7 +17,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Concern | Class | Provider |
 |--------|--------|----------|
 | Auth session / uid | `auth_providers.dart` | `authStateProvider`, `currentUserIdProvider`, `profileCompleteProvider` |
-| Profiles | `ProfileRepository` | `profileRepositoryProvider`, `myProfileProvider` |
+| Profiles | `ProfileRepository` | `profileRepositoryProvider`, `myProfileProvider`, `fetchProfilesByIds` |
 | Chat | `ChatRepository` | `chatRepositoryProvider`, `chatMessagesProvider` |
 | Matches / likes | `MatchesRepository` | `matchesRepositoryProvider`, `matchesStreamProvider`, `incomingLikesProvider`, `outgoingLikesProvider` |
 | Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider` |
@@ -47,7 +47,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 `cloud_firestore` belongs only in:
 
 - `features/*/data/*` — repositories and feature services
-- `core/services/` — `BlockService`, `LocationService`, `PushNotificationService`, `UsersBatchLoader`
+- `core/services/` — `BlockService`, `LocationService`, `PushNotificationService`
 - `features/auth/data/auth_service.dart`
 
 **Not** in `presentation/`, `domain/`, or widgets (migration complete).
@@ -55,7 +55,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 **Exceptions:**
 
 - `FirebaseAuth` in onboarding deferred sign-up (`profile_setup_screen.dart`) and logout flows
-- `geo_utils.dart` still references `GeoPoint` (data-layer utility; optional future cleanup)
+- `core/utils/geo_utils.dart` — `GeoCoordinate`, distance helpers (no Firestore types)
 
 ## Verification
 
