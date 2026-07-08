@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
+import 'package:christian_dating_app/features/chat/domain/chat_context.dart';
+import 'package:christian_dating_app/features/chat/domain/chat_message.dart';
+import 'package:christian_dating_app/features/chat/presentation/chat_providers.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
@@ -31,8 +34,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final messageController = TextEditingController();
   final FocusNode _messageFocusNode = FocusNode();
   bool _isUnmatching = false;
-  Future<({Map<String, dynamic>? otherUser, Timestamp? matchCreatedAt})>?
-      _chatContextFuture;
+  Future<ChatContext>? _chatContextFuture;
 
   @override
   void initState() {
@@ -40,7 +42,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     messageController.addListener(() => setState(() {}));
     final uid = ref.read(currentUserIdProvider);
     if (uid != null) {
-      _chatContextFuture = _loadChatContext(uid);
+      _chatContextFuture = ref.read(chatRepositoryProvider).loadChatContext(
+            matchId: widget.matchId,
+            currentUserId: uid,
+          );
     }
     WidgetsBinding.instance.addPostFrameCallback((_) => _markMatchRead());
   }
@@ -92,30 +97,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return '$h12:${minute.toString().padLeft(2, '0')} $period';
   }
 
-  bool _isMessageLiked(Map<String, dynamic> data, String userId) {
-    final likedBy = data['likedBy'];
-    if (likedBy is List) {
-      return likedBy.any((entry) => entry.toString() == userId);
-    }
-    return false;
-  }
-
   Future<void> _toggleMessageHeart(String messageId, bool currentlyLiked) async {
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) return;
 
-    final messageRef = FirebaseFirestore.instance
-        .collection('matches')
-        .doc(widget.matchId)
-        .collection('messages')
-        .doc(messageId);
-
     try {
-      await messageRef.update({
-        'likedBy': currentlyLiked
-            ? FieldValue.arrayRemove([uid])
-            : FieldValue.arrayUnion([uid]),
-      });
+      await ref.read(chatRepositoryProvider).toggleMessageLike(
+            matchId: widget.matchId,
+            messageId: messageId,
+            userId: uid,
+            currentlyLiked: currentlyLiked,
+          );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -165,13 +157,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _buildEmptyChatHero(
     Map<String, dynamic> otherUser,
-    Timestamp? matchCreatedAt,
+    DateTime? matchCreatedAt,
   ) {
     final name = otherUser['name']?.toString().trim();
     final displayName = (name == null || name.isEmpty) ? 'them' : name;
     final matchTime = matchCreatedAt == null
         ? ''
-        : _formatRelativeMatchTime(matchCreatedAt.toDate());
+        : _formatRelativeMatchTime(matchCreatedAt);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -237,13 +229,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _buildCompactMatchHeader(
     Map<String, dynamic> otherUser,
-    Timestamp? matchCreatedAt,
+    DateTime? matchCreatedAt,
   ) {
     final name = otherUser['name']?.toString().trim();
     final displayName = (name == null || name.isEmpty) ? 'them' : name;
     final datePart = matchCreatedAt == null
         ? ''
-        : ' on ${_formatShortMatchDate(matchCreatedAt.toDate())}';
+        : ' on ${_formatShortMatchDate(matchCreatedAt)}';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
@@ -262,55 +254,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  Future<({Map<String, dynamic>? otherUser, Timestamp? matchCreatedAt})>
-      _loadChatContext(String currentUserId) async {
-    final matchDoc = await FirebaseFirestore.instance
-        .collection('matches')
-        .doc(widget.matchId)
-        .get();
-
-    Timestamp? matchCreatedAt;
-    if (matchDoc.exists) {
-      final createdAt = matchDoc.data()?['createdAt'];
-      if (createdAt is Timestamp) {
-        matchCreatedAt = createdAt;
-      }
-    }
-
-    if (!matchDoc.exists) {
-      return (otherUser: null, matchCreatedAt: matchCreatedAt);
-    }
-    final matchData = matchDoc.data();
-    if (matchData == null || matchData['users'] == null) {
-      return (otherUser: null, matchCreatedAt: matchCreatedAt);
-    }
-
-    final users = List<String>.from(matchData['users']);
-    final otherUserId = users.firstWhere(
-      (id) => id != currentUserId,
-      orElse: () => '',
-    );
-    if (otherUserId.isEmpty) {
-      return (otherUser: null, matchCreatedAt: matchCreatedAt);
-    }
-
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(otherUserId)
-        .get();
-    final data = userDoc.data();
-    if (data == null) {
-      return (otherUser: null, matchCreatedAt: matchCreatedAt);
-    }
-    return (
-      otherUser: {...data, 'uid': otherUserId},
-      matchCreatedAt: matchCreatedAt,
-    );
-  }
-
   Future<Map<String, dynamic>?> _loadOtherUser(String currentUserId) async {
-    final context = await _loadChatContext(currentUserId);
-    return context.otherUser;
+    final chatContext = await ref.read(chatRepositoryProvider).loadChatContext(
+          matchId: widget.matchId,
+          currentUserId: currentUserId,
+        );
+    return chatContext.otherUser;
   }
 
   Future<void> _openOtherUserProfile(
@@ -355,17 +304,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (_isUnmatching) return;
     setState(() => _isUnmatching = true);
     try {
-      final matchRef = FirebaseFirestore.instance
-          .collection('matches')
-          .doc(widget.matchId);
-      final messages = await matchRef.collection('messages').get();
-
-      final batch = FirebaseFirestore.instance.batch();
-      for (final doc in messages.docs) {
-        batch.delete(doc.reference);
-      }
-      batch.delete(matchRef);
-      await batch.commit();
+      await ref.read(chatRepositoryProvider).unmatch(widget.matchId);
 
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -392,38 +331,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     final text = messageController.text.trim();
 
-    await FirebaseFirestore.instance
-        .collection('matches')
-        .doc(widget.matchId)
-        .collection('messages')
-        .add({
-      'senderId': uid,
-      'text': text,
-      'createdAt': Timestamp.now(),
-    });
-
-    final matchRef = FirebaseFirestore.instance
-        .collection('matches')
-        .doc(widget.matchId);
-
-    await matchRef.set(
-      {
-        'lastMessage': text,
-        'lastMessageAt': FieldValue.serverTimestamp(),
-        'lastMessageSenderId': uid,
-      },
-      SetOptions(merge: true),
-    );
-
-    final matchSnap = await matchRef.get();
-    final users = matchSnap.data()?['users'];
-    if (users is List) {
-      await MatchUnread.incrementForRecipient(
-        matchRef: matchRef,
-        senderId: uid,
-        userIds: List<String>.from(users),
-      );
-    }
+    await ref.read(chatRepositoryProvider).sendMessage(
+          matchId: widget.matchId,
+          senderId: uid,
+          text: text,
+        );
 
     messageController.clear();
   }
@@ -620,17 +532,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildMessageItem({
-    required QueryDocumentSnapshot msg,
+    required ChatMessage msg,
     required String currentUserId,
     required Map<String, dynamic>? otherUser,
   }) {
-    final data = msg.data() as Map<String, dynamic>;
-    final isMe = data['senderId'] == currentUserId;
-    final text = data['text']?.toString() ?? '';
-    final likedContent = data['content']?.toString();
-    final createdAt = data['createdAt'] as Timestamp?;
-    final messageDate = createdAt?.toDate();
-    final isLiked = _isMessageLiked(data, currentUserId);
+    final isMe = msg.senderId == currentUserId;
+    final text = msg.text;
+    final likedContent = msg.likedContent;
+    final messageDate = msg.createdAt;
+    final isLiked = msg.isLikedBy(currentUserId);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -652,10 +562,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildMessageList({
-    required List<QueryDocumentSnapshot> messages,
+    required List<ChatMessage> messages,
     required String currentUserId,
     required Map<String, dynamic>? otherUser,
-    required Timestamp? matchCreatedAt,
+    required DateTime? matchCreatedAt,
   }) {
     if (messages.isEmpty) {
       if (otherUser == null) return const SizedBox.shrink();
@@ -759,6 +669,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       return const SizedBox.shrink();
     }
 
+    final messagesAsync = ref.watch(chatMessagesProvider(widget.matchId));
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
@@ -767,22 +679,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('matches')
-                  .doc(widget.matchId)
-                  .collection('messages')
-                  .orderBy('createdAt', descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final messages = snapshot.data!.docs;
-
-                return FutureBuilder<
-                    ({Map<String, dynamic>? otherUser, Timestamp? matchCreatedAt})>(
+            child: messagesAsync.when(
+              loading: () =>
+                  const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => Center(
+                child: Text('Could not load messages: $error'),
+              ),
+              data: (messages) {
+                return FutureBuilder<ChatContext>(
                   future: _chatContextFuture,
                   builder: (context, contextSnapshot) {
                     if (contextSnapshot.connectionState !=
