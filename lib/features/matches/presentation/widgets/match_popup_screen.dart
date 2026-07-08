@@ -1,16 +1,15 @@
 import 'dart:ui';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/navigation/app_navigator.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/main_navigation.dart';
-import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
@@ -29,12 +28,15 @@ Future<void> showMatchPopup(
   MatchPopupDismissDestination dismissDestination =
       MatchPopupDismissDestination.discovery,
 }) async {
-  final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+  final currentUserId = ProviderScope.containerOf(context)
+      .read(currentUserIdProvider);
   if (currentUserId == null) return;
 
-  final snaps = await Future.wait([
-    FirebaseFirestore.instance.collection('users').doc(currentUserId).get(),
-    FirebaseFirestore.instance.collection('users').doc(matchedUserId).get(),
+  final profileRepo = ProviderScope.containerOf(context)
+      .read(profileRepositoryProvider);
+  final profiles = await Future.wait([
+    profileRepo.fetchProfile(currentUserId),
+    profileRepo.fetchProfile(matchedUserId),
   ]);
 
   if (!context.mounted) return;
@@ -48,8 +50,8 @@ Future<void> showMatchPopup(
         barrierDismissible: false,
         pageBuilder: (_, __, ___) => MatchPopupScreen(
           matchId: matchId,
-          currentUser: snaps[0].data() ?? <String, dynamic>{},
-          matchedUser: snaps[1].data() ?? <String, dynamic>{},
+          currentUser: profiles[0] ?? <String, dynamic>{},
+          matchedUser: profiles[1] ?? <String, dynamic>{},
           dismissDestination: dismissDestination,
         ),
         transitionsBuilder: (_, animation, __, child) {
@@ -172,38 +174,12 @@ class _MatchPopupScreenState extends ConsumerState<MatchPopupScreen>
     setState(() => _sending = true);
 
     try {
-      final matchRef = FirebaseFirestore.instance
-          .collection('matches')
-          .doc(widget.matchId);
-      final matchSnap = await matchRef.get();
-      final users = matchSnap.data()?['users'];
-      final userIds = users is List
-          ? List<String>.from(users.map((e) => e.toString()))
-          : <String>[];
-
-      await matchRef.collection('messages').add({
-        'senderId': uid,
-        'text': text,
-        'content': 'Match message',
-        'createdAt': Timestamp.now(),
-      });
-
-      await matchRef.set(
-        {
-          'lastMessage': text,
-          'lastMessageAt': Timestamp.now(),
-          'lastMessageSenderId': uid,
-        },
-        SetOptions(merge: true),
-      );
-
-      if (userIds.isNotEmpty) {
-        await MatchUnread.incrementForRecipient(
-          matchRef: matchRef,
-          senderId: uid,
-          userIds: userIds,
-        );
-      }
+      await ref.read(chatRepositoryProvider).sendMessage(
+            matchId: widget.matchId,
+            senderId: uid,
+            text: text,
+            likedContent: 'Match message',
+          );
 
       if (!mounted) return;
 

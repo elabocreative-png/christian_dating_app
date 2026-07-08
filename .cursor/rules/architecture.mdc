@@ -92,14 +92,14 @@ features/<name>/
    unless explicitly asked.
 2. **New features are feature-first** under `lib/features/<name>/`. Do **not** relocate
    legacy files as a side effect of an unrelated edit.
-3. **One service owns each domain's data access.** Reuse an existing service before
-   adding a new query. (Services are the current form of "repositories"; feature-owned
-   ones live in `features/<name>/data/`, cross-cutting ones in `core/services/`.)
-4. **Data layer returns app types, not Firestore types.** New service/repository methods
-   return models, plain `Map`, or domain objects — never `DocumentSnapshot`,
-   `QuerySnapshot`, or `Timestamp`. Presentation and `domain/` must not import
-   `cloud_firestore`. (Legacy code still leaks Firestore types into UI; fix opportunistically,
-   not in bulk.)
+3. **One service owns each domain's data access.** Reuse an existing service/repository
+   before adding a new query. Feature-owned repositories live in `features/<name>/data/`
+   (e.g. `ProfileRepository`, `ChatRepository`, `MatchesRepository`,
+   `DiscoveryRepository`); cross-cutting ones stay in `core/services/`.
+4. **Data layer returns app types, not Firestore types.** Repository methods return models,
+   plain `Map`, or domain objects — never `DocumentSnapshot`, `QuerySnapshot`, or
+   `Timestamp`. Presentation and `domain/` must not import `cloud_firestore`.
+   (Onboarding `profile_setup_screen.dart` is a known legacy exception until migrated.)
 
 ## Layer guidance (when adding or moving code)
 
@@ -109,15 +109,24 @@ features/<name>/
 2. **Services** — Firestore reads/writes, auth side effects, batch loaders (`UsersBatchLoader`).
 3. **Pure logic** — filters, unread counts, completion %; no Firebase imports.
 
-Reuse existing services instead of duplicating queries:
+Reuse existing services/repositories instead of duplicating queries:
 
+- Profiles → `ProfileRepository` (`features/profile/data/`)
 - Blocks → `BlockService` (`core/services/`)
-- Likes/matches → `LikesService` (`features/matches/data/`)
-- Discovery deck → `DiscoveryUsersService` (`features/discovery/data/`)
+- Likes/matches list → `MatchesRepository` + `LikesService` (`features/matches/data/`)
+- Chat → `ChatRepository` (`features/chat/data/`)
+- Discovery deck → `DiscoveryRepository` / `DiscoveryUsersService` (`features/discovery/data/`)
 - Batch user profiles → `UsersBatchLoader.fetchByIds` (`core/services/`)
 - Push → `PushNotificationService` (`core/services/`)
 - Issue reports → `IssueReportService` (`features/settings/data/`)
 - Auth → `AuthService` (`features/auth/data/`)
+
+**Riverpod pattern (server-backed state):**
+
+- `StreamProvider.autoDispose.family` for live Firestore streams keyed by uid/matchId
+- `Provider` / `Provider.autoDispose.family` for derived counts and one-shot reads
+- `ref.watch(provider)` in build; `ref.read(repoProvider)` in callbacks
+- Top-level UI helpers without `ref`: `ProviderScope.containerOf(context).read(...)`
 
 ## File size
 

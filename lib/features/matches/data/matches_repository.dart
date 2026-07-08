@@ -43,6 +43,11 @@ class MatchesRepository {
         .map((snap) =>
             snap.docs.map((d) => (id: d.id, data: d.data())).toList());
   }
+
+  /// Removes an incoming/outgoing like document (e.g. pass on Liked You preview).
+  Future<void> deleteLike(String likeDocumentId) async {
+    await _firestore.collection('likes').doc(likeDocumentId).delete();
+  }
 }
 
 final matchesRepositoryProvider = Provider<MatchesRepository>((ref) {

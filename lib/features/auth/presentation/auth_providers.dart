@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 
 /// Firebase Auth session stream for the app gate.
 final authStateProvider = StreamProvider<User?>((ref) {
@@ -16,13 +17,11 @@ final currentUserIdProvider = Provider<String?>((ref) {
       );
 });
 
-/// Live Firestore user document for profile completion checks.
+/// Live profile map for [uid]; emits null when the document is absent.
 final userProfileStreamProvider =
-    StreamProvider.family<DocumentSnapshot<Map<String, dynamic>>, String>(
-  (ref, uid) {
-    return FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
-  },
-);
+    StreamProvider.family<Map<String, dynamic>?, String>((ref, uid) {
+  return ref.watch(profileRepositoryProvider).watchProfile(uid);
+});
 
 /// Whether the signed-in user's profile is marked complete in Firestore.
 final profileCompleteProvider = Provider.family<bool?, String>((ref, uid) {
@@ -30,9 +29,6 @@ final profileCompleteProvider = Provider.family<bool?, String>((ref, uid) {
   return profileAsync.when(
     loading: () => null,
     error: (error, stackTrace) => false,
-    data: (snap) {
-      final data = snap.data();
-      return data?['profileComplete'] == true;
-    },
+    data: (data) => data?['profileComplete'] == true,
   );
 });

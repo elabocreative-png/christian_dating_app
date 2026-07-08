@@ -62,10 +62,12 @@ class ChatRepository {
     required String matchId,
     required String senderId,
     required String text,
+    String? likedContent,
   }) async {
     await _messagesRef(matchId).add({
       'senderId': senderId,
       'text': text,
+      if (likedContent != null) 'content': likedContent,
       'createdAt': Timestamp.now(),
     });
 

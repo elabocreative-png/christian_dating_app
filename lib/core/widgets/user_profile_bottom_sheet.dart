@@ -1,10 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
+import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
 import 'package:christian_dating_app/features/matches/data/likes_service.dart';
+import 'package:christian_dating_app/features/matches/data/matches_repository.dart';
 import 'package:christian_dating_app/core/services/push_notification_service.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
@@ -78,11 +80,9 @@ void showUserProfileBottomSheet(
         final likeDocId = incomingLikeDocumentId;
         final likerId = likerUserId;
         onPass = () async {
+          final container = ProviderScope.containerOf(sheetContext);
           try {
-            await FirebaseFirestore.instance
-                .collection('likes')
-                .doc(likeDocId)
-                .delete();
+            await container.read(matchesRepositoryProvider).deleteLike(likeDocId);
             if (sheetContext.mounted) {
               Navigator.of(sheetContext).pop();
             }
@@ -95,6 +95,7 @@ void showUserProfileBottomSheet(
           }
         };
         onLike = () async {
+          final container = ProviderScope.containerOf(sheetContext);
           try {
             final rootContext = Navigator.of(sheetContext, rootNavigator: true)
                 .context;
@@ -109,10 +110,9 @@ void showUserProfileBottomSheet(
             );
             if (result.liked) {
               try {
-                await FirebaseFirestore.instance
-                    .collection('likes')
-                    .doc(likeDocId)
-                    .delete();
+                await container
+                    .read(matchesRepositoryProvider)
+                    .deleteLike(likeDocId);
               } catch (e) {
                 if (sheetContext.mounted) {
                   ScaffoldMessenger.of(sheetContext).showSnackBar(
@@ -349,17 +349,9 @@ Future<void> _confirmAndUnmatch(
   );
   if (confirmed != true || !context.mounted) return;
 
+  final container = ProviderScope.containerOf(context);
   try {
-    final matchRef =
-        FirebaseFirestore.instance.collection('matches').doc(matchId);
-    final messages = await matchRef.collection('messages').get();
-
-    final batch = FirebaseFirestore.instance.batch();
-    for (final doc in messages.docs) {
-      batch.delete(doc.reference);
-    }
-    batch.delete(matchRef);
-    await batch.commit();
+    await container.read(chatRepositoryProvider).unmatch(matchId);
 
     if (!context.mounted) return;
     Navigator.of(context).pop();
