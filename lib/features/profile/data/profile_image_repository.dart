@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:christian_dating_app/features/profile/domain/profile_image_upload_progress.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,13 +84,19 @@ class ProfileImageRepository {
       StreamSubscription<TaskSnapshot>? thumbSub;
       if (onProgress != null) {
         void emit() {
-          final uploadFraction = _uploadByteProgress(
-            fullTask.snapshot,
-            thumbTask.snapshot,
-            fullSize,
-            thumbSize,
+          final uploadFraction = profileUploadByteProgress(
+            fullBytesTransferred: fullTask.snapshot.bytesTransferred,
+            thumbBytesTransferred: thumbTask.snapshot.bytesTransferred,
+            fullSize: fullSize,
+            thumbSize: thumbSize,
           );
-          onProgress(_blendUploadProgress(uploadFraction));
+          onProgress(
+            blendProfileUploadProgress(
+              uploadFraction,
+              compressEnd: _progressCompressEnd,
+              uploadEnd: _progressUploadEnd,
+            ),
+          );
         }
 
         emit();
@@ -156,23 +163,6 @@ class ProfileImageRepository {
     await Future.wait(List.generate(workers, (_) => worker()));
 
     return results.cast<UploadedProfilePhoto>();
-  }
-
-  double _uploadByteProgress(
-    TaskSnapshot a,
-    TaskSnapshot b,
-    int fullSize,
-    int thumbSize,
-  ) {
-    final total = fullSize + thumbSize;
-    if (total <= 0) return 0;
-    return ((a.bytesTransferred + b.bytesTransferred) / total)
-        .clamp(0.0, 1.0);
-  }
-
-  double _blendUploadProgress(double uploadFraction) {
-    return _progressCompressEnd +
-        uploadFraction * (_progressUploadEnd - _progressCompressEnd);
   }
 
   Future<File> _compressToTempFile(
