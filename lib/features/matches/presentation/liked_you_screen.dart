@@ -11,7 +11,7 @@ import 'package:christian_dating_app/features/discovery/data/discovery_repositor
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
-import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
+import 'package:christian_dating_app/features/profile/presentation/profile_providers.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/empty_state_illustration.dart';
@@ -110,35 +110,30 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
       };
     }
 
-    return FutureBuilder<Map<String, Map<String, dynamic>>>(
-      key: ValueKey(
-        '${_selectedTab.name}:${likes.map((d) => d.id).join(',')}',
-      ),
-      future: ref.read(profileRepositoryProvider).fetchProfilesByIds(
-        likes.map((d) => profileUserIdFor(d.data)),
-      ),
-      builder: (context, usersSnapshot) {
-        if (!usersSnapshot.hasData) {
-          return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(
-              _gridHPadding,
-              8,
-              _gridHPadding,
-              24,
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: _columns,
-              childAspectRatio: _childAspectRatio,
-              crossAxisSpacing: _crossGap,
-              mainAxisSpacing: _mainGap,
-            ),
-            itemCount: likes.length,
-            itemBuilder: (context, index) => const LikedYouCardSkeleton(),
-          );
-        }
+    final idsKey = profilesByIdsCacheKey(
+      likes.map((d) => profileUserIdFor(d.data)),
+    );
+    final profilesAsync = ref.watch(profilesByIdsProvider(idsKey));
 
-        final userById = usersSnapshot.data!;
-
+    return profilesAsync.when(
+      loading: () => GridView.builder(
+        padding: const EdgeInsets.fromLTRB(
+          _gridHPadding,
+          8,
+          _gridHPadding,
+          24,
+        ),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: _columns,
+          childAspectRatio: _childAspectRatio,
+          crossAxisSpacing: _crossGap,
+          mainAxisSpacing: _mainGap,
+        ),
+        itemCount: likes.length,
+        itemBuilder: (context, index) => const LikedYouCardSkeleton(),
+      ),
+      error: (error, stackTrace) => Center(child: Text('Error: $error')),
+      data: (userById) {
         return GridView.builder(
           padding: const EdgeInsets.fromLTRB(
             _gridHPadding,

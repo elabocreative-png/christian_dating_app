@@ -5,7 +5,7 @@ import 'package:christian_dating_app/features/auth/presentation/auth_providers.d
 import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/features/settings/domain/blocked_user_record.dart';
 import 'package:christian_dating_app/features/settings/presentation/block_providers.dart';
-import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
+import 'package:christian_dating_app/features/profile/presentation/profile_providers.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/block_report_sheet.dart';
 import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
@@ -99,18 +99,17 @@ class BlockedUsersScreen extends ConsumerWidget {
                     );
                   }
 
-                  return FutureBuilder<Map<String, Map<String, dynamic>>>(
-                    key: ValueKey(
-                      records.map((r) => r.blockedUserId).join(','),
-                    ),
-                    future: ref
-                        .read(profileRepositoryProvider)
-                        .fetchProfilesByIds(
-                          records.map((r) => r.blockedUserId),
-                        ),
-                    builder: (context, usersSnapshot) {
-                      final userById = usersSnapshot.data ?? {};
+                  final idsKey = profilesByIdsCacheKey(
+                    records.map((r) => r.blockedUserId),
+                  );
+                  final profilesAsync = ref.watch(profilesByIdsProvider(idsKey));
 
+                  return profilesAsync.when(
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, stackTrace) =>
+                        Center(child: Text('Error: $error')),
+                    data: (userById) {
                       return ListView.separated(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         itemCount: records.length,

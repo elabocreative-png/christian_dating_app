@@ -15,7 +15,7 @@ import 'package:christian_dating_app/features/matches/presentation/matches_provi
 import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
-import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
+import 'package:christian_dating_app/features/profile/presentation/profile_providers.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/avatar_unread_dot.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/chat_messages_sort_sheet.dart';
@@ -371,18 +371,30 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     if (firstLikerId != null &&
         firstLikerId.isNotEmpty &&
         firstLikerFromBatch == null) {
-      return FutureBuilder<Map<String, Map<String, dynamic>>>(
-        future: ref.read(profileRepositoryProvider).fetchProfilesByIds([firstLikerId]),
-        builder: (context, likerSnapshot) {
-          final likerData = likerSnapshot.data?[firstLikerId];
-          return _buildNewConnectionsListView(
-            stripMatches: stripMatches,
-            currentUserId: currentUserId,
-            userById: userById,
-            likesCount: likesCount,
-            firstLikerData: likerData,
-          );
-        },
+      final likerAsync =
+          ref.watch(profilesByIdsProvider(profilesByIdsCacheKey([firstLikerId])));
+      return likerAsync.when(
+        loading: () => _buildNewConnectionsListView(
+          stripMatches: stripMatches,
+          currentUserId: currentUserId,
+          userById: userById,
+          likesCount: likesCount,
+          firstLikerData: null,
+        ),
+        error: (error, stackTrace) => _buildNewConnectionsListView(
+          stripMatches: stripMatches,
+          currentUserId: currentUserId,
+          userById: userById,
+          likesCount: likesCount,
+          firstLikerData: null,
+        ),
+        data: (likerById) => _buildNewConnectionsListView(
+          stripMatches: stripMatches,
+          currentUserId: currentUserId,
+          userById: userById,
+          likesCount: likesCount,
+          firstLikerData: likerById[firstLikerId],
+        ),
       );
     }
 
@@ -686,40 +698,56 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
             );
           }
 
-          return FutureBuilder<Map<String, Map<String, dynamic>>>(
-            key: ValueKey(matches.map((d) => d.id).join(',')),
-            future: ref.read(profileRepositoryProvider).fetchProfilesByIds(
-              _otherUserIdsFromMatches(matches, currentUserId),
-            ),
-            builder: (context, usersSnapshot) {
-              final userById = usersSnapshot.data;
+          final idsKey = profilesByIdsCacheKey(
+            _otherUserIdsFromMatches(matches, currentUserId),
+          );
+          final profilesAsync = ref.watch(profilesByIdsProvider(idsKey));
+
+          return profilesAsync.when(
+            loading: () {
               final filteredChatMatches = _filteredChatMatches(
                 chatMatches,
                 currentUserId,
               );
-
-              if (chatMatches.isNotEmpty && !usersSnapshot.hasData) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildChatsHeader(
-                      context: context,
-                      currentUserId: currentUserId,
-                      stripMatches: stripMatches,
-                      stripWhenEmptyText: stripWhenEmptyText,
-                      userById: userById,
-                      showNewConnectionsSection: true,
-                      blockedUserIds: blockedUserIds,
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildChatsHeader(
+                    context: context,
+                    currentUserId: currentUserId,
+                    stripMatches: stripMatches,
+                    stripWhenEmptyText: stripWhenEmptyText,
+                    showNewConnectionsSection: true,
+                    blockedUserIds: blockedUserIds,
+                  ),
+                  _buildChatsListSectionHeader(),
+                  Expanded(
+                    child: ChatListSkeleton(
+                      itemCount: filteredChatMatches.length.clamp(6, 10),
                     ),
-                    _buildChatsListSectionHeader(),
-                    Expanded(
-                      child: ChatListSkeleton(
-                        itemCount: filteredChatMatches.length.clamp(6, 10),
-                      ),
-                    ),
-                  ],
-                );
-              }
+                  ),
+                ],
+              );
+            },
+            error: (error, stackTrace) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildChatsHeader(
+                  context: context,
+                  currentUserId: currentUserId,
+                  stripMatches: stripMatches,
+                  stripWhenEmptyText: stripWhenEmptyText,
+                  showNewConnectionsSection: true,
+                  blockedUserIds: blockedUserIds,
+                ),
+                Expanded(child: Center(child: Text('Error: $error'))),
+              ],
+            ),
+            data: (userById) {
+              final filteredChatMatches = _filteredChatMatches(
+                chatMatches,
+                currentUserId,
+              );
 
               if (chatMatches.isEmpty) {
                 return Column(
@@ -797,7 +825,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                                       currentUserId: currentUserId,
                                       userData: otherId == null
                                           ? null
-                                          : userById?[otherId],
+                                          : userById[otherId],
                                       searchQuery: _searchController.text,
                                       isSearching: _isSearching,
                                       openedLocally: _openedMatchIds
