@@ -5,10 +5,8 @@ import 'package:christian_dating_app/features/auth/presentation/auth_providers.d
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/settings/presentation/block_providers.dart';
-import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
@@ -23,7 +21,6 @@ import 'package:christian_dating_app/features/matches/presentation/widgets/empty
 import 'package:christian_dating_app/features/matches/presentation/widgets/likes_strip_chip.dart';
 import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/skeleton_loaders.dart';
-import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 
 String? otherUserIdFromMatch(
   Map<String, dynamic> matchData,
@@ -209,35 +206,6 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
         );
     if (!mounted) return;
     setState(() => _openedMatchIds.add(matchId));
-  }
-
-  Future<void> _openMatchPreview(
-    BuildContext context, {
-    required String matchId,
-    required String currentUserId,
-    required Map<String, dynamic> userData,
-    required String otherUserId,
-  }) async {
-    final name = userData['name']?.toString().trim();
-    final title = (name != null && name.isNotEmpty) ? name : 'Profile';
-    final userWithDistance = await ref
-        .read(discoveryRepositoryProvider)
-        .enrichWithDistance(userData, viewerUid: currentUserId);
-    if (!context.mounted) return;
-    showUserProfileBottomSheet(
-      context,
-      user: userWithDistance,
-      profileUserId: otherUserId,
-      title: title,
-      connectionMatchId: matchId,
-      connectionUserId: otherUserId,
-      blockSource: BlockSource.matches,
-      onConnectionMessage: () => _openMatchChat(
-        context,
-        matchId: matchId,
-        currentUserId: currentUserId,
-      ),
-    );
   }
 
   /// Empty state for the messages list area.

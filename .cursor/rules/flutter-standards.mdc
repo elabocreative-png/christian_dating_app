@@ -29,8 +29,8 @@ folder layout and layering rules.
    `features/<name>/presentation/*_providers.dart`. Session/auth providers live in
    `features/auth/presentation/auth_providers.dart` (`authStateProvider`,
    `currentUserIdProvider`, `profileCompleteProvider`).
-6. **No Firestore in presentation or domain.** Import `cloud_firestore` only in `data/`
-   and `core/services/`. Parse timestamps in pure code via `firestore_value_utils.dart`.
+6. **No Firestore in presentation or domain.** Import `cloud_firestore` only in
+   `features/*/data/`. Parse timestamps in pure code via `firestore_value_utils.dart`.
 7. **Navigation: `Navigator` + `rootNavigatorKey`** (`core/navigation/app_navigator.dart`).
 8. **Imports use `package:christian_dating_app/...`** — no cross-folder relative `../` imports.
 9. **Prefer `const` constructors** and keep widgets small; split feature-specific widgets

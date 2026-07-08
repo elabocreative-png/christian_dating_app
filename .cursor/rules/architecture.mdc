@@ -17,7 +17,6 @@ lib/
     theme/         # app_typography, app_icons, app_illustrations
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
     utils/         # geo_utils, firestore_value_utils
-    services/      # push_notification_service (legacy path; see features/settings/data/)
     models/        # block_source, profile_photo_urls
     navigation/    # app_navigator (rootNavigatorKey)
     widgets/       # app_icon, app_dialog, app_back_button, profile_avatar,
@@ -58,8 +57,7 @@ If only one feature uses it, keep it inside that feature even if it feels generi
 - Already in `core/`: theme (`core/theme/app_typography.dart`), navigation
   (`core/navigation/app_navigator.dart` / `rootNavigatorKey`), shared UI primitives
   (`core/widgets/app_dialog.dart`, `app_back_button.dart`, `app_icon.dart`,
-  `profile_avatar.dart`), feature data helpers (`location_service.dart`,
-  `push_notification_service.dart`), shared constants
+  `profile_avatar.dart`), shared constants
   (`core/constants/*_options.dart`), and the photo-crop module (`core/photo/`).
   Batch profile loads use `ProfileRepository.fetchProfilesByIds`.
 - Stays in a feature: `match_unread.dart` / `liked_you_filters.dart` → `matches/domain/` (pure logic; unread writes in `ChatRepository`),

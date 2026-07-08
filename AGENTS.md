@@ -6,6 +6,9 @@ shared code in `lib/core/`. Deeper rules live in `.cursor/rules/architecture.mdc
 
 ## Architecture (current)
 
+Migration to feature-first repositories + Riverpod is **complete** for presentation
+(no `FutureBuilder` / `StreamBuilder` / `cloud_firestore` in `presentation/`).
+
 ```
 presentation/  →  Riverpod providers + widgets (no cloud_firestore)
 domain/        →  pure logic, unit-testable (no Firebase imports)
