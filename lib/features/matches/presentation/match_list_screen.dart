@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
@@ -10,6 +9,8 @@ import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
+import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
+import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
@@ -60,18 +61,11 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     super.dispose();
   }
 
-  int _sortKey(Map<String, dynamic> data) {
-    final last = data['lastMessageAt'] as Timestamp?;
-    final created = data['createdAt'] as Timestamp?;
-    final t = last ?? created;
-    return t?.millisecondsSinceEpoch ?? 0;
-  }
-
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> _sortedMatches(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-  ) {
-    final list = List<QueryDocumentSnapshot<Map<String, dynamic>>>.from(docs);
-    list.sort((a, b) => _sortKey(b.data()).compareTo(_sortKey(a.data())));
+  List<MatchEntry> _sortedMatches(List<MatchEntry> docs) {
+    final list = List<MatchEntry>.from(docs);
+    list.sort(
+      (a, b) => matchSortMillis(b.data).compareTo(matchSortMillis(a.data)),
+    );
     return list;
   }
 
@@ -81,25 +75,25 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   }
 
   /// “Your matches” strip: matches not yet in [Chats] (no overlap between sections).
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> _matchesAwaitingFirstMessage(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> sortedMatches,
+  List<MatchEntry> _matchesAwaitingFirstMessage(
+    List<MatchEntry> sortedMatches,
   ) {
     return sortedMatches
-        .where((d) => !_matchHasConversation(d.data()))
+        .where((d) => !_matchHasConversation(d.data))
         .toList();
   }
 
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> _filteredChatMatches(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> chatMatches,
+  List<MatchEntry> _filteredChatMatches(
+    List<MatchEntry> chatMatches,
     String currentUserId,
   ) {
-    Iterable<QueryDocumentSnapshot<Map<String, dynamic>>> list = chatMatches;
+    Iterable<MatchEntry> list = chatMatches;
 
     switch (_messagesSort) {
       case ChatMessagesSort.unread:
         list = chatMatches.where(
           (m) => MatchUnread.showsMessageUnreadDot(
-            m.data(),
+            m.data,
             currentUserId,
             openedLocally: _openedMatchIds.contains(m.id),
           ),
@@ -107,7 +101,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
       case ChatMessagesSort.yourMove:
         list = chatMatches.where(
           (m) => MatchUnread.isYourMoveThread(
-            m.data(),
+            m.data,
             currentUserId,
             openedLocally: _openedMatchIds.contains(m.id),
           ),
@@ -116,8 +110,10 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
         break;
     }
 
-    final result = List<QueryDocumentSnapshot<Map<String, dynamic>>>.from(list);
-    result.sort((a, b) => _sortKey(b.data()).compareTo(_sortKey(a.data())));
+    final result = List<MatchEntry>.from(list);
+    result.sort(
+      (a, b) => matchSortMillis(b.data).compareTo(matchSortMillis(a.data)),
+    );
     return result;
   }
 
@@ -131,11 +127,11 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   }
 
   Iterable<String> _otherUserIdsFromMatches(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> matches,
+    List<MatchEntry> matches,
     String currentUserId,
   ) {
     return matches
-        .map((m) => otherUserIdFromMatch(m.data(), currentUserId))
+        .map((m) => otherUserIdFromMatch(m.data, currentUserId))
         .whereType<String>();
   }
 
@@ -336,75 +332,70 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
 
   Widget _buildNewConnectionsStrip({
     required String currentUserId,
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> stripMatches,
+    required List<MatchEntry> stripMatches,
     required String stripWhenEmptyText,
     Map<String, Map<String, dynamic>>? userById,
     Set<String> blockedUserIds = const {},
   }) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('likes')
-          .where('toUserId', isEqualTo: currentUserId)
-          .snapshots(),
-      builder: (context, likesSnapshot) {
-        final likes = likedYouVisibleIncomingLikes(
-          likesSnapshot.data?.docs ?? [],
-        ).where((doc) {
-          final fromUserId = doc.data()['fromUserId']?.toString() ?? '';
-          return fromUserId.isNotEmpty && !blockedUserIds.contains(fromUserId);
-        }).toList();
-        final likesCount = likes.length;
-        final firstLikerId = likes.isNotEmpty
-            ? likes.first.data()['fromUserId']?.toString()
-            : null;
-        final firstLikerFromBatch = firstLikerId == null
-            ? null
-            : userById?[firstLikerId];
+    final incomingLikes =
+        ref.watch(incomingLikesProvider(currentUserId)).asData?.value ??
+            const <Map<String, dynamic>>[];
 
-        if (likesCount == 0 && stripMatches.isEmpty) {
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              stripWhenEmptyText,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
-            ),
+    final likes = incomingLikes.where((data) {
+      if (isLikedYouMessageIntro(data)) return false;
+      final fromUserId = data['fromUserId']?.toString() ?? '';
+      return fromUserId.isNotEmpty && !blockedUserIds.contains(fromUserId);
+    }).toList();
+    final likesCount = likes.length;
+    final firstLikerId = likes.isNotEmpty
+        ? likes.first['fromUserId']?.toString()
+        : null;
+    final firstLikerFromBatch = firstLikerId == null
+        ? null
+        : userById?[firstLikerId];
+
+    if (likesCount == 0 && stripMatches.isEmpty) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          stripWhenEmptyText,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
+          ),
+        ),
+      );
+    }
+
+    if (firstLikerId != null &&
+        firstLikerId.isNotEmpty &&
+        firstLikerFromBatch == null) {
+      return FutureBuilder<Map<String, Map<String, dynamic>>>(
+        future: UsersBatchLoader.fetchByIds([firstLikerId]),
+        builder: (context, likerSnapshot) {
+          final likerData = likerSnapshot.data?[firstLikerId];
+          return _buildNewConnectionsListView(
+            stripMatches: stripMatches,
+            currentUserId: currentUserId,
+            userById: userById,
+            likesCount: likesCount,
+            firstLikerData: likerData,
           );
-        }
+        },
+      );
+    }
 
-        if (firstLikerId != null &&
-            firstLikerId.isNotEmpty &&
-            firstLikerFromBatch == null) {
-          return FutureBuilder<Map<String, Map<String, dynamic>>>(
-            future: UsersBatchLoader.fetchByIds([firstLikerId]),
-            builder: (context, likerSnapshot) {
-              final likerData = likerSnapshot.data?[firstLikerId];
-              return _buildNewConnectionsListView(
-                stripMatches: stripMatches,
-                currentUserId: currentUserId,
-                userById: userById,
-                likesCount: likesCount,
-                firstLikerData: likerData,
-              );
-            },
-          );
-        }
-
-        return _buildNewConnectionsListView(
-          stripMatches: stripMatches,
-          currentUserId: currentUserId,
-          userById: userById,
-          likesCount: likesCount,
-          firstLikerData: firstLikerFromBatch,
-        );
-      },
+    return _buildNewConnectionsListView(
+      stripMatches: stripMatches,
+      currentUserId: currentUserId,
+      userById: userById,
+      likesCount: likesCount,
+      firstLikerData: firstLikerFromBatch,
     );
   }
 
   Widget _buildNewConnectionsListView({
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> stripMatches,
+    required List<MatchEntry> stripMatches,
     required String currentUserId,
     required int likesCount,
     Map<String, dynamic>? firstLikerData,
@@ -428,7 +419,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
 
         final match = stripMatches[index - 1];
         final otherId = otherUserIdFromMatch(
-          match.data(),
+          match.data,
           currentUserId,
         );
         if (otherId == null) {
@@ -437,7 +428,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
         return Padding(
           padding: const EdgeInsets.only(top: 4),
           child: _MatchAvatarChip(
-            matchData: match.data(),
+            matchData: match.data,
             currentUserId: currentUserId,
             userData: userById?[otherId],
             nameFilter: _searchController.text,
@@ -458,7 +449,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   Widget _buildChatsHeader({
     required BuildContext context,
     required String currentUserId,
-    required List<QueryDocumentSnapshot<Map<String, dynamic>>> stripMatches,
+    required List<MatchEntry> stripMatches,
     required String stripWhenEmptyText,
     Map<String, Map<String, dynamic>>? userById,
     bool showNewConnectionsSection = true,
@@ -469,7 +460,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           (m) =>
               !_openedMatchIds.contains(m.id) &&
               MatchUnread.isUnopenedNewConnection(
-                m.data(),
+                m.data,
                 currentUserId,
               ),
         )
@@ -609,15 +600,15 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     );
   }
 
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> _matchesWithoutBlocked(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> matches,
+  List<MatchEntry> _matchesWithoutBlocked(
+    List<MatchEntry> matches,
     String currentUserId,
     Set<String> blockedUserIds,
   ) {
     if (blockedUserIds.isEmpty) return matches;
     return matches
         .where((match) {
-          final otherId = otherUserIdFromMatch(match.data(), currentUserId);
+          final otherId = otherUserIdFromMatch(match.data, currentUserId);
           return otherId == null || !blockedUserIds.contains(otherId);
         })
         .toList();
@@ -633,6 +624,8 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
       );
     }
 
+    final matchesAsync = ref.watch(matchesStreamProvider(currentUserId));
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: StreamBuilder<Set<String>>(
@@ -640,59 +633,46 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
         builder: (context, blockedSnapshot) {
           final blockedUserIds = blockedSnapshot.data ?? const {};
 
-          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('matches')
-            .where('users', arrayContains: currentUserId)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              !snapshot.hasData) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildChatsHeader(
-                  context: context,
-                  currentUserId: currentUserId,
-                  stripMatches: const [],
-                  stripWhenEmptyText: '',
-                  showNewConnectionsSection: false,
-                ),
-                _buildChatsListSectionHeader(),
-                const Expanded(
-                  child: ChatListSkeleton(),
-                ),
-              ],
-            );
-          }
-
-          if (snapshot.hasError) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildChatsHeader(
-                  context: context,
-                  currentUserId: currentUserId,
-                  stripMatches: const [],
-                  stripWhenEmptyText: '',
-                  showNewConnectionsSection: false,
-                ),
-                Expanded(
-                  child: Center(child: Text('Error: ${snapshot.error}')),
-                ),
-              ],
-            );
-          }
-
-          final raw =
-              snapshot.data?.docs ?? <QueryDocumentSnapshot<Map<String, dynamic>>>[];
+          return matchesAsync.when(
+        loading: () => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildChatsHeader(
+              context: context,
+              currentUserId: currentUserId,
+              stripMatches: const [],
+              stripWhenEmptyText: '',
+              showNewConnectionsSection: false,
+            ),
+            _buildChatsListSectionHeader(),
+            const Expanded(
+              child: ChatListSkeleton(),
+            ),
+          ],
+        ),
+        error: (error, stackTrace) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildChatsHeader(
+              context: context,
+              currentUserId: currentUserId,
+              stripMatches: const [],
+              stripWhenEmptyText: '',
+              showNewConnectionsSection: false,
+            ),
+            Expanded(
+              child: Center(child: Text('Error: $error')),
+            ),
+          ],
+        ),
+        data: (raw) {
           final matches = _matchesWithoutBlocked(
             _sortedMatches(raw),
             currentUserId,
             blockedUserIds,
           );
           final chatMatches = matches
-              .where((d) => _matchHasConversation(d.data()))
+              .where((d) => _matchHasConversation(d.data))
               .toList();
           final stripMatches = _matchesAwaitingFirstMessage(matches);
           const stripHintNoMatches = 'No matches yet. Keep swiping!';
@@ -811,7 +791,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                                   (context, index) {
                                     final match = filteredChatMatches[index];
                                     final otherId = otherUserIdFromMatch(
-                                      match.data(),
+                                      match.data,
                                       currentUserId,
                                     );
                                     return _ChatListTile(
@@ -954,7 +934,7 @@ class _ChatListTile extends StatelessWidget {
     required this.onTap,
   });
 
-  final QueryDocumentSnapshot<Map<String, dynamic>> match;
+  final MatchEntry match;
   final String currentUserId;
   final Map<String, dynamic>? userData;
   final String searchQuery;
@@ -966,7 +946,7 @@ class _ChatListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = match.data();
+    final data = match.data;
 
     final lastMessage = data['lastMessage']?.toString().trim();
     final lastSender = data['lastMessageSenderId']?.toString();
