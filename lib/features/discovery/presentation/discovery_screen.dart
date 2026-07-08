@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,7 +9,8 @@ import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_users_service.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
+import 'package:christian_dating_app/features/discovery/domain/nearby_user.dart';
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/data/likes_service.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_helper_hint_overlay.dart';
@@ -126,11 +126,10 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
       return;
     }
 
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final data =
+        await ref.read(discoveryRepositoryProvider).fetchViewerProfile(uid);
     if (!mounted) return;
 
-    final data = doc.data() ?? <String, dynamic>{};
     final hintsComplete = data['discoveryHintsComplete'];
     setState(() {
       _viewerProfile = data;
@@ -147,10 +146,9 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
   Future<void> _completeDiscoveryHints() async {
     final uid = ref.read(currentUserIdProvider);
     if (uid != null) {
-      await FirebaseFirestore.instance.collection('users').doc(uid).set(
-        {'discoveryHintsComplete': true},
-        SetOptions(merge: true),
-      );
+      await ref
+          .read(discoveryRepositoryProvider)
+          .markDiscoveryHintsComplete(uid);
     }
     if (mounted) setState(() => _activeHintStep = null);
   }
@@ -164,19 +162,18 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     });
   }
 
-  Future<String> _readDiscoveryModeFromFirestore() async {
+  Future<List<NearbyUser>> _fetchNearbyUsers() async {
     final uid = ref.read(currentUserIdProvider);
-    if (uid == null) return kDiscoveryModeDating;
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    return doc.data()?['discoveryMode']?.toString() == kDiscoveryModeSocial
-        ? kDiscoveryModeSocial
-        : kDiscoveryModeDating;
+    if (uid == null) return [];
+    return ref.read(discoveryRepositoryProvider).fetchNearbyUsers(uid);
   }
 
   Future<List<NearbyUser>> _initialUsersLoad() async {
-    _activeDiscoveryMode = await _readDiscoveryModeFromFirestore();
-    return DiscoveryUsersService.fetchNearbyUsers();
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return [];
+    _activeDiscoveryMode =
+        await ref.read(discoveryRepositoryProvider).fetchDiscoveryMode(uid);
+    return _fetchNearbyUsers();
   }
 
   void _persistDeckForMode(String mode) {
@@ -269,7 +266,7 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     if (!mounted) return;
 
     // Drop stale index from the other mode so we never show its empty state here.
-    final pending = DiscoveryUsersService.fetchNearbyUsers();
+    final pending = _fetchNearbyUsers();
     setState(() {
       currentIndex = 0;
       dragX = 0;
@@ -429,7 +426,7 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
       _lastFetchedUsers = null;
       _lastFetchedUsersMode = null;
       _deckOverride = null;
-      usersFuture = DiscoveryUsersService.fetchNearbyUsers();
+      usersFuture = _fetchNearbyUsers();
     });
   }
 
@@ -683,7 +680,7 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     if (!_canReviewSkippedProfiles || _swipeAnimating) return;
 
     if (users.isEmpty) {
-      final fetched = await DiscoveryUsersService.fetchNearbyUsers();
+      final fetched = await _fetchNearbyUsers();
       if (!mounted) return;
       setState(() {
         _deckOverride = null;

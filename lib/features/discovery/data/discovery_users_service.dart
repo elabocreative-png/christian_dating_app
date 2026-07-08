@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
+import 'package:christian_dating_app/features/discovery/domain/nearby_user.dart';
 import 'package:christian_dating_app/core/utils/geo_utils.dart';
 import 'package:christian_dating_app/features/discovery/domain/account_visibility.dart';
 import 'package:christian_dating_app/core/services/block_service.dart';
@@ -10,30 +11,6 @@ import 'package:christian_dating_app/core/services/block_service.dart';
 GeoPoint? _cachedViewerLocation;
 String? _cachedViewerUid;
 
-/// A discoverable user plus optional distance from the current viewer.
-class NearbyUser {
-  const NearbyUser({
-    required this.document,
-    this.distanceKm,
-  });
-
-  final DocumentSnapshot document;
-  final double? distanceKm;
-
-  String get id => document.id;
-
-  Map<String, dynamic> get profileData {
-    final raw = document.data();
-    final data = raw is Map<String, dynamic>
-        ? Map<String, dynamic>.from(raw)
-        : <String, dynamic>{};
-    if (distanceKm != null) {
-      data['distanceKm'] = distanceKm;
-    }
-    return data;
-  }
-}
-
 /// Loads users for discovery, sorted by distance when coordinates exist.
 class DiscoveryUsersService {
   static void invalidateViewerCache() {
@@ -41,17 +18,17 @@ class DiscoveryUsersService {
     _cachedViewerUid = null;
   }
 
-  static Future<GeoPoint?> _viewerLocation() async {
-    final authUser = FirebaseAuth.instance.currentUser;
-    if (authUser == null) return null;
-    if (_cachedViewerUid == authUser.uid && _cachedViewerLocation != null) {
+  static Future<GeoPoint?> _viewerLocation([String? uid]) async {
+    final viewerId = uid ?? FirebaseAuth.instance.currentUser?.uid;
+    if (viewerId == null) return null;
+    if (_cachedViewerUid == viewerId && _cachedViewerLocation != null) {
       return _cachedViewerLocation;
     }
     final meSnap = await FirebaseFirestore.instance
         .collection('users')
-        .doc(authUser.uid)
+        .doc(viewerId)
         .get();
-    _cachedViewerUid = authUser.uid;
+    _cachedViewerUid = viewerId;
     _cachedViewerLocation = parseUserGeoPoint(meSnap.data()?['location']);
     return _cachedViewerLocation;
   }
@@ -74,14 +51,11 @@ class DiscoveryUsersService {
     return copy;
   }
 
-  static Future<List<NearbyUser>> fetchNearbyUsers() async {
-    final authUser = FirebaseAuth.instance.currentUser;
-    if (authUser == null) return [];
-
-    final myLocation = await _viewerLocation();
+  static Future<List<NearbyUser>> fetchNearbyUsers(String uid) async {
+    final myLocation = await _viewerLocation(uid);
     final meSnap = await FirebaseFirestore.instance
         .collection('users')
-        .doc(authUser.uid)
+        .doc(uid)
         .get();
     final meData = meSnap.data();
     final maxKm =
@@ -104,15 +78,15 @@ class DiscoveryUsersService {
 
     final outgoingLikes = await FirebaseFirestore.instance
         .collection('likes')
-        .where('fromUserId', isEqualTo: authUser.uid)
+        .where('fromUserId', isEqualTo: uid)
         .get();
     final incomingLikes = await FirebaseFirestore.instance
         .collection('likes')
-        .where('toUserId', isEqualTo: authUser.uid)
+        .where('toUserId', isEqualTo: uid)
         .get();
     final matches = await FirebaseFirestore.instance
         .collection('matches')
-        .where('users', arrayContains: authUser.uid)
+        .where('users', arrayContains: uid)
         .get();
 
     final matchedUserIds = <String>{};
@@ -121,7 +95,7 @@ class DiscoveryUsersService {
       if (users is! List) continue;
       for (final userId in users) {
         final id = userId.toString();
-        if (id.isNotEmpty && id != authUser.uid) {
+        if (id.isNotEmpty && id != uid) {
           matchedUserIds.add(id);
         }
       }
@@ -137,7 +111,7 @@ class DiscoveryUsersService {
     final ranked = <NearbyUser>[];
 
     for (final doc in snapshot.docs) {
-      if (doc.id == authUser.uid) continue;
+      if (doc.id == uid) continue;
       if (blockedUserIds.contains(doc.id)) continue;
 
       final interactionMode = interactionModes[doc.id];
@@ -169,7 +143,8 @@ class DiscoveryUsersService {
 
       ranked.add(
         NearbyUser(
-          document: doc,
+          id: doc.id,
+          profile: Map<String, dynamic>.from(data),
           distanceKm: distanceKm,
         ),
       );
