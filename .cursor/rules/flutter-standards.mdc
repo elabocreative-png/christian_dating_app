@@ -20,22 +20,23 @@ folder layout and layering rules.
 3. **Trimmed layers, not full Clean Architecture.** Use `data/ · domain/ · presentation/`.
    Do **not** add `entities/`, `usecases/`, or repository interfaces — this is a
    single-source (Firebase) app and that boilerplate is not warranted.
-4. **State management: Riverpod (in progress).** Use `flutter_riverpod` for shared/session
-   and server-backed state (`NotifierProvider`, `StreamProvider`, `Provider`). Use
-   `ConsumerWidget` / `ConsumerStatefulWidget` where widgets need `ref`. Keep `setState`
-   for purely local UI state (animations, text controllers, toggles).
+4. **State management: Riverpod.** Use `flutter_riverpod` for shared/session and
+   server-backed state (`StreamProvider`, `FutureProvider`, `Provider`, `NotifierProvider`).
+   Use `ConsumerWidget` / `ConsumerStatefulWidget` where widgets need `ref`. Keep
+   `setState` for purely local UI state (animations, text controllers, toggles).
 5. **Provider placement.** Feature repositories live in `features/<name>/data/` with a
    `*RepositoryProvider`. Cross-screen providers go in
    `features/<name>/presentation/*_providers.dart`. Session/auth providers live in
    `features/auth/presentation/auth_providers.dart` (`authStateProvider`,
    `currentUserIdProvider`, `profileCompleteProvider`).
-6. **No Firestore in presentation.** Widgets and top-level UI helpers must not import
-   `cloud_firestore`. Read/write through a repository via `ref.read(...)` or
-   `ProviderScope.containerOf(context).read(...)` in callbacks.
+6. **No Firestore in presentation or domain.** Import `cloud_firestore` only in `data/`
+   and `core/services/`. Parse timestamps in pure code via `firestore_value_utils.dart`.
 7. **Navigation: `Navigator` + `rootNavigatorKey`** (`core/navigation/app_navigator.dart`).
 8. **Imports use `package:christian_dating_app/...`** — no cross-folder relative `../` imports.
 9. **Prefer `const` constructors** and keep widgets small; split feature-specific widgets
    out rather than growing a mega-widget.
+
+See `AGENTS.md` for repository/provider map and agent workflow.
 
 ## Planned — do NOT introduce unsolicited
 

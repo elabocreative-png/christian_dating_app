@@ -16,7 +16,7 @@ lib/
   core/
     theme/         # app_typography, app_icons, app_illustrations
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
-    utils/         # geo_utils
+    utils/         # geo_utils, firestore_value_utils
     services/      # block_service, location_service, match_read_state,
                    #   push_notification_service, users_batch_loader
     models/        # block_source, profile_photo_urls
@@ -28,7 +28,7 @@ lib/
                    #   onboarding + profile)
   features/
     auth/ chat/ discovery/ matches/ onboarding/ profile/ settings/
-      data/         # Firebase/API access (*Service classes, models from Firestore)
+      data/         # Repositories + legacy *Service classes (Firestore access)
       domain/       # OPTIONAL — pure, Firebase-free logic
       presentation/ # screens + widgets/
   main.dart            # entry point + auth UI
@@ -86,21 +86,19 @@ features/<name>/
 
 ## Enforced rules
 
-1. **No Firebase in widgets.** New Firestore / FirebaseAuth access goes in a service
-   (existing pattern: `AuthService`, `BlockService`, `LikesService`,
-   `DiscoveryUsersService`). Do **not** strip inline queries out of legacy screens
-   unless explicitly asked.
+1. **No Firebase in presentation.** Widgets and top-level UI helpers must not import
+   `cloud_firestore`. Route reads/writes through a repository or core service.
 2. **New features are feature-first** under `lib/features/<name>/`. Do **not** relocate
    legacy files as a side effect of an unrelated edit.
-3. **One service owns each domain's data access.** Reuse an existing service/repository
-   before adding a new query. Feature-owned repositories live in `features/<name>/data/`
-   (e.g. `ProfileRepository`, `ChatRepository`, `MatchesRepository`,
-   `DiscoveryRepository`); cross-cutting ones stay in `core/services/`.
-4. **Data layer returns app types, not Firestore types.** Repository methods return models,
-   plain `Map`, or domain objects — never `DocumentSnapshot`, `QuerySnapshot`, or
-   `Timestamp`. Presentation and `domain/` must not import `cloud_firestore`.
-   (Onboarding deferred sign-up still uses `FirebaseAuth` directly for account
-   creation; all profile reads/writes go through `ProfileRepository`.)
+3. **One repository owns each domain's data access.** Reuse before adding queries.
+   Feature repositories: `ProfileRepository`, `ChatRepository`, `MatchesRepository`,
+   `DiscoveryRepository`. Cross-cutting: `BlockService`, `UsersBatchLoader`, etc. in
+   `core/services/`.
+4. **Data layer returns app types, not Firestore types.** Never expose
+   `DocumentSnapshot`, `QuerySnapshot`, or `Timestamp` to presentation/domain.
+   Use `firestore_value_utils.dart` when parsing timestamp fields in pure logic.
+   Onboarding deferred sign-up may use `FirebaseAuth` directly; profile I/O goes
+   through `ProfileRepository`.
 
 ## Layer guidance (when adding or moving code)
 
