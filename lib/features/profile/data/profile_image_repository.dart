@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Uploaded profile photo URLs (full + avatar-sized thumb).
 class UploadedProfilePhoto {
@@ -17,8 +18,12 @@ class UploadedProfilePhoto {
 }
 
 /// Compresses and uploads profile images to Firebase Storage.
-class ProfileImageService {
-  ProfileImageService._();
+class ProfileImageRepository {
+  ProfileImageRepository({FirebaseStorage? storage}) : _storage = storage;
+
+  final FirebaseStorage? _storage;
+
+  FirebaseStorage get _bucket => _storage ?? FirebaseStorage.instance;
 
   static const int profileMaxSide = 1080;
   static const int thumbMaxSide = 144; // ~72dp @2x
@@ -32,13 +37,13 @@ class ProfileImageService {
   static const double _progressUploadEnd = 0.95;
 
   /// Compresses both sizes, uploads full + thumb in parallel, returns download URLs.
-  static Future<UploadedProfilePhoto> uploadProfilePhoto(
+  Future<UploadedProfilePhoto> uploadProfilePhoto(
     File source,
     String uid, {
     void Function(double progress)? onProgress,
   }) async {
     final stamp = DateTime.now().millisecondsSinceEpoch;
-    final storage = FirebaseStorage.instance.ref().child('user_images');
+    final storage = _bucket.ref().child('user_images');
 
     onProgress?.call(_progressCompressStart);
 
@@ -121,7 +126,7 @@ class ProfileImageService {
   }
 
   /// Uploads [files] with at most [maxConcurrent] uploads running at once.
-  static Future<List<UploadedProfilePhoto>> uploadProfilePhotosParallel(
+  Future<List<UploadedProfilePhoto>> uploadProfilePhotosParallel(
     List<File> files,
     String uid, {
     int maxConcurrent = defaultMaxConcurrentUploads,
@@ -153,7 +158,7 @@ class ProfileImageService {
     return results.cast<UploadedProfilePhoto>();
   }
 
-  static double _uploadByteProgress(
+  double _uploadByteProgress(
     TaskSnapshot a,
     TaskSnapshot b,
     int fullSize,
@@ -165,12 +170,12 @@ class ProfileImageService {
         .clamp(0.0, 1.0);
   }
 
-  static double _blendUploadProgress(double uploadFraction) {
+  double _blendUploadProgress(double uploadFraction) {
     return _progressCompressEnd +
         uploadFraction * (_progressUploadEnd - _progressCompressEnd);
   }
 
-  static Future<File> _compressToTempFile(
+  Future<File> _compressToTempFile(
     File file, {
     required int maxSide,
     required int quality,
@@ -194,7 +199,7 @@ class ProfileImageService {
     return File(result.path);
   }
 
-  static Future<Uint8List> _compress(
+  Future<Uint8List> _compress(
     File file, {
     required int maxSide,
     required int quality,
@@ -213,3 +218,7 @@ class ProfileImageService {
     return Uint8List.fromList(result);
   }
 }
+
+final profileImageRepositoryProvider = Provider<ProfileImageRepository>((ref) {
+  return ProfileImageRepository();
+});

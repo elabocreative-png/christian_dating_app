@@ -17,7 +17,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Concern | Class | Provider |
 |--------|--------|----------|
 | Auth session / uid | `AuthRepository`, `auth_providers.dart` | `authRepositoryProvider`, `authStateProvider`, `currentUserIdProvider`, `profileCompleteProvider` |
-| Profiles | `ProfileRepository` | `profileRepositoryProvider`, `myProfileProvider`, `profilesByIdsProvider`, `fetchProfilesByIds` |
+| Profiles | `ProfileRepository`, `ProfileImageRepository` | `profileRepositoryProvider`, `profileImageRepositoryProvider`, `myProfileProvider`, `profilesByIdsProvider`, `fetchProfilesByIds` |
 | Chat | `ChatRepository` | `chatRepositoryProvider`, `chatMessagesProvider`, `chatContextProvider` |
 | Matches / likes | `MatchesRepository` | `matchesRepositoryProvider`, `matchesStreamProvider`, `incomingLikesProvider`, `outgoingLikesProvider` |
 | Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider`, `enrichWithDistance` |
@@ -27,6 +27,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 **UI orchestration (presentation-only):**
 
 - `features/matches/presentation/like_actions.dart` — `sendLikeWithUiFeedback` (match popup + snackbars after `MatchesRepository.sendLike`)
+- `features/matches/presentation/match_read_providers.dart` — `matchReadStateProvider` (in-session read badges)
 - `ProviderScope.containerOf(context).read(...)` in top-level helpers without `ref`
 
 **Domain (pure, no Firestore):**

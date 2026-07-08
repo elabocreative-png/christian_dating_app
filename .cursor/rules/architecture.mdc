@@ -17,8 +17,7 @@ lib/
     theme/         # app_typography, app_icons, app_illustrations
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
     utils/         # geo_utils, firestore_value_utils
-    services/      # match_read_state (session UI state)
-                   #   push_notification_service
+    services/      # push_notification_service (legacy path; see features/settings/data/)
     models/        # block_source, profile_photo_urls
     navigation/    # app_navigator (rootNavigatorKey)
     widgets/       # app_icon, app_dialog, app_back_button, profile_avatar,
@@ -120,6 +119,7 @@ Reuse existing services/repositories instead of duplicating queries:
 - Push → `PushNotificationService` (`features/settings/data/`); FCM tokens → `ProfileRepository.addFcmToken` / `removeFcmToken`
 - Issue reports → `IssueReportRepository` (`features/settings/data/`)
 - Location / GPS → `LocationService` (`features/profile/data/`)
+- Profile photos → `ProfileImageRepository` (`features/profile/data/`)
 - Auth → `AuthRepository` (`features/auth/data/`)
 
 **Riverpod pattern (server-backed state):**

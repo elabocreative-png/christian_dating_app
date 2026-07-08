@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
-import 'package:christian_dating_app/core/services/match_read_state.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
 import 'package:christian_dating_app/features/settings/presentation/blocked_users_screen.dart';
 import 'package:christian_dating_app/features/settings/presentation/deactivate_account_screen.dart';
 import 'package:christian_dating_app/features/settings/presentation/faq_screen.dart';

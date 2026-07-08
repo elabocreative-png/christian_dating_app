@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
-import 'package:christian_dating_app/core/services/match_read_state.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 

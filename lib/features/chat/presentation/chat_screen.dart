@@ -14,7 +14,7 @@ import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/profile_avatar.dart';
 import 'package:christian_dating_app/core/widgets/user_profile_bottom_sheet.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
-import 'package:christian_dating_app/core/services/match_read_state.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String matchId;

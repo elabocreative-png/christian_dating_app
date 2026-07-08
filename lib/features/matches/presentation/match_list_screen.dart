@@ -13,7 +13,7 @@ import 'package:christian_dating_app/features/matches/domain/liked_you_filters.d
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
 import 'package:christian_dating_app/main_navigation.dart';
-import 'package:christian_dating_app/core/services/match_read_state.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'package:christian_dating_app/features/profile/presentation/profile_providers.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';

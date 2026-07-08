@@ -9,7 +9,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:christian_dating_app/features/profile/domain/profile_completion.dart';
-import 'package:christian_dating_app/features/profile/data/profile_image_service.dart';
+import 'package:christian_dating_app/features/profile/data/profile_image_repository.dart';
 import 'package:christian_dating_app/core/photo/profile_photo_picker.dart';
 import 'package:christian_dating_app/core/constants/denomination_options.dart';
 import 'package:christian_dating_app/core/constants/tongues_options.dart';
@@ -311,7 +311,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
 
     try {
-      final result = await ProfileImageService.uploadProfilePhoto(
+      final result = await ref.read(profileImageRepositoryProvider).uploadProfilePhoto(
         file,
         uid,
         onProgress: (progress) {

@@ -14,7 +14,7 @@ import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
 import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/onboarding/onboarding_requirements.dart';
-import 'package:christian_dating_app/features/profile/data/profile_image_service.dart';
+import 'package:christian_dating_app/features/profile/data/profile_image_repository.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/constants/relationship_intent.dart';
 import 'package:christian_dating_app/features/profile/data/location_service.dart';
@@ -25,7 +25,7 @@ import 'package:christian_dating_app/features/onboarding/presentation/widgets/on
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_prompt_editor_section.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
-import 'package:christian_dating_app/core/services/match_read_state.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
 import 'package:christian_dating_app/features/settings/data/push_notification_service.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_faith_declaration_content.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_notifications_step.dart';
@@ -240,7 +240,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     if (files.isEmpty) {
       return (photos: <String>[], thumbs: <String>[]);
     }
-    final uploaded = await ProfileImageService.uploadProfilePhotosParallel(
+    final uploaded =
+        await ref.read(profileImageRepositoryProvider).uploadProfilePhotosParallel(
       files,
       uid,
     );
