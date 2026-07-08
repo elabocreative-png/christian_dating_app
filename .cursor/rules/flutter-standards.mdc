@@ -15,7 +15,7 @@ folder layout and layering rules.
    (`data/` · optional `domain/` · `presentation/`), or `lib/core/` if it is shared by
    2+ features. Never add another feature's internals as a dependency.
 2. **No business logic in the UI.** Widgets render and dispatch; they do not contain
-   Firestore queries, filtering rules, or calculations. Put data access in a service
+   Firestore queries, filtering rules, or calculations. Put data access in a repository
    (`data/`) and pure logic in `domain/`.
 3. **Trimmed layers, not full Clean Architecture.** Use `data/ · domain/ · presentation/`.
    Do **not** add `entities/`, `usecases/`, or repository interfaces — this is a

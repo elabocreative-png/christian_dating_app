@@ -38,6 +38,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 - `features/discovery/domain/` — deck filters, preferences helpers
 - `features/matches/domain/` — `match_unread.dart`, `liked_you_filters.dart`, `match_entry.dart`
+- `features/profile/domain/` — `profile_image_upload_progress.dart`, `height_utils.dart`, `profile_completion.dart`
 - `core/utils/firestore_value_utils.dart` — parse Timestamp-like values without importing `cloud_firestore` in domain/presentation
 
 ## Riverpod conventions
@@ -70,7 +71,7 @@ flutter analyze
 flutter test
 ```
 
-Keep both green when changing architecture or providers.
+Keep both green when changing architecture or providers. CI runs the same checks on push/PR to `main` (`.github/workflows/flutter_ci.yml`).
 
 ## Git
 
