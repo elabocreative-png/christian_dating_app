@@ -138,7 +138,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _locationHint = null;
     });
     try {
-      final data = await LocationService.getCurrentUserLocation();
+      final location = ref.read(locationServiceProvider);
+      final data = await location.getCurrentUserLocation();
       if (!mounted) return;
       setState(() {
         _pendingLocation = data;
@@ -604,7 +605,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
       if (_pendingLocation != null) {
         updates.addAll(
-          LocationService.firestoreFields(
+          ref.read(locationServiceProvider).firestoreFields(
             _pendingLocation!,
             cityOverride: cityController.text.trim(),
           ),

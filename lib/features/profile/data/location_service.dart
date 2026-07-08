@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -40,7 +41,7 @@ class LocationService {
   }
 
   /// Shows the OS location permission dialog when still needed.
-  static Future<LocationPermission> requestLocationPermission() async {
+  Future<LocationPermission> requestLocationPermission() async {
     var permission = await Geolocator.checkPermission();
 
     if (isPermissionGranted(permission)) {
@@ -54,12 +55,11 @@ class LocationService {
       );
     }
 
-    // denied or unableToDetermine → triggers Android/iOS system prompt.
     permission = await Geolocator.requestPermission();
     return permission;
   }
 
-  static Future<void> ensurePermission() async {
+  Future<void> ensurePermission() async {
     final permission = await requestLocationPermission();
     if (!isPermissionGranted(permission)) {
       final forever = permission == LocationPermission.deniedForever;
@@ -72,7 +72,7 @@ class LocationService {
     }
   }
 
-  static Future<void> ensureLocationServicesEnabled() async {
+  Future<void> ensureLocationServicesEnabled() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw LocationServiceDisabled(
@@ -81,7 +81,7 @@ class LocationService {
     }
   }
 
-  static Future<UserLocationData> getCurrentUserLocation() async {
+  Future<UserLocationData> getCurrentUserLocation() async {
     await requestLocationPermission();
     await ensureLocationServicesEnabled();
 
@@ -106,7 +106,7 @@ class LocationService {
     );
   }
 
-  static Future<String> _resolveCityName(double lat, double lng) async {
+  Future<String> _resolveCityName(double lat, double lng) async {
     try {
       final placemarks = await placemarkFromCoordinates(lat, lng);
       if (placemarks.isEmpty) return '';
@@ -126,7 +126,7 @@ class LocationService {
   }
 
   /// Firestore fields to merge when saving a resolved location.
-  static Map<String, dynamic> firestoreFields(
+  Map<String, dynamic> firestoreFields(
     UserLocationData data, {
     String? cityOverride,
   }) {
@@ -141,3 +141,7 @@ class LocationService {
     };
   }
 }
+
+final locationServiceProvider = Provider<LocationService>((ref) {
+  return LocationService();
+});

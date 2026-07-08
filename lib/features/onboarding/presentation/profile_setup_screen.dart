@@ -201,7 +201,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   Future<void> _allowLocation() async {
     setState(() => _locationLoading = true);
     try {
-      final data = await LocationService.getCurrentUserLocation();
+      final location = ref.read(locationServiceProvider);
+      final data = await location.getCurrentUserLocation();
       if (!mounted) return;
       setState(() => _pendingLocation = data);
     } on LocationServiceDisabled catch (e) {
@@ -277,7 +278,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         'onboardingStep': nextStep,
         'onboardingFlowVersion': ProfileSetupScreen.onboardingFlowVersion,
         if (_pendingLocation != null)
-          ...LocationService.firestoreFields(_pendingLocation!),
+          ...ref.read(locationServiceProvider).firestoreFields(_pendingLocation!),
       },
     );
   }
@@ -357,7 +358,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
       if (_pendingLocation != null) {
         profileData.addAll(
-          LocationService.firestoreFields(_pendingLocation!),
+          ref.read(locationServiceProvider).firestoreFields(_pendingLocation!),
         );
       }
 

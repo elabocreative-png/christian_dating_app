@@ -116,7 +116,7 @@ Reuse existing services/repositories instead of duplicating queries:
 - Batch user profiles → `ProfileRepository.fetchProfilesByIds`
 - Push → `PushNotificationService` + `pushNotificationServiceProvider` (`features/settings/data/`); FCM tokens → `ProfileRepository.addFcmToken` / `removeFcmToken`
 - Issue reports → `IssueReportRepository` (`features/settings/data/`)
-- Location / GPS → `LocationService` (`features/profile/data/`)
+- Location / GPS → `LocationService` + `locationServiceProvider` (`features/profile/data/`)
 - Profile photos → `ProfileImageRepository` (`features/profile/data/`)
 - Auth → `AuthRepository` (`features/auth/data/`)
 
