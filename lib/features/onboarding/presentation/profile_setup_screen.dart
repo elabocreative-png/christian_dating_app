@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,8 +12,10 @@ import 'package:christian_dating_app/core/constants/gender_options.dart';
 import 'package:christian_dating_app/features/auth/data/auth_service.dart';
 import 'package:christian_dating_app/features/auth/data/auth_errors.dart';
 import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/onboarding/onboarding_requirements.dart';
 import 'package:christian_dating_app/features/profile/data/profile_image_service.dart';
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/constants/relationship_intent.dart';
 import 'package:christian_dating_app/core/services/location_service.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/local_profile_photo_grid.dart';
@@ -123,14 +124,12 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       return;
     }
 
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = ref.read(currentUserIdProvider);
     if (uid == null) {
       if (mounted) setState(() => _loadingDraft = false);
       return;
     }
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    final data = doc.data();
+    final data = await ref.read(profileRepositoryProvider).fetchProfile(uid);
     if (!mounted) return;
 
     loadProfilePromptSlots(_promptSlots, promptsRaw: data?['prompts']);
@@ -259,10 +258,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   Future<void> _saveDraft({required int nextStep}) async {
     if (_isDeferredSignup) return;
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
 
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+    await ref.read(profileRepositoryProvider).mergeProfile(
+      uid,
       {
         'name': nameController.text.trim(),
         if (_age != null) 'age': _age,
@@ -279,7 +279,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         if (_pendingLocation != null)
           ...LocationService.firestoreFields(_pendingLocation!),
       },
-      SetOptions(merge: true),
     );
   }
 
@@ -363,16 +362,15 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       }
 
       if (isDeferred) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        await ref.read(profileRepositoryProvider).setProfile(user.uid, {
           ...AuthService.defaultUserFields(pendingEmail!),
           ...profileData,
         });
         ref.read(pendingSignupProvider.notifier).clear();
       } else {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .set(profileData, SetOptions(merge: true));
+        await ref
+            .read(profileRepositoryProvider)
+            .mergeProfile(user.uid, profileData);
       }
 
       await FirebaseAuth.instance.currentUser?.reload();

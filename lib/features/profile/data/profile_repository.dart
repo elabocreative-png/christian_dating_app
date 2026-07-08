@@ -48,6 +48,11 @@ class ProfileRepository {
     await _userRef(uid).set(updates, SetOptions(merge: true));
   }
 
+  /// Writes a full profile document (e.g. first save after deferred sign-up).
+  Future<void> setProfile(String uid, Map<String, dynamic> data) async {
+    await _userRef(uid).set(data);
+  }
+
   Map<String, dynamic> _defaultProfileFields() {
     return {
       'name': '',

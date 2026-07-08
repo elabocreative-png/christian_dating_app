@@ -99,7 +99,8 @@ features/<name>/
 4. **Data layer returns app types, not Firestore types.** Repository methods return models,
    plain `Map`, or domain objects — never `DocumentSnapshot`, `QuerySnapshot`, or
    `Timestamp`. Presentation and `domain/` must not import `cloud_firestore`.
-   (Onboarding `profile_setup_screen.dart` is a known legacy exception until migrated.)
+   (Onboarding deferred sign-up still uses `FirebaseAuth` directly for account
+   creation; all profile reads/writes go through `ProfileRepository`.)
 
 ## Layer guidance (when adding or moving code)
 
