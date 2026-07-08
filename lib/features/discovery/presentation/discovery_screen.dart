@@ -13,7 +13,8 @@ import 'package:christian_dating_app/features/discovery/data/discovery_repositor
 import 'package:christian_dating_app/features/discovery/presentation/discovery_deck_providers.dart';
 import 'package:christian_dating_app/features/discovery/domain/nearby_user.dart';
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
-import 'package:christian_dating_app/features/matches/data/likes_service.dart';
+import 'package:christian_dating_app/features/matches/data/matches_repository.dart';
+import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_helper_hint_overlay.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/hero_inline_snack_bar.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_radar_loading.dart';
@@ -898,18 +899,44 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
     String answer,
     String message,
   ) async {
-    final result = await LikesService.likeUser(
-      context,
-      targetUserId,
-      type,
-      content,
-      answer,
-      message,
-      discoveryMode: _activeDiscoveryMode,
-    );
-    if (result.alreadyLiked && mounted) {
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) {
+      return const LikeResult(liked: false);
+    }
+
+    final result = await ref.read(matchesRepositoryProvider).sendLike(
+          fromUserId: uid,
+          targetUserId: targetUserId,
+          type: type,
+          content: content,
+          answer: answer,
+          message: message,
+          discoveryMode: _activeDiscoveryMode,
+        );
+
+    if (!mounted) return result;
+
+    if (result.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not complete like: ${result.errorMessage}'),
+        ),
+      );
+      return result;
+    }
+
+    if (result.alreadyLiked) {
       _showAlreadyLikedHeroSnackBar();
     }
+
+    if (result.isNewMatch && result.matchId != null) {
+      await showMatchPopup(
+        context,
+        matchId: result.matchId!,
+        matchedUserId: targetUserId,
+      );
+    }
+
     return result;
   }
 

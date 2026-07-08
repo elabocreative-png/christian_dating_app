@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:christian_dating_app/core/utils/firestore_value_utils.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
@@ -596,18 +597,9 @@ class _UserProfileDiscoveryCardState
   }
 
   bool _isNewHereUser() {
-    final createdAt = _createdAtFrom(widget.user['createdAt']);
+    final createdAt = firestoreDateTimeFrom(widget.user['createdAt']);
     if (createdAt == null) return false;
     return DateTime.now().difference(createdAt).inDays <= 14;
-  }
-
-  DateTime? _createdAtFrom(dynamic value) {
-    if (value is DateTime) return value;
-    try {
-      return (value as dynamic)?.toDate() as DateTime?;
-    } catch (_) {
-      return null;
-    }
   }
 
   TextStyle _heroNameStyle({required bool onPhoto}) {

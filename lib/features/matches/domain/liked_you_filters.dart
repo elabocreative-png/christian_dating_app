@@ -1,5 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:christian_dating_app/core/utils/firestore_value_utils.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 
 /// A like document expressed in app types: its id and raw data map.
@@ -39,13 +38,13 @@ List<LikeEntry> likedYouOutgoingLikes(List<LikeEntry> docs) {
       continue;
     }
 
-    final existingAt = existing.data['createdAt'];
-    final docAt = doc.data['createdAt'];
-    if (existingAt is! Timestamp) {
+    final existingAt = firestoreDateTimeFrom(existing.data['createdAt']);
+    final docAt = firestoreDateTimeFrom(doc.data['createdAt']);
+    if (existingAt == null) {
       byTargetId[targetId] = doc;
       continue;
     }
-    if (docAt is Timestamp && docAt.compareTo(existingAt) > 0) {
+    if (docAt != null && docAt.isAfter(existingAt)) {
       byTargetId[targetId] = doc;
     }
   }

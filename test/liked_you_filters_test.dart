@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
@@ -51,21 +50,21 @@ void main() {
           'old',
           {
             'toUserId': 'u2',
-            'createdAt': Timestamp.fromMillisecondsSinceEpoch(1000),
+            'createdAt': DateTime.fromMillisecondsSinceEpoch(1000),
           },
         ),
         _like(
           'new',
           {
             'toUserId': 'u2',
-            'createdAt': Timestamp.fromMillisecondsSinceEpoch(2000),
+            'createdAt': DateTime.fromMillisecondsSinceEpoch(2000),
           },
         ),
         _like(
           'other',
           {
             'toUserId': 'u3',
-            'createdAt': Timestamp.fromMillisecondsSinceEpoch(500),
+            'createdAt': DateTime.fromMillisecondsSinceEpoch(500),
           },
         ),
       ];
@@ -82,14 +81,14 @@ void main() {
           'like1',
           {
             'toUserId': 'matched',
-            'createdAt': Timestamp.fromMillisecondsSinceEpoch(1000),
+            'createdAt': DateTime.fromMillisecondsSinceEpoch(1000),
           },
         ),
         _like(
           'like2',
           {
             'toUserId': 'pending',
-            'createdAt': Timestamp.fromMillisecondsSinceEpoch(2000),
+            'createdAt': DateTime.fromMillisecondsSinceEpoch(2000),
           },
         ),
       ];
