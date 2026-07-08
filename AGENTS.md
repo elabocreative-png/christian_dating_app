@@ -48,7 +48,8 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 `cloud_firestore` belongs only in:
 
 - `features/*/data/*` — repositories and feature services
-- `core/services/` — `LocationService`, `PushNotificationService`
+- `core/services/` — `LocationService`
+- `features/settings/data/push_notification_service.dart` — FCM init + navigation; token I/O via `ProfileRepository`
 - `features/auth/data/auth_service.dart`
 
 **Not** in `presentation/`, `domain/`, or widgets (migration complete).

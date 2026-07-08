@@ -49,6 +49,23 @@ class ProfileRepository {
     await _userRef(uid).set(updates, SetOptions(merge: true));
   }
 
+  /// Registers an FCM device token on the user's profile.
+  Future<void> addFcmToken(String uid, String token) async {
+    if (token.isEmpty) return;
+    await mergeProfile(uid, {
+      'fcmTokens': FieldValue.arrayUnion([token]),
+      'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Removes an FCM device token from the user's profile.
+  Future<void> removeFcmToken(String uid, String token) async {
+    if (token.isEmpty) return;
+    await mergeProfile(uid, {
+      'fcmTokens': FieldValue.arrayRemove([token]),
+    });
+  }
+
   /// Writes a full profile document (e.g. first save after deferred sign-up).
   Future<void> setProfile(String uid, Map<String, dynamic> data) async {
     await _userRef(uid).set(data);

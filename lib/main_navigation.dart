@@ -14,7 +14,7 @@ import 'widgets/nav_tab_badge.dart';
 import 'package:christian_dating_app/features/matches/presentation/liked_you_screen.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_list_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/profile_screen.dart';
-import 'package:christian_dating_app/core/services/push_notification_service.dart';
+import 'package:christian_dating_app/features/settings/data/push_notification_service.dart';
 
 /// Attached to [MainNavigation] so other UI (e.g. Liked You sheet) can switch tabs.
 final GlobalKey<MainNavigationState> mainNavigationKey =

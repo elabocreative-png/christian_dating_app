@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
+import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 
 /// Background FCM handler (must be top-level).
@@ -18,6 +18,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 /// Android push notifications: chat messages + mutual matches.
 abstract final class PushNotificationService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  static final ProfileRepository _profiles = ProfileRepository();
 
   static GlobalKey<NavigatorState>? _navigatorKey;
   static StreamSubscription<String>? _tokenRefreshSub;
@@ -67,10 +68,18 @@ abstract final class PushNotificationService {
     _tokenRefreshSub = null;
   }
 
-  /// Saves FCM token on the signed-in user's Firestore doc.
+  static Future<String?> getDeviceToken() async {
+    try {
+      return await _messaging.getToken();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Saves FCM token on the signed-in user's profile.
   static Future<void> syncTokenForUser(String uid) async {
     try {
-      final token = await _messaging.getToken();
+      final token = await getDeviceToken();
       if (token == null || token.isEmpty) return;
       await _saveToken(uid, token);
     } catch (_) {
@@ -81,13 +90,9 @@ abstract final class PushNotificationService {
   /// Removes this device's token when signing out.
   static Future<void> clearTokenForUser(String uid) async {
     try {
-      final token = await _messaging.getToken();
+      final token = await getDeviceToken();
       if (token == null || token.isEmpty) return;
-
-      await FirebaseFirestore.instance.collection('users').doc(uid).set(
-        {'fcmTokens': FieldValue.arrayRemove([token])},
-        SetOptions(merge: true),
-      );
+      await _profiles.removeFcmToken(uid, token);
     } catch (_) {}
   }
 
@@ -135,13 +140,7 @@ abstract final class PushNotificationService {
   }
 
   static Future<void> _saveToken(String uid, String token) async {
-    await FirebaseFirestore.instance.collection('users').doc(uid).set(
-      {
-        'fcmTokens': FieldValue.arrayUnion([token]),
-        'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
-      },
-      SetOptions(merge: true),
-    );
+    await _profiles.addFcmToken(uid, token);
   }
 
   static void _handleNotificationOpen(RemoteMessage message) {

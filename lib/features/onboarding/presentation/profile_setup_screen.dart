@@ -26,7 +26,7 @@ import 'package:christian_dating_app/features/profile/presentation/widgets/profi
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/core/services/match_read_state.dart';
-import 'package:christian_dating_app/core/services/push_notification_service.dart';
+import 'package:christian_dating_app/features/settings/data/push_notification_service.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_faith_declaration_content.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/widgets/onboarding_notifications_step.dart';
 
