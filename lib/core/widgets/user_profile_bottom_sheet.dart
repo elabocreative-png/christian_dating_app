@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/models/block_source.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
-import 'package:christian_dating_app/features/matches/data/likes_service.dart';
+import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/data/matches_repository.dart';
 import 'package:christian_dating_app/core/services/push_notification_service.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
@@ -99,13 +100,14 @@ void showUserProfileBottomSheet(
           try {
             final rootContext = Navigator.of(sheetContext, rootNavigator: true)
                 .context;
-            final result = await LikesService.likeUser(
-              rootContext,
-              likerId,
-              'profile',
-              'Liked you back',
-              '',
-              '',
+            final result = await _likeUserWithPopup(
+              context: rootContext,
+              container: container,
+              targetUserId: likerId,
+              type: 'profile',
+              content: 'Liked you back',
+              answer: '',
+              message: '',
               matchDismissDestination: MatchPopupDismissDestination.likedYou,
             );
             if (result.liked) {
@@ -140,11 +142,14 @@ void showUserProfileBottomSheet(
         final previewMatchId = connectionMatchId;
         final previewUserId = connectionUserId;
         onConnectionNotForMe = () async {
-          final ok = await LikesService.dismissConnectionAndReturnToDiscovery(
-            context: sheetContext,
-            matchId: previewMatchId,
-            otherUserId: previewUserId,
-          );
+          final container = ProviderScope.containerOf(sheetContext);
+          final uid = container.read(currentUserIdProvider);
+          final ok = uid != null &&
+              await container.read(matchesRepositoryProvider).dismissConnection(
+                    uid: uid,
+                    matchId: previewMatchId,
+                    otherUserId: previewUserId,
+                  );
           if (!sheetContext.mounted) return;
           if (!ok) {
             ScaffoldMessenger.of(sheetContext).showSnackBar(
@@ -167,10 +172,12 @@ void showUserProfileBottomSheet(
       if (showSentActions) {
         final targetUserId = sentProfileUserId;
         onSentDislike = () async {
-          final ok = await LikesService.revokeOutgoingLike(
-            sheetContext,
-            targetUserId,
-          );
+          final container = ProviderScope.containerOf(sheetContext);
+          final uid = container.read(currentUserIdProvider);
+          final ok = uid != null &&
+              await container
+                  .read(matchesRepositoryProvider)
+                  .revokeOutgoingLikes(uid: uid, targetUserId: targetUserId);
           if (!sheetContext.mounted) return;
           if (!ok) {
             ScaffoldMessenger.of(sheetContext).showSnackBar(
@@ -189,15 +196,24 @@ void showUserProfileBottomSheet(
           );
           if (message == null || !sheetContext.mounted) return;
 
-          final rootContext =
-              Navigator.of(sheetContext, rootNavigator: true).context;
-          final matchId = await LikesService.sendDirectMessage(
-            rootContext,
-            targetUserId,
-            message,
-          );
+          final container = ProviderScope.containerOf(sheetContext);
+          final uid = container.read(currentUserIdProvider);
+          if (uid == null) return;
+
+          final matchId = await container
+              .read(matchesRepositoryProvider)
+              .sendDirectMessage(
+                fromUserId: uid,
+                targetUserId: targetUserId,
+                message: message,
+              );
           if (!sheetContext.mounted) return;
-          if (matchId == null) return;
+          if (matchId == null) {
+            ScaffoldMessenger.of(sheetContext).showSnackBar(
+              const SnackBar(content: Text('Could not send message')),
+            );
+            return;
+          }
 
           Navigator.of(sheetContext).pop();
           PushNotificationService.openChat(matchId);
@@ -336,6 +352,54 @@ void showUserProfileBottomSheet(
       );
     },
   );
+}
+
+Future<LikeResult> _likeUserWithPopup({
+  required BuildContext context,
+  required ProviderContainer container,
+  required String targetUserId,
+  required String type,
+  required String content,
+  required String answer,
+  required String message,
+  MatchPopupDismissDestination matchDismissDestination =
+      MatchPopupDismissDestination.discovery,
+}) async {
+  final uid = container.read(currentUserIdProvider);
+  if (uid == null) {
+    return const LikeResult(liked: false);
+  }
+
+  final result = await container.read(matchesRepositoryProvider).sendLike(
+        fromUserId: uid,
+        targetUserId: targetUserId,
+        type: type,
+        content: content,
+        answer: answer,
+        message: message,
+      );
+
+  if (!context.mounted) return result;
+
+  if (result.errorMessage != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Could not complete like: ${result.errorMessage}'),
+      ),
+    );
+    return result;
+  }
+
+  if (result.isNewMatch && result.matchId != null) {
+    await showMatchPopup(
+      context,
+      matchId: result.matchId!,
+      matchedUserId: targetUserId,
+      dismissDestination: matchDismissDestination,
+    );
+  }
+
+  return result;
 }
 
 Future<void> _confirmAndUnmatch(

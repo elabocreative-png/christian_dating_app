@@ -24,7 +24,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 **UI orchestration (presentation-only):**
 
-- `LikesService` — match popup + snackbars; delegates to `MatchesRepository`
+- Like/match popups and snackbars live in presentation widgets (e.g. `discovery_screen.dart`, `user_profile_bottom_sheet.dart`)
 - `ProviderScope.containerOf(context).read(...)` in top-level helpers without `ref`
 
 **Domain (pure, no Firestore):**

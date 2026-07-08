@@ -113,7 +113,7 @@ Reuse existing services/repositories instead of duplicating queries:
 
 - Profiles → `ProfileRepository` (`features/profile/data/`)
 - Blocks → `BlockService` (`core/services/`)
-- Likes/matches list → `MatchesRepository` (+ `LikesService` for UI orchestration) (`features/matches/data/`)
+- Likes/matches list → `MatchesRepository` (`features/matches/data/`)
 - Chat → `ChatRepository` (`features/chat/data/`)
 - Discovery deck → `DiscoveryRepository` / `discoveryDeckProvider` (`features/discovery/presentation/discovery_deck_providers.dart`)
 - Batch user profiles → `ProfileRepository.fetchProfilesByIds`
