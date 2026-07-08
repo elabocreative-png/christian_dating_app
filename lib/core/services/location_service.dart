@@ -2,13 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:christian_dating_app/core/utils/geo_utils.dart';
+
 class UserLocationData {
   const UserLocationData({
-    required this.geoPoint,
+    required this.coordinate,
     required this.city,
   });
 
-  final GeoPoint geoPoint;
+  final GeoCoordinate coordinate;
   final String city;
 }
 
@@ -96,7 +98,10 @@ class LocationService {
     );
 
     return UserLocationData(
-      geoPoint: GeoPoint(position.latitude, position.longitude),
+      coordinate: GeoCoordinate(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      ),
       city: city,
     );
   }
@@ -127,7 +132,10 @@ class LocationService {
   }) {
     final city = cityOverride?.trim();
     return {
-      'location': data.geoPoint,
+      'location': GeoPoint(
+        data.coordinate.latitude,
+        data.coordinate.longitude,
+      ),
       'city': (city != null && city.isNotEmpty) ? city : data.city,
       'locationUpdatedAt': FieldValue.serverTimestamp(),
     };

@@ -6,8 +6,8 @@ import 'package:christian_dating_app/core/models/block_source.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
-import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/data/matches_repository.dart';
+import 'package:christian_dating_app/features/matches/presentation/like_actions.dart';
 import 'package:christian_dating_app/core/services/push_notification_service.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
@@ -98,11 +98,15 @@ void showUserProfileBottomSheet(
         onLike = () async {
           final container = ProviderScope.containerOf(sheetContext);
           try {
+            final uid = container.read(currentUserIdProvider);
+            if (uid == null) return;
+
             final rootContext = Navigator.of(sheetContext, rootNavigator: true)
                 .context;
-            final result = await _likeUserWithPopup(
+            final result = await sendLikeWithUiFeedback(
               context: rootContext,
-              container: container,
+              repository: container.read(matchesRepositoryProvider),
+              fromUserId: uid,
               targetUserId: likerId,
               type: 'profile',
               content: 'Liked you back',
@@ -352,54 +356,6 @@ void showUserProfileBottomSheet(
       );
     },
   );
-}
-
-Future<LikeResult> _likeUserWithPopup({
-  required BuildContext context,
-  required ProviderContainer container,
-  required String targetUserId,
-  required String type,
-  required String content,
-  required String answer,
-  required String message,
-  MatchPopupDismissDestination matchDismissDestination =
-      MatchPopupDismissDestination.discovery,
-}) async {
-  final uid = container.read(currentUserIdProvider);
-  if (uid == null) {
-    return const LikeResult(liked: false);
-  }
-
-  final result = await container.read(matchesRepositoryProvider).sendLike(
-        fromUserId: uid,
-        targetUserId: targetUserId,
-        type: type,
-        content: content,
-        answer: answer,
-        message: message,
-      );
-
-  if (!context.mounted) return result;
-
-  if (result.errorMessage != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Could not complete like: ${result.errorMessage}'),
-      ),
-    );
-    return result;
-  }
-
-  if (result.isNewMatch && result.matchId != null) {
-    await showMatchPopup(
-      context,
-      matchId: result.matchId!,
-      matchedUserId: targetUserId,
-      dismissDestination: matchDismissDestination,
-    );
-  }
-
-  return result;
 }
 
 Future<void> _confirmAndUnmatch(

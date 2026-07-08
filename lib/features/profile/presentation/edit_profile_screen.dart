@@ -515,7 +515,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     map['prompts'] = profilePromptsForFirestore(_promptSlots);
 
     if (_pendingLocation != null) {
-      map['location'] = _pendingLocation!.geoPoint;
+      map['location'] = _pendingLocation!.coordinate;
       final city = cityController.text.trim();
       map['city'] =
           city.isNotEmpty ? city : _pendingLocation!.city;

@@ -24,7 +24,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 **UI orchestration (presentation-only):**
 
-- Like/match popups and snackbars live in presentation widgets (e.g. `discovery_screen.dart`, `user_profile_bottom_sheet.dart`)
+- `features/matches/presentation/like_actions.dart` — `sendLikeWithUiFeedback` (match popup + snackbars after `MatchesRepository.sendLike`)
 - `ProviderScope.containerOf(context).read(...)` in top-level helpers without `ref`
 
 **Domain (pure, no Firestore):**
@@ -56,6 +56,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 - `FirebaseAuth` in onboarding deferred sign-up (`profile_setup_screen.dart`) and logout flows
 - `core/utils/geo_utils.dart` — `GeoCoordinate`, distance helpers (no Firestore types)
+- `LocationService` — device GPS; stores `GeoCoordinate`, writes `GeoPoint` at Firestore boundary
 
 ## Verification
 

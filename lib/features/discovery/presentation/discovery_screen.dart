@@ -14,7 +14,7 @@ import 'package:christian_dating_app/features/discovery/presentation/discovery_d
 import 'package:christian_dating_app/features/discovery/domain/nearby_user.dart';
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/data/matches_repository.dart';
-import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
+import 'package:christian_dating_app/features/matches/presentation/like_actions.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_helper_hint_overlay.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/hero_inline_snack_bar.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_radar_loading.dart';
@@ -904,40 +904,18 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
       return const LikeResult(liked: false);
     }
 
-    final result = await ref.read(matchesRepositoryProvider).sendLike(
-          fromUserId: uid,
-          targetUserId: targetUserId,
-          type: type,
-          content: content,
-          answer: answer,
-          message: message,
-          discoveryMode: _activeDiscoveryMode,
-        );
-
-    if (!mounted) return result;
-
-    if (result.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not complete like: ${result.errorMessage}'),
-        ),
-      );
-      return result;
-    }
-
-    if (result.alreadyLiked) {
-      _showAlreadyLikedHeroSnackBar();
-    }
-
-    if (result.isNewMatch && result.matchId != null) {
-      await showMatchPopup(
-        context,
-        matchId: result.matchId!,
-        matchedUserId: targetUserId,
-      );
-    }
-
-    return result;
+    return sendLikeWithUiFeedback(
+      context: context,
+      repository: ref.read(matchesRepositoryProvider),
+      fromUserId: uid,
+      targetUserId: targetUserId,
+      type: type,
+      content: content,
+      answer: answer,
+      message: message,
+      discoveryMode: _activeDiscoveryMode,
+      onAlreadyLiked: _showAlreadyLikedHeroSnackBar,
+    );
   }
 
   Widget _discoveryUserCard(
