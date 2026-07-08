@@ -114,7 +114,7 @@ Reuse existing services/repositories instead of duplicating queries:
 - Chat → `ChatRepository` (`features/chat/data/`)
 - Discovery deck → `DiscoveryRepository` / `discoveryDeckProvider` (`features/discovery/presentation/discovery_deck_providers.dart`)
 - Batch user profiles → `ProfileRepository.fetchProfilesByIds`
-- Push → `PushNotificationService` (`features/settings/data/`); FCM tokens → `ProfileRepository.addFcmToken` / `removeFcmToken`
+- Push → `PushNotificationService` + `pushNotificationServiceProvider` (`features/settings/data/`); FCM tokens → `ProfileRepository.addFcmToken` / `removeFcmToken`
 - Issue reports → `IssueReportRepository` (`features/settings/data/`)
 - Location / GPS → `LocationService` (`features/profile/data/`)
 - Profile photos → `ProfileImageRepository` (`features/profile/data/`)

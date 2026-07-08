@@ -25,10 +25,18 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(kAppSystemUiOverlayStyle);
 
   await Firebase.initializeApp();
-  await PushNotificationService.initialize(
+  final pushNotifications = PushNotificationService(
     navigatorKey: rootNavigatorKey,
   );
-  runApp(const ProviderScope(child: MyApp()));
+  await pushNotifications.initialize();
+  runApp(
+    ProviderScope(
+      overrides: [
+        pushNotificationServiceProvider.overrideWithValue(pushNotifications),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

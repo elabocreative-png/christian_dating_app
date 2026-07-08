@@ -26,6 +26,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Discovery | `DiscoveryRepository` | `discoveryRepositoryProvider`, `discoveryDeckProvider`, `enrichWithDistance` |
 | Settings / blocks | `BlockRepository` | `blockRepositoryProvider`, `blockedUserIdsProvider`, `blockedRecordsProvider` |
 | Settings / reports | `IssueReportRepository` | `issueReportRepositoryProvider` |
+| Settings / push | `PushNotificationService` | `pushNotificationServiceProvider` (overridden in `main.dart`) |
 
 **UI orchestration (presentation-only):**
 

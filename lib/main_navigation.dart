@@ -36,10 +36,11 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
     super.initState();
     _loadDiscoveryMode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      PushNotificationService.handlePendingNotification();
+      final push = ref.read(pushNotificationServiceProvider);
+      push.handlePendingNotification();
       final uid = ref.read(currentUserIdProvider);
       if (uid != null) {
-        PushNotificationService.syncTokenForUser(uid);
+        push.syncTokenForUser(uid);
       }
     });
   }
@@ -68,7 +69,7 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
   }
 
   void openChat(String matchId) {
-    PushNotificationService.openChat(matchId);
+    ref.read(pushNotificationServiceProvider).openChat(matchId);
   }
 
   void selectChatsTab() {

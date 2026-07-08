@@ -220,7 +220,9 @@ void showUserProfileBottomSheet(
           }
 
           Navigator.of(sheetContext).pop();
-          PushNotificationService.openChat(matchId);
+          ProviderScope.containerOf(sheetContext)
+              .read(pushNotificationServiceProvider)
+              .openChat(matchId);
         };
       }
 

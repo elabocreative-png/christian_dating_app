@@ -9,11 +9,14 @@ class AuthRepository {
   AuthRepository({
     FirebaseAuth? auth,
     ProfileRepository? profileRepository,
+    PushNotificationService? pushNotificationService,
   })  : _auth = auth ?? FirebaseAuth.instance,
-        _profiles = profileRepository ?? ProfileRepository();
+        _profiles = profileRepository ?? ProfileRepository(),
+        _push = pushNotificationService;
 
   final FirebaseAuth _auth;
   final ProfileRepository _profiles;
+  final PushNotificationService? _push;
 
   /// Creates the Firebase Auth user only (no Firestore doc yet).
   Future<User> createAuthUser(String email, String password) async {
@@ -107,7 +110,7 @@ class AuthRepository {
     }
 
     final uid = user.uid;
-    await PushNotificationService.clearTokenForUser(uid);
+    await _push?.clearTokenForUser(uid);
     await _profiles.deactivateAccount(uid, reason: trimmedReason);
     await _auth.signOut();
   }
@@ -115,7 +118,7 @@ class AuthRepository {
   Future<void> logout() async {
     final uid = _auth.currentUser?.uid;
     if (uid != null) {
-      await PushNotificationService.clearTokenForUser(uid);
+      await _push?.clearTokenForUser(uid);
     }
     await _auth.signOut();
   }
@@ -127,7 +130,7 @@ class AuthRepository {
     }
     final uid = user.uid;
     try {
-      await PushNotificationService.clearTokenForUser(uid);
+      await _push?.clearTokenForUser(uid);
       await _profiles.deleteProfile(uid);
       await user.delete();
     } on FirebaseAuthException catch (e) {
@@ -144,5 +147,6 @@ class AuthRepository {
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
     profileRepository: ref.watch(profileRepositoryProvider),
+    pushNotificationService: ref.watch(pushNotificationServiceProvider),
   );
 });

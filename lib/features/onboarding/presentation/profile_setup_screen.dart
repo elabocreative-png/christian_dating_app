@@ -944,7 +944,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     setState(() => _notificationsLoading = true);
     try {
       if (requestPermission) {
-        await PushNotificationService.requestUserPermission();
+        await ref.read(pushNotificationServiceProvider).requestUserPermission();
       }
       await _saveDraft(nextStep: 12);
       if (!mounted) return;

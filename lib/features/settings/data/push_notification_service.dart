@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
@@ -16,23 +17,30 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 /// Android push notifications: chat messages + mutual matches.
-abstract final class PushNotificationService {
-  static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  static final ProfileRepository _profiles = ProfileRepository();
+class PushNotificationService {
+  PushNotificationService({
+    required GlobalKey<NavigatorState> navigatorKey,
+    FirebaseMessaging? messaging,
+    FirebaseAuth? auth,
+    ProfileRepository? profileRepository,
+  })  : _navigatorKey = navigatorKey,
+        _messaging = messaging ?? FirebaseMessaging.instance,
+        _auth = auth ?? FirebaseAuth.instance,
+        _profiles = profileRepository ?? ProfileRepository();
 
-  static GlobalKey<NavigatorState>? _navigatorKey;
-  static StreamSubscription<String>? _tokenRefreshSub;
-  static String? _pendingMatchId;
+  final GlobalKey<NavigatorState> _navigatorKey;
+  final FirebaseMessaging _messaging;
+  final FirebaseAuth _auth;
+  final ProfileRepository _profiles;
+
+  StreamSubscription<String>? _tokenRefreshSub;
+  String? _pendingMatchId;
 
   static const String chatMessageType = 'chat_message';
   static const String newMatchType = 'new_match';
 
   /// Call once after [Firebase.initializeApp].
-  static Future<void> initialize({
-    required GlobalKey<NavigatorState> navigatorKey,
-  }) async {
-    _navigatorKey = navigatorKey;
-
+  Future<void> initialize() async {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     await _messaging.setForegroundNotificationPresentationOptions(
@@ -51,24 +59,24 @@ abstract final class PushNotificationService {
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationOpen);
 
     _tokenRefreshSub ??= _messaging.onTokenRefresh.listen((token) {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
+      final uid = _auth.currentUser?.uid;
       if (uid != null) {
         unawaited(_saveToken(uid, token));
       }
     });
 
-    final user = FirebaseAuth.instance.currentUser;
+    final user = _auth.currentUser;
     if (user != null) {
       await syncTokenForUser(user.uid);
     }
   }
 
-  static Future<void> dispose() async {
+  Future<void> dispose() async {
     await _tokenRefreshSub?.cancel();
     _tokenRefreshSub = null;
   }
 
-  static Future<String?> getDeviceToken() async {
+  Future<String?> getDeviceToken() async {
     try {
       return await _messaging.getToken();
     } catch (_) {
@@ -77,7 +85,7 @@ abstract final class PushNotificationService {
   }
 
   /// Saves FCM token on the signed-in user's profile.
-  static Future<void> syncTokenForUser(String uid) async {
+  Future<void> syncTokenForUser(String uid) async {
     try {
       final token = await getDeviceToken();
       if (token == null || token.isEmpty) return;
@@ -88,7 +96,7 @@ abstract final class PushNotificationService {
   }
 
   /// Removes this device's token when signing out.
-  static Future<void> clearTokenForUser(String uid) async {
+  Future<void> clearTokenForUser(String uid) async {
     try {
       final token = await getDeviceToken();
       if (token == null || token.isEmpty) return;
@@ -97,19 +105,19 @@ abstract final class PushNotificationService {
   }
 
   /// Call when [MainNavigation] is ready (handles cold-start notification).
-  static void handlePendingNotification() {
+  void handlePendingNotification() {
     final matchId = _pendingMatchId;
     if (matchId == null || matchId.isEmpty) return;
     _pendingMatchId = null;
     openChat(matchId);
   }
 
-  static void openChat(String matchId) {
+  void openChat(String matchId) {
     if (matchId.isEmpty) return;
 
     mainNavigationKey.currentState?.selectChatsTab();
 
-    final navigator = _navigatorKey?.currentState;
+    final navigator = _navigatorKey.currentState;
     if (navigator == null) {
       _pendingMatchId = matchId;
       return;
@@ -122,28 +130,28 @@ abstract final class PushNotificationService {
     );
   }
 
-  static Future<void> _requestPermission() async {
+  Future<void> _requestPermission() async {
     await requestUserPermission();
   }
 
   /// Onboarding / settings: system notification permission + token sync.
-  static Future<void> requestUserPermission() async {
+  Future<void> requestUserPermission() async {
     await _messaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = _auth.currentUser?.uid;
     if (uid != null) {
       await syncTokenForUser(uid);
     }
   }
 
-  static Future<void> _saveToken(String uid, String token) async {
+  Future<void> _saveToken(String uid, String token) async {
     await _profiles.addFcmToken(uid, token);
   }
 
-  static void _handleNotificationOpen(RemoteMessage message) {
+  void _handleNotificationOpen(RemoteMessage message) {
     final type = message.data['type']?.toString();
     if (type != chatMessageType && type != newMatchType) return;
 
@@ -156,3 +164,9 @@ abstract final class PushNotificationService {
     }
   }
 }
+
+final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) {
+  throw UnimplementedError(
+    'pushNotificationServiceProvider must be overridden in main.dart',
+  );
+});
