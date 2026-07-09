@@ -73,7 +73,7 @@ class _ProfileTextFieldScreenState extends State<ProfileTextFieldScreen> {
   }
 
   void _saveAndPop() {
-    Navigator.pop(context, _controller.text.trim());
+    context.pop(_controller.text.trim());
   }
 
   @override

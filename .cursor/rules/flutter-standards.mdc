@@ -31,9 +31,11 @@ folder layout and layering rules.
    `currentUserIdProvider`, `profileCompleteProvider`).
 6. **No Firestore in presentation or domain.** Import `cloud_firestore` only in
    `features/*/data/`. Parse timestamps in pure code via `firestore_value_utils.dart`.
-7. **Navigation: GoRouter** (`core/navigation/app_router.dart`, `AppRoutes`). Auth
-   redirects replace the old `AuthGate` widget. Sub-screens may still use `Navigator`
-   for modal pushes until migrated.
+7. **Navigation: GoRouter** (`core/navigation/app_router.dart`, `AppRoutes`). All
+   full-screen routes are migrated. Auth redirects replace the old `AuthGate`. Use
+   `context.push` / `context.pop` for GoRouter routes. Modal bottom sheets and dialogs
+   may still use `showModalBottomSheet` / `showDialog` with `Navigator.pop` on the
+   overlay context.
 8. **Imports use `package:christian_dating_app/...`** — no cross-folder relative `../` imports.
 9. **Prefer `const` constructors** and keep widgets small; split feature-specific widgets
    out rather than growing a mega-widget.

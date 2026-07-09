@@ -88,8 +88,7 @@ class _ProfileBirthdateScreenState extends State<ProfileBirthdateScreen> {
       );
       return;
     }
-    Navigator.pop(
-      context,
+    context.pop(
       (age: age, birthdayDigits: _digits),
     );
   }

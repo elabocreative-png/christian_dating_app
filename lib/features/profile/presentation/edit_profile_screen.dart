@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
@@ -634,7 +635,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _saveAndPop() async {
     if (!mounted) return;
     await _saveTextFieldsOnly();
-    if (mounted) Navigator.pop(context);
+    if (mounted) context.pop();
   }
 
   String _slotBadgeLabel(int index) {

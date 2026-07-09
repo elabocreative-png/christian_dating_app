@@ -28,12 +28,31 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 | Settings / reports | `IssueReportRepository` | `issueReportRepositoryProvider` |
 | Settings / push | `PushNotificationService` | `pushNotificationServiceProvider`, `goRouterProvider` |
 
-**Routing (GoRouter):**
+**Routing (GoRouter — migration complete):**
 
-- `goRouterProvider` — auth redirect + `/login`, `/onboarding`, `/home`, `/chat/:matchId`
+All full-screen navigation uses `goRouterProvider` / `AppRoutes`. Modal bottom sheets
+and dialogs still use `showModalBottomSheet` / `showDialog` with `Navigator.pop` on the
+sheet/dialog context — that is intentional.
+
+| Path | Screen |
+|------|--------|
+| `/loading` | Auth/profile gate spinner |
+| `/login` | Sign in / sign up |
+| `/onboarding` | Profile setup |
+| `/home` | Main tab shell |
+| `/chat/:matchId` | Chat thread (push deep links) |
+| `/settings` + nested | Settings stack (`help`, `report`, `blocked`, `deactivate`, `terms`, `privacy`, `faq`, `faq/:index`) |
+| `/profile/edit` + nested | Edit profile + pickers (`text`, `options`, `birthdate`, `height`, `prompt-answer`) |
+| `/discovery/preferences` | Discovery filters |
+| `/match-popup` | Match celebration (fade, `extra`: `MatchPopupRouteArgs`) |
+| `/profile/photo?url=` | Fullscreen photo viewer |
+| `/image/crop` | Gallery crop flow (`extra`: `ImageCropRouteArgs`) |
+
 - `AppRoutes` — path constants in `core/navigation/app_routes.dart`
-- Settings stack — `/settings`, `/settings/help`, `/settings/report`, …, `/settings/faq/:index`
+- `appRedirect()` — auth gate (replaces old `AuthGate`)
 - Push deep links → `AppRoutes.chat(matchId)` via `PushNotificationService.openChat`
+- Sub-route args — `core/navigation/profile_edit_route_args.dart`, `match_popup_route_args.dart`, `ImageCropRouteArgs` in `ios_style_image_crop_screen.dart`
+- Static `.push()` helpers on picker screens call `context.push()` internally
 
 **UI orchestration (presentation-only):**
 

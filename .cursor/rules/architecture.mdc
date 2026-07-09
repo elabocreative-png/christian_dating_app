@@ -18,7 +18,7 @@ lib/
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
     utils/         # geo_utils, firestore_value_utils
     models/        # block_source, profile_photo_urls
-    navigation/    # app_navigator (rootNavigatorKey)
+    navigation/    # app_router, app_routes, app_navigator (rootNavigatorKey)
     widgets/       # app_icon, app_dialog, app_back_button, profile_avatar,
                    #   profile_photo_placeholder, user_profile_bottom_sheet, ...
     photo/         # profile_photo_picker + crop screens + face_crop_helper

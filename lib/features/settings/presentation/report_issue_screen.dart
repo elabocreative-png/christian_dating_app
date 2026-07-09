@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
@@ -87,7 +88,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
         );
         return;
       }
-      Navigator.of(context).pop();
+      context.pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Thanks — your report was sent')),
       );
@@ -210,7 +211,11 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
         leading: AppBackButton(
           color: Colors.black87,
           onPressed:
-              _submitting ? () {} : () => Navigator.of(context).maybePop(),
+              _submitting
+                  ? () {}
+                  : () {
+                      if (context.canPop()) context.pop();
+                    },
         ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),

@@ -97,7 +97,7 @@ class _DiscoveryPreferencesScreenState
   }
 
   void _popWithoutSaving() {
-    if (mounted) Navigator.pop(context, false);
+    if (mounted) context.pop(false);
   }
 
   void _handleBack() {
@@ -134,7 +134,7 @@ class _DiscoveryPreferencesScreenState
             maxAge: _maxAge,
             interestedIn: _interestedIn,
           );
-      if (mounted) Navigator.pop(context, true);
+      if (mounted) context.pop(true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

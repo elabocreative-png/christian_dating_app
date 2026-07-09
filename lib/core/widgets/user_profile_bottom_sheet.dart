@@ -101,10 +101,8 @@ void showUserProfileBottomSheet(
             final uid = container.read(currentUserIdProvider);
             if (uid == null) return;
 
-            final rootContext = Navigator.of(sheetContext, rootNavigator: true)
-                .context;
             final result = await sendLikeWithUiFeedback(
-              context: rootContext,
+              context: sheetContext,
               repository: container.read(matchesRepositoryProvider),
               fromUserId: uid,
               targetUserId: likerId,

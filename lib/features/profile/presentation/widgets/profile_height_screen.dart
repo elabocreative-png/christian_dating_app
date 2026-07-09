@@ -43,7 +43,7 @@ class _ProfileHeightScreenState extends State<ProfileHeightScreen> {
   }
 
   void _saveAndPop() {
-    Navigator.pop(context, _inches.round());
+    context.pop(_inches.round());
   }
 
   @override

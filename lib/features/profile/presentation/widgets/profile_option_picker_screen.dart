@@ -44,7 +44,7 @@ class ProfileOptionPickerScreen extends StatelessWidget {
         surfaceTintColor: Colors.white,
         elevation: 0,
         leading: AppBackButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           title,
@@ -73,7 +73,7 @@ class ProfileOptionPickerScreen extends StatelessWidget {
             return Column(
               children: [
                 InkWell(
-                  onTap: () => Navigator.pop(context, option),
+                  onTap: () => context.pop(option),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,

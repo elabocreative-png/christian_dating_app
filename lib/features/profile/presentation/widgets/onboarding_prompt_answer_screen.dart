@@ -75,7 +75,7 @@ class _OnboardingPromptAnswerScreenState
       confirmLabel: 'Remove',
     );
     if (!confirmed || !mounted) return;
-    Navigator.pop(context, PromptAnswerPushResult.removed);
+    context.pop(PromptAnswerPushResult.removed);
   }
 
   @override
@@ -171,8 +171,7 @@ class _OnboardingPromptAnswerScreenState
                 child: FilledButton(
                   onPressed: _controller.text.trim().isEmpty
                       ? null
-                      : () => Navigator.pop(
-                            context,
+                      : () => context.pop(
                             PromptAnswerPushResult.saved(
                               _controller.text.trim(),
                             ),

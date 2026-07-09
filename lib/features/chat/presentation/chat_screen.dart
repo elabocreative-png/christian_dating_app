@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
@@ -266,10 +267,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       connectionUserId: otherUser['uid']?.toString(),
       blockSource: BlockSource.messages,
       onConnectionDismissed: () {
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) context.pop();
       },
       onUserBlocked: () {
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) context.pop();
       },
     );
   }
@@ -294,7 +295,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       await ref.read(chatRepositoryProvider).unmatch(widget.matchId);
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+      context.pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -363,7 +364,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             bottom: BorderSide(color: Color(0xFFE5E7EB), width: 0.5),
           ),
           leading: AppBackButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
           ),
           titleSpacing: 0,
           title: Row(

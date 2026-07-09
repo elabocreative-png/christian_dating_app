@@ -29,7 +29,9 @@ class FaqScreen extends StatelessWidget {
         ),
         leading: AppBackButton(
           color: Colors.black87,
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () {
+            if (context.canPop()) context.pop();
+          },
         ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),

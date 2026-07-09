@@ -86,7 +86,9 @@ class _DeactivateAccountScreenState
           color: Colors.black87,
           onPressed: _submitting
               ? () {}
-              : () => Navigator.of(context).maybePop(),
+              : () {
+                  if (context.canPop()) context.pop();
+                },
         ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
