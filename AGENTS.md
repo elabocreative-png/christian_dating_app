@@ -99,7 +99,7 @@ flutter test
 
 Keep both green when changing architecture or providers. CI runs the same checks on push/PR to `main` (`.github/workflows/flutter_ci.yml`).
 
-Repository integration tests use `fake_cloud_firestore` (see `test/block_repository_test.dart`, `test/chat_repository_test.dart`, `test/discovery_repository_test.dart`, `test/matches_repository_test.dart`, `test/profile_repository_test.dart`).
+Repository integration tests use `fake_cloud_firestore` (see `test/block_repository_test.dart`, `test/chat_repository_test.dart`, `test/discovery_repository_test.dart`, `test/issue_report_repository_test.dart`, `test/matches_repository_test.dart`, `test/profile_repository_test.dart`).
 
 ## Git
 
