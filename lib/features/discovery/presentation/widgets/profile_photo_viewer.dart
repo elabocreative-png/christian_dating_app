@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/core/photo/ios_style_image_crop_screen.dart';
 
 /// Opens a fullscreen viewer for a single uploaded profile photo (2:3 crop).
@@ -10,12 +12,7 @@ Future<void> showProfilePhotoViewer(
 }) {
   final trimmed = url.trim();
   if (trimmed.isEmpty) return Future.value();
-  return Navigator.of(context).push<void>(
-    MaterialPageRoute<void>(
-      fullscreenDialog: true,
-      builder: (context) => ProfilePhotoViewerScreen(url: trimmed),
-    ),
-  );
+  return context.push<void>(AppRoutes.profilePhotoViewerWith(url: trimmed));
 }
 
 class ProfilePhotoViewerScreen extends StatelessWidget {
@@ -41,7 +38,7 @@ class ProfilePhotoViewerScreen extends StatelessWidget {
                 alignment: Alignment.topLeft,
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.white, size: 28),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                 ),
               ),
             ),

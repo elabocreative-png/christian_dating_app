@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 
 import 'package:christian_dating_app/core/photo/face_crop_helper.dart';
 import 'package:christian_dating_app/core/photo/static_square_crop_editor.dart';
@@ -14,6 +17,17 @@ class CropImageSource {
 
   final Uint8List imageBytes;
   final Offset? initialFocusFraction;
+}
+
+/// Route arguments for [IosStyleImageCropFlowScreen] via GoRouter `extra`.
+final class ImageCropRouteArgs {
+  const ImageCropRouteArgs({
+    required this.sources,
+    this.onEachCropped,
+  });
+
+  final List<CropImageSource> sources;
+  final void Function(String path, int index)? onEachCropped;
 }
 
 Future<List<CropImageSource>> loadCropImageSources(
@@ -59,13 +73,11 @@ Future<List<String>> pushIosStyleImageCropBatch(
   );
   if (!context.mounted) return [];
 
-  final result = await Navigator.of(context).push<List<String>>(
-    MaterialPageRoute(
-      fullscreenDialog: true,
-      builder: (context) => IosStyleImageCropFlowScreen(
-        sources: sources,
-        onEachCropped: onEachCropped,
-      ),
+  final result = await context.push<List<String>>(
+    AppRoutes.imageCrop,
+    extra: ImageCropRouteArgs(
+      sources: sources,
+      onEachCropped: onEachCropped,
     ),
   );
   return result ?? [];
@@ -140,7 +152,7 @@ class _IosStyleImageCropFlowScreenState extends State<IosStyleImageCropFlowScree
   }
 
   void _close() {
-    Navigator.of(context).pop(_completedPaths);
+    context.pop(_completedPaths);
   }
 
   Future<void> _onUpload() async {
@@ -170,7 +182,7 @@ class _IosStyleImageCropFlowScreenState extends State<IosStyleImageCropFlowScree
 
       final isLast = _currentIndex >= _total - 1;
       if (isLast) {
-        Navigator.of(context).pop(_completedPaths);
+        context.pop(_completedPaths);
         return;
       }
 

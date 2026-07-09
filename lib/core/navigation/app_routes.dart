@@ -6,6 +6,8 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const discoveryPreferences = '/discovery/preferences';
   static const matchPopup = '/match-popup';
+  static const profilePhotoViewer = '/profile/photo';
+  static const imageCrop = '/image/crop';
 
   static const settings = '/settings';
   static const settingsHelp = '/settings/help';
@@ -37,4 +39,7 @@ abstract final class AppRoutes {
     if (initialHeightInches == null) return profileEditHeight;
     return '$profileEditHeight?initialHeightInches=$initialHeightInches';
   }
+
+  static String profilePhotoViewerWith({required String url}) =>
+      '$profilePhotoViewer?url=${Uri.encodeComponent(url)}';
 }

@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 
 import 'package:christian_dating_app/core/navigation/app_navigator.dart';
 import 'package:christian_dating_app/core/navigation/app_routes.dart';
+import 'package:christian_dating_app/core/photo/ios_style_image_crop_screen.dart';
 import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_screen.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_preferences_screen.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/profile_photo_viewer.dart';
 import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/profile_setup_screen.dart';
 import 'package:christian_dating_app/core/navigation/profile_edit_route_args.dart';
@@ -156,6 +158,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     currentUser: args.currentUser,
                     matchedUser: args.matchedUser,
                     dismissDestination: args.dismissDestination,
+                  ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.profilePhotoViewer,
+        pageBuilder: (context, state) {
+          final url = state.uri.queryParameters['url'] ?? '';
+          return MaterialPage<void>(
+            key: state.pageKey,
+            fullscreenDialog: true,
+            child: ProfilePhotoViewerScreen(url: url),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.imageCrop,
+        pageBuilder: (context, state) {
+          final args = state.extra as ImageCropRouteArgs?;
+          return MaterialPage<List<String>>(
+            key: state.pageKey,
+            fullscreenDialog: true,
+            child: args == null
+                ? const SizedBox.shrink()
+                : IosStyleImageCropFlowScreen(
+                    sources: args.sources,
+                    onEachCropped: args.onEachCropped,
                   ),
           );
         },
