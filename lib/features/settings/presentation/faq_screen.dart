@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/features/settings/domain/faq_content.dart';
-import 'package:christian_dating_app/features/settings/presentation/faq_detail_screen.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
 /// Settings → ChristMeets FAQ list.
 class FaqScreen extends StatelessWidget {
   const FaqScreen({super.key});
 
-  void _openItem(BuildContext context, FaqItem item) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => FaqDetailScreen(item: item),
-      ),
-    );
+  void _openItem(BuildContext context, int index) {
+    context.push(AppRoutes.settingsFaqItem(index));
   }
 
   @override
@@ -59,7 +56,7 @@ class FaqScreen extends StatelessWidget {
                 for (var i = 0; i < ChristMeetsFaq.items.length; i++) ...[
                   _FaqListTile(
                     item: ChristMeetsFaq.items[i],
-                    onTap: () => _openItem(context, ChristMeetsFaq.items[i]),
+                    onTap: () => _openItem(context, i),
                   ),
                   if (i < ChristMeetsFaq.items.length - 1)
                     const Divider(

@@ -5,13 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
-import 'package:christian_dating_app/features/settings/presentation/blocked_users_screen.dart';
-import 'package:christian_dating_app/features/settings/presentation/deactivate_account_screen.dart';
-import 'package:christian_dating_app/features/settings/presentation/faq_screen.dart';
-import 'package:christian_dating_app/features/settings/presentation/help_support_screen.dart';
-import 'package:christian_dating_app/features/settings/presentation/privacy_policy_screen.dart';
-import 'package:christian_dating_app/features/settings/presentation/report_issue_screen.dart';
-import 'package:christian_dating_app/features/settings/presentation/terms_and_conditions_screen.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 
@@ -76,35 +69,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _SettingsItem(
         icon: Icons.headset_mic_outlined,
         label: 'Help & Support',
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const HelpSupportScreen(),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.settingsHelp),
       ),
       _SettingsItem(
         icon: Icons.flag_outlined,
         label: 'Report an Issue',
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const ReportIssueScreen(),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.settingsReport),
       ),
       _SettingsItem(
         icon: Icons.block,
         label: 'Blocked Members',
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const BlockedUsersScreen(),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.settingsBlocked),
       ),
       _SettingsItem(
         icon: Icons.delete_outline,
@@ -121,46 +96,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _SettingsItem(
         icon: Icons.do_not_disturb_alt_outlined,
         label: 'Deactivate Account',
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const DeactivateAccountScreen(),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.settingsDeactivate),
       ),
       _SettingsItem(
         icon: Icons.description_outlined,
         label: 'Terms and Conditions',
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const TermsAndConditionsScreen(),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.settingsTerms),
       ),
       _SettingsItem(
         icon: Icons.verified_user_outlined,
         label: 'Privacy Policy',
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const PrivacyPolicyScreen(),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.settingsPrivacy),
       ),
       _SettingsItem(
         icon: Icons.help_outline,
         label: 'ChristMeets FAQ',
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const FaqScreen(),
-            ),
-          );
-        },
+        onTap: () => context.push(AppRoutes.settingsFaq),
       ),
     ];
 
@@ -180,7 +131,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         leading: AppBackButton(
           color: Colors.black87,
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
@@ -242,22 +193,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
             ),
-
-            // UserReadOnlyEmail
-            // Padding(
-            //   padding: const EdgeInsets.only(bottom: 8),
-            //
-            //   // child: Text(
-            //   //   email?.isNotEmpty == true ? email! : 'No email on file',
-            //   //   textAlign: TextAlign.center,
-            //   //   style: const TextStyle(
-            //   //     color: Colors.black54,
-            //   //     fontSize: 13,
-            //   //     fontWeight: FontWeight.w500,
-            //   //   ),
-            //   // ),
-            // ),
-
             const Padding(
               padding: EdgeInsets.only(bottom: 16),
               child: Text(

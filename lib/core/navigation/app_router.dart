@@ -10,6 +10,17 @@ import 'package:christian_dating_app/features/auth/presentation/auth_providers.d
 import 'package:christian_dating_app/features/auth/presentation/auth_screen.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/profile_setup_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
+import 'package:christian_dating_app/features/settings/domain/faq_content.dart';
+import 'package:christian_dating_app/features/settings/presentation/blocked_users_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/deactivate_account_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/faq_detail_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/faq_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/help_support_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/privacy_policy_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/report_issue_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/settings_screen.dart';
+import 'package:christian_dating_app/features/settings/presentation/terms_and_conditions_screen.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 
 /// Notifies [GoRouter] when auth, pending signup, or profile completion changes.
@@ -111,6 +122,59 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => MainNavigation(key: mainNavigationKey),
+      ),
+      GoRoute(
+        path: AppRoutes.profileEdit,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'help',
+            builder: (context, state) => const HelpSupportScreen(),
+          ),
+          GoRoute(
+            path: 'report',
+            builder: (context, state) => const ReportIssueScreen(),
+          ),
+          GoRoute(
+            path: 'blocked',
+            builder: (context, state) => const BlockedUsersScreen(),
+          ),
+          GoRoute(
+            path: 'deactivate',
+            builder: (context, state) => const DeactivateAccountScreen(),
+          ),
+          GoRoute(
+            path: 'terms',
+            builder: (context, state) => const TermsAndConditionsScreen(),
+          ),
+          GoRoute(
+            path: 'privacy',
+            builder: (context, state) => const PrivacyPolicyScreen(),
+          ),
+          GoRoute(
+            path: 'faq',
+            builder: (context, state) => const FaqScreen(),
+            routes: [
+              GoRoute(
+                path: ':index',
+                builder: (context, state) {
+                  final index =
+                      int.tryParse(state.pathParameters['index'] ?? '');
+                  if (index == null ||
+                      index < 0 ||
+                      index >= ChristMeetsFaq.items.length) {
+                    return const FaqScreen();
+                  }
+                  return FaqDetailScreen(item: ChristMeetsFaq.items[index]);
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: '/chat/:matchId',

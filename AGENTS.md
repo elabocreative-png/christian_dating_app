@@ -32,6 +32,7 @@ data/          →  *Repository classes, legacy *Service writers, Firestore acce
 
 - `goRouterProvider` — auth redirect + `/login`, `/onboarding`, `/home`, `/chat/:matchId`
 - `AppRoutes` — path constants in `core/navigation/app_routes.dart`
+- Settings stack — `/settings`, `/settings/help`, `/settings/report`, …, `/settings/faq/:index`
 - Push deep links → `AppRoutes.chat(matchId)` via `PushNotificationService.openChat`
 
 **UI orchestration (presentation-only):**

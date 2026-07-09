@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/profile/presentation/profile_providers.dart';
@@ -9,8 +11,6 @@ import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
 import 'package:christian_dating_app/core/widgets/verified_name_age.dart';
 import 'dart:math' as math;
-import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
-import 'package:christian_dating_app/features/settings/presentation/settings_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_plans_tab_content.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_safety_tab_content.dart';
 import 'package:christian_dating_app/features/profile/presentation/widgets/profile_tab_bar_delegate.dart';
@@ -58,13 +58,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   }
 
   Future<void> _openEditProfile() async {
-    // myProfileProvider streams live, so edits reflect on return automatically.
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => const EditProfileScreen(),
-      ),
-    );
+    await context.push(AppRoutes.profileEdit);
   }
 
   @override
@@ -175,14 +169,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   ),
                   tooltip: 'Settings',
                   icon: const AppIcon(AppIcons.settings, size: 28),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (_) => const SettingsScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: () => context.push(AppRoutes.settings),
                 ),
               ],
             ),
