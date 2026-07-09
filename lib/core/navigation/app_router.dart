@@ -9,6 +9,8 @@ import 'package:christian_dating_app/features/auth/domain/pending_signup.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_screen.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_preferences_screen.dart';
+import 'package:christian_dating_app/features/matches/presentation/widgets/match_popup_screen.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/profile_setup_screen.dart';
 import 'package:christian_dating_app/core/navigation/profile_edit_route_args.dart';
 import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
@@ -128,6 +130,35 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => MainNavigation(key: mainNavigationKey),
+      ),
+      GoRoute(
+        path: AppRoutes.discoveryPreferences,
+        builder: (context, state) => const DiscoveryPreferencesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.matchPopup,
+        pageBuilder: (context, state) {
+          final args = state.extra as MatchPopupRouteArgs?;
+          return CustomTransitionPage<void>(
+            key: state.pageKey,
+            name: kMatchPopupRouteName,
+            opaque: true,
+            transitionDuration: const Duration(milliseconds: 520),
+            reverseTransitionDuration: const Duration(milliseconds: 320),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: args == null
+                ? const SizedBox.shrink()
+                : MatchPopupScreen(
+                    matchId: args.matchId,
+                    currentUser: args.currentUser,
+                    matchedUser: args.matchedUser,
+                    dismissDestination: args.dismissDestination,
+                  ),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.profileEdit,

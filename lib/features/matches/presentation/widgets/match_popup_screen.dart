@@ -2,11 +2,13 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_popup_route_args.dart';
 import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
-import 'package:christian_dating_app/core/navigation/app_navigator.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/main_navigation.dart';
@@ -14,11 +16,7 @@ import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/profile_photo_placeholder.dart';
 
-/// Where the app should land after the match celebration is dismissed.
-enum MatchPopupDismissDestination {
-  discovery,
-  likedYou,
-}
+export 'package:christian_dating_app/features/matches/presentation/match_popup_route_args.dart';
 
 /// Shows a Bumble-style full-screen match celebration.
 Future<void> showMatchPopup(
@@ -43,21 +41,13 @@ Future<void> showMatchPopup(
 
   applyMatchSystemNavigationBar();
   try {
-    await Navigator.of(context, rootNavigator: true).push<void>(
-      PageRouteBuilder<void>(
-        settings: const RouteSettings(name: kMatchPopupRouteName),
-        opaque: true,
-        barrierDismissible: false,
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            MatchPopupScreen(
-          matchId: matchId,
-          currentUser: profiles[0] ?? <String, dynamic>{},
-          matchedUser: profiles[1] ?? <String, dynamic>{},
-          dismissDestination: dismissDestination,
-        ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
+    await context.push<void>(
+      AppRoutes.matchPopup,
+      extra: MatchPopupRouteArgs(
+        matchId: matchId,
+        currentUser: profiles[0] ?? <String, dynamic>{},
+        matchedUser: profiles[1] ?? <String, dynamic>{},
+        dismissDestination: dismissDestination,
       ),
     );
   } finally {
@@ -156,7 +146,7 @@ class _MatchPopupScreenState extends ConsumerState<MatchPopupScreen>
   }
 
   void _navigateAfterDismiss() {
-    Navigator.of(context, rootNavigator: true).pop();
+    context.pop();
     switch (widget.dismissDestination) {
       case MatchPopupDismissDestination.likedYou:
         mainNavigationKey.currentState?.selectLikedYouTab();

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
@@ -14,10 +16,7 @@ class DiscoveryPreferencesScreen extends ConsumerStatefulWidget {
   const DiscoveryPreferencesScreen({super.key});
 
   static Future<bool?> push(BuildContext context) {
-    return Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (_) => const DiscoveryPreferencesScreen()),
-    );
+    return context.push<bool>(AppRoutes.discoveryPreferences);
   }
 
   @override

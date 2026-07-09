@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 
 /// Root navigator for notification deep links and global routes.
@@ -16,7 +17,8 @@ class MatchPopupNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
-    if (route.settings.name == kMatchPopupRouteName) {
+    if (route.settings.name == kMatchPopupRouteName ||
+        route.settings.name == AppRoutes.matchPopup) {
       applyMatchSystemNavigationBar();
     }
   }
@@ -24,7 +26,8 @@ class MatchPopupNavigatorObserver extends NavigatorObserver {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
-    if (route.settings.name == kMatchPopupRouteName) {
+    if (route.settings.name == kMatchPopupRouteName ||
+        route.settings.name == AppRoutes.matchPopup) {
       restoreAppSystemNavigationBar();
     }
   }
@@ -32,7 +35,8 @@ class MatchPopupNavigatorObserver extends NavigatorObserver {
   @override
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didRemove(route, previousRoute);
-    if (route.settings.name == kMatchPopupRouteName) {
+    if (route.settings.name == kMatchPopupRouteName ||
+        route.settings.name == AppRoutes.matchPopup) {
       restoreAppSystemNavigationBar();
     }
   }
