@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/core/navigation/home_shell_providers.dart';
 import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
 import 'package:christian_dating_app/core/theme/app_illustrations.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
@@ -25,10 +26,7 @@ import 'package:christian_dating_app/core/constants/denomination_options.dart';
 ///
 /// Likes that include a message appear under **Intros**; outgoing likes under **Sent**.
 class LikedYouScreen extends ConsumerStatefulWidget {
-  const LikedYouScreen({super.key, this.isActive = true});
-
-  /// False while another main tab is selected; used to reset sub-tabs on return.
-  final bool isActive;
+  const LikedYouScreen({super.key});
 
   @override
   ConsumerState<LikedYouScreen> createState() => _LikedYouScreenState();
@@ -44,11 +42,17 @@ class _LikedYouScreenState extends ConsumerState<LikedYouScreen> {
   LikedYouListTab _selectedTab = LikedYouListTab.likes;
 
   @override
-  void didUpdateWidget(LikedYouScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!oldWidget.isActive && widget.isActive) {
-      setState(() => _selectedTab = LikedYouListTab.likes);
-    }
+  void initState() {
+    super.initState();
+    ref.listenManual<int>(
+      homeShellTabIndexProvider,
+      (previous, next) {
+        if (previous != 1 && next == 1) {
+          setState(() => _selectedTab = LikedYouListTab.likes);
+        }
+      },
+      fireImmediately: false,
+    );
   }
 
   Widget _buildEmptyState({

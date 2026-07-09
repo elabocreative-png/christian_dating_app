@@ -39,7 +39,11 @@ sheet/dialog context — that is intentional.
 | `/loading` | Auth/profile gate spinner |
 | `/login` | Sign in / sign up |
 | `/onboarding` | Profile setup |
-| `/home` | Main tab shell |
+| `/home` | Redirects to `/home/discover` |
+| `/home/discover` | Discovery tab |
+| `/home/liked-you` | Liked You tab |
+| `/home/chats` | Chats tab |
+| `/home/profile` | Profile tab |
 | `/chat/:matchId` | Chat thread (push deep links) |
 | `/settings` + nested | Settings stack (`help`, `report`, `blocked`, `deactivate`, `terms`, `privacy`, `faq`, `faq/:index`) |
 | `/profile/edit` + nested | Edit profile + pickers (`text`, `options`, `birthdate`, `height`, `prompt-answer`) |

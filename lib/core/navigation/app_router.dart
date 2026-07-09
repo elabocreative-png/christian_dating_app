@@ -31,6 +31,10 @@ import 'package:christian_dating_app/features/settings/presentation/privacy_poli
 import 'package:christian_dating_app/features/settings/presentation/report_issue_screen.dart';
 import 'package:christian_dating_app/features/settings/presentation/settings_screen.dart';
 import 'package:christian_dating_app/features/settings/presentation/terms_and_conditions_screen.dart';
+import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
+import 'package:christian_dating_app/features/matches/presentation/liked_you_screen.dart';
+import 'package:christian_dating_app/features/matches/presentation/match_list_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/profile_screen.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 
 /// Notifies [GoRouter] when auth, pending signup, or profile completion changes.
@@ -99,7 +103,11 @@ String? appRedirectForState({
       location == AppRoutes.onboarding ||
       location == AppRoutes.loading ||
       location == '/') {
-    return AppRoutes.home;
+    return AppRoutes.homeDiscover;
+  }
+
+  if (location == AppRoutes.home) {
+    return AppRoutes.homeDiscover;
   }
 
   return null;
@@ -144,7 +152,47 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => MainNavigation(key: mainNavigationKey),
+        redirect: (context, state) => AppRoutes.homeDiscover,
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainNavigation(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.homeDiscover,
+                builder: (context, state) =>
+                    DiscoveryScreen(key: discoveryScreenKey),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.homeLikedYou,
+                builder: (context, state) => const LikedYouScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.homeChats,
+                builder: (context, state) => const MatchListScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.homeProfile,
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.discoveryPreferences,

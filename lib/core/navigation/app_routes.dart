@@ -4,6 +4,21 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const onboarding = '/onboarding';
   static const home = '/home';
+  static const homeDiscover = '/home/discover';
+  static const homeLikedYou = '/home/liked-you';
+  static const homeChats = '/home/chats';
+  static const homeProfile = '/home/profile';
+
+  static const homeTabRoutes = [
+    homeDiscover,
+    homeLikedYou,
+    homeChats,
+    homeProfile,
+  ];
+
+  static bool isHomeShellRoute(String location) {
+    return location == home || homeTabRoutes.contains(location);
+  }
   static const discoveryPreferences = '/discovery/preferences';
   static const matchPopup = '/match-popup';
   static const profilePhotoViewer = '/profile/photo';

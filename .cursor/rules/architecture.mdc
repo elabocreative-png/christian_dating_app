@@ -37,8 +37,9 @@ lib/
 - **All imports use `package:christian_dating_app/...`** — no relative `../` imports across
   folders. Keep this when adding files.
 - `go_router` for auth gate, shell routes, and chat deep links — **implemented** in
-  `core/navigation/app_router.dart` (`goRouterProvider`, `AppRoutes`). `rootNavigatorKey`
-  and `matchPopupNavigatorObserver` remain for global overlays.
+  `core/navigation/app_router.dart` (`goRouterProvider`, `AppRoutes`). Main tabs use
+  `StatefulShellRoute.indexedStack` (`/home/discover`, `/home/liked-you`, `/home/chats`,
+  `/home/profile`). `rootNavigatorKey` and `matchPopupNavigatorObserver` remain for global overlays.
 - **No feature imports another feature's internals.** If two features need the same code,
   it belongs in `core/` (that is why `onboarding_requirements` lives in `core/onboarding/`).
 - When adding a new feature, create it under `lib/features/<name>/` with the same

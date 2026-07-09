@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:christian_dating_app/core/navigation/app_router.dart';
 import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
-import 'package:christian_dating_app/main_navigation.dart';
 
 /// Background FCM handler (must be top-level).
 @pragma('vm:entry-point')
@@ -116,7 +115,7 @@ class PushNotificationService {
   void openChat(String matchId) {
     if (matchId.isEmpty) return;
 
-    mainNavigationKey.currentState?.selectChatsTab();
+    _router.go(AppRoutes.homeChats);
     _router.push(AppRoutes.chat(matchId));
   }
 
@@ -149,7 +148,9 @@ class PushNotificationService {
     if (matchId.isEmpty) return;
     _pendingMatchId = matchId;
 
-    if (mainNavigationKey.currentState != null) {
+    if (AppRoutes.isHomeShellRoute(
+      _router.routerDelegate.currentConfiguration.uri.path,
+    )) {
       handlePendingNotification();
     }
   }

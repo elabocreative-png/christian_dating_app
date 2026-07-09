@@ -129,7 +129,7 @@ void main() {
       );
     });
 
-    test('complete profile on gate routes redirects to home', () {
+    test('complete profile on gate routes redirects to discover tab', () {
       const complete = true;
       expect(
         appRedirectForState(
@@ -138,7 +138,7 @@ void main() {
           profileComplete: complete,
           location: AppRoutes.login,
         ),
-        AppRoutes.home,
+        AppRoutes.homeDiscover,
       );
       expect(
         appRedirectForState(
@@ -147,7 +147,7 @@ void main() {
           profileComplete: complete,
           location: AppRoutes.onboarding,
         ),
-        AppRoutes.home,
+        AppRoutes.homeDiscover,
       );
       expect(
         appRedirectForState(
@@ -156,7 +156,7 @@ void main() {
           profileComplete: complete,
           location: AppRoutes.loading,
         ),
-        AppRoutes.home,
+        AppRoutes.homeDiscover,
       );
       expect(
         appRedirectForState(
@@ -165,7 +165,7 @@ void main() {
           profileComplete: complete,
           location: '/',
         ),
-        AppRoutes.home,
+        AppRoutes.homeDiscover,
       );
       expect(
         appRedirectForState(
@@ -173,6 +173,15 @@ void main() {
           auth: AsyncData(user),
           profileComplete: complete,
           location: AppRoutes.home,
+        ),
+        AppRoutes.homeDiscover,
+      );
+      expect(
+        appRedirectForState(
+          pending: const PendingSignupState(),
+          auth: AsyncData(user),
+          profileComplete: complete,
+          location: AppRoutes.homeDiscover,
         ),
         isNull,
       );
@@ -203,6 +212,15 @@ void main() {
           auth: AsyncData(user),
           profileComplete: true,
           location: AppRoutes.profileEdit,
+        ),
+        isNull,
+      );
+      expect(
+        appRedirectForState(
+          pending: const PendingSignupState(),
+          auth: AsyncData(user),
+          profileComplete: true,
+          location: AppRoutes.homeLikedYou,
         ),
         isNull,
       );

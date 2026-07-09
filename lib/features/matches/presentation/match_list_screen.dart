@@ -293,7 +293,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   }
 
   void _openLikedYouTab() {
-    mainNavigationKey.currentState?.selectLikedYouTab();
+    goHomeShellTab(context, AppHomeTab.likedYou);
   }
 
   Widget _buildNewConnectionsStrip({

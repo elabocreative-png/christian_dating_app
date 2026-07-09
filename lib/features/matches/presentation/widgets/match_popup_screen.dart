@@ -11,6 +11,7 @@ import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
+import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
 import 'package:christian_dating_app/main_navigation.dart';
 import 'package:christian_dating_app/core/models/profile_photo_urls.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
@@ -149,9 +150,10 @@ class _MatchPopupScreenState extends ConsumerState<MatchPopupScreen>
     context.pop();
     switch (widget.dismissDestination) {
       case MatchPopupDismissDestination.likedYou:
-        mainNavigationKey.currentState?.selectLikedYouTab();
+        goHomeShellTab(context, AppHomeTab.likedYou);
       case MatchPopupDismissDestination.discovery:
-        mainNavigationKey.currentState?.selectDiscoveryTab();
+        goHomeShellTab(context, AppHomeTab.discover);
+        discoveryScreenKey.currentState?.refreshUsers();
     }
   }
 

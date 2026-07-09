@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
+import 'package:christian_dating_app/core/navigation/home_shell_providers.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
@@ -11,31 +14,28 @@ import 'package:christian_dating_app/features/discovery/presentation/widgets/dis
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_premium_pill.dart';
 import 'widgets/nav_tab_badge.dart';
-import 'package:christian_dating_app/features/matches/presentation/liked_you_screen.dart';
-import 'package:christian_dating_app/features/matches/presentation/match_list_screen.dart';
-import 'package:christian_dating_app/features/profile/presentation/profile_screen.dart';
 import 'package:christian_dating_app/features/settings/data/push_notification_service.dart';
 
-/// Attached to [MainNavigation] so other UI (e.g. Liked You sheet) can switch tabs.
-final GlobalKey<MainNavigationState> mainNavigationKey =
-    GlobalKey<MainNavigationState>();
-
 class MainNavigation extends ConsumerStatefulWidget {
-  const MainNavigation({super.key});
+  const MainNavigation({super.key, required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   @override
   ConsumerState<MainNavigation> createState() => MainNavigationState();
 }
 
 class MainNavigationState extends ConsumerState<MainNavigation> {
-  int _selectedIndex = 0;
   String _discoveryMode = kDiscoveryModeDating;
+
+  int get _selectedIndex => widget.navigationShell.currentIndex;
 
   @override
   void initState() {
     super.initState();
     _loadDiscoveryMode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeShellTabIndexProvider.notifier).setIndex(_selectedIndex);
       final push = ref.read(pushNotificationServiceProvider);
       push.handlePendingNotification();
       final uid = ref.read(currentUserIdProvider);
@@ -43,6 +43,15 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
         push.syncTokenForUser(uid);
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(MainNavigation oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final index = widget.navigationShell.currentIndex;
+    if (ref.read(homeShellTabIndexProvider) != index) {
+      ref.read(homeShellTabIndexProvider.notifier).setIndex(index);
+    }
   }
 
   Future<void> _loadDiscoveryMode() async {
@@ -68,33 +77,17 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
     await discoveryScreenKey.currentState?.onDiscoveryModeChanged(mode);
   }
 
-  void openChat(String matchId) {
-    ref.read(pushNotificationServiceProvider).openChat(matchId);
-  }
-
-  void selectChatsTab() {
-    if (!mounted) return;
-    setState(() => _selectedIndex = 2);
-  }
-
-  void selectLikedYouTab() {
-    if (!mounted) return;
-    setState(() => _selectedIndex = 1);
-  }
-
-  void selectDiscoveryTab() {
-    if (!mounted) return;
-    discoveryScreenKey.currentState?.refreshUsers();
-    setState(() => _selectedIndex = 0);
-  }
-
   void _onItemTapped(int index) {
     if (index == 0) {
       discoveryScreenKey.currentState?.refreshUsers();
     }
-    setState(() {
-      _selectedIndex = index;
-    });
+
+    final isReselect = index == _selectedIndex;
+    ref.read(homeShellTabIndexProvider.notifier).setIndex(index);
+    widget.navigationShell.goBranch(
+      index,
+      initialLocation: !isReselect,
+    );
   }
 
   Widget _navIcon({
@@ -336,20 +329,8 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
           ? _discoveryAppBar()
           : _selectedIndex == 1
               ? _likedYouAppBar()
-              : _selectedIndex == 2
-                  ? null
-                  : null,
-
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          DiscoveryScreen(key: discoveryScreenKey),
-          LikedYouScreen(isActive: _selectedIndex == 1),
-          const MatchListScreen(),
-          const ProfileScreen(),
-        ],
-      ),
-
+              : null,
+      body: widget.navigationShell,
       bottomNavigationBar: uid == null
           ? null
           : ColoredBox(
@@ -358,4 +339,25 @@ class MainNavigationState extends ConsumerState<MainNavigation> {
             ),
     );
   }
+}
+
+/// Switches the main tab shell without reaching for [MainNavigationState].
+void goHomeShellTab(BuildContext context, AppHomeTab tab) {
+  final index = tab.index;
+  ProviderScope.containerOf(context)
+      .read(homeShellTabIndexProvider.notifier)
+      .setIndex(index);
+  context.go(switch (tab) {
+    AppHomeTab.discover => AppRoutes.homeDiscover,
+    AppHomeTab.likedYou => AppRoutes.homeLikedYou,
+    AppHomeTab.chats => AppRoutes.homeChats,
+    AppHomeTab.profile => AppRoutes.homeProfile,
+  });
+}
+
+enum AppHomeTab {
+  discover,
+  likedYou,
+  chats,
+  profile,
 }
