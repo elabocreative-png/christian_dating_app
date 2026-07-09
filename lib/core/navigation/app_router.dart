@@ -67,15 +67,17 @@ class RouterRefreshNotifier extends ChangeNotifier {
   }
 }
 
-String? appRedirect(Ref ref, GoRouterState state) {
-  final location = state.matchedLocation;
-  final pending = ref.read(pendingSignupProvider);
-
+/// Pure auth-gate redirect rules for [GoRouter]. Test via [appRedirectForState].
+String? appRedirectForState({
+  required PendingSignupState pending,
+  required AsyncValue<User?> auth,
+  required bool? profileComplete,
+  required String location,
+}) {
   if (pending.isActive) {
     return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
   }
 
-  final auth = ref.read(authStateProvider);
   if (auth.isLoading) {
     return location == AppRoutes.loading ? null : AppRoutes.loading;
   }
@@ -85,7 +87,6 @@ String? appRedirect(Ref ref, GoRouterState state) {
     return location == AppRoutes.login ? null : AppRoutes.login;
   }
 
-  final profileComplete = ref.read(profileCompleteProvider(user.uid));
   if (profileComplete == null) {
     return location == AppRoutes.loading ? null : AppRoutes.loading;
   }
@@ -104,6 +105,18 @@ String? appRedirect(Ref ref, GoRouterState state) {
   return null;
 }
 
+String? appRedirect(Ref ref, String location) {
+  final auth = ref.read(authStateProvider);
+  final user = auth.value;
+  return appRedirectForState(
+    pending: ref.read(pendingSignupProvider),
+    auth: auth,
+    profileComplete:
+        user == null ? null : ref.read(profileCompleteProvider(user.uid)),
+    location: location,
+  );
+}
+
 final goRouterProvider = Provider<GoRouter>((ref) {
   final refresh = RouterRefreshNotifier(ref);
   ref.onDispose(refresh.dispose);
@@ -113,7 +126,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     navigatorKey: rootNavigatorKey,
     observers: [matchPopupNavigatorObserver],
-    redirect: (context, state) => appRedirect(ref, state),
+    redirect: (context, state) => appRedirect(ref, state.matchedLocation),
     routes: [
       GoRoute(
         path: AppRoutes.loading,

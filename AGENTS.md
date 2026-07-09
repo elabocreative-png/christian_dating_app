@@ -49,7 +49,7 @@ sheet/dialog context — that is intentional.
 | `/image/crop` | Gallery crop flow (`extra`: `ImageCropRouteArgs`) |
 
 - `AppRoutes` — path constants in `core/navigation/app_routes.dart`
-- `appRedirect()` — auth gate (replaces old `AuthGate`)
+- `appRedirect()` / `appRedirectForState()` — auth gate (replaces old `AuthGate`); covered by `test/app_redirect_test.dart`
 - Push deep links → `AppRoutes.chat(matchId)` via `PushNotificationService.openChat`
 - Sub-route args — `core/navigation/profile_edit_route_args.dart`, `match_popup_route_args.dart`, `ImageCropRouteArgs` in `ios_style_image_crop_screen.dart`
 - Static `.push()` helpers on picker screens call `context.push()` internally
