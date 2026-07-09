@@ -63,7 +63,7 @@ sheet/dialog context — that is intentional.
 **Domain (pure, no Firestore):**
 
 - `features/discovery/domain/` — deck filters, preferences helpers
-- `features/matches/domain/` — `match_unread.dart`, `liked_you_filters.dart`, `match_entry.dart`
+- `features/matches/domain/` — `match_unread.dart`, `liked_you_filters.dart`, `match_entry.dart`, `match_id.dart`
 - `features/profile/domain/` — `profile_image_upload_progress.dart`, `height_utils.dart`, `profile_completion.dart`
 - `core/utils/firestore_value_utils.dart` — parse Timestamp-like values without importing `cloud_firestore` in domain/presentation
 

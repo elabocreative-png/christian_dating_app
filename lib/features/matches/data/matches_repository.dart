@@ -6,6 +6,7 @@ import 'package:christian_dating_app/features/discovery/domain/discovery_prefere
 import 'package:christian_dating_app/features/matches/data/like_result.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
+import 'package:christian_dating_app/features/matches/domain/match_id.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 
 /// Data access for matches, likes, and like/match mutations.
@@ -31,11 +32,6 @@ class MatchesRepository {
 
   DocumentReference<Map<String, dynamic>> _matchRef(String matchId) =>
       _firestore.collection('matches').doc(matchId);
-
-  String matchIdFor(String uidA, String uidB) {
-    final sortedIds = [uidA, uidB]..sort();
-    return sortedIds.join('_');
-  }
 
   /// Live matches the user is part of.
   Stream<List<MatchEntry>> watchMatches(String uid) {
@@ -150,7 +146,7 @@ class MatchesRepository {
           .get();
 
       final sortedIds = [fromUserId, targetUserId]..sort();
-      final matchId = sortedIds.join('_');
+      final matchId = matchIdForUsers(fromUserId, targetUserId);
       final matchRef = _matchRef(matchId);
       final matchDoc = await matchRef.get();
       final matchExistedBefore = matchDoc.exists;
@@ -234,7 +230,7 @@ class MatchesRepository {
     if (trimmed.isEmpty) return null;
 
     final sortedIds = [fromUserId, targetUserId]..sort();
-    final matchId = sortedIds.join('_');
+    final matchId = matchIdForUsers(fromUserId, targetUserId);
     final matchRef = _matchRef(matchId);
 
     try {
