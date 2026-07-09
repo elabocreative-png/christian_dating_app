@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
+import 'package:christian_dating_app/core/navigation/profile_edit_route_args.dart';
 
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
@@ -21,14 +25,12 @@ class ProfileOptionPickerScreen extends StatelessWidget {
     required List<String> options,
     String? selected,
   }) {
-    return Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ProfileOptionPickerScreen(
-          title: title,
-          options: options,
-          selected: selected,
-        ),
+    return context.push<String>(
+      AppRoutes.profileEditOptions,
+      extra: ProfileOptionPickerRouteArgs(
+        title: title,
+        options: options,
+        selected: selected,
       ),
     );
   }

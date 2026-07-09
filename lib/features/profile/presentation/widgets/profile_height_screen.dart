@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/features/profile/domain/height_utils.dart';
 import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
@@ -20,12 +22,9 @@ class ProfileHeightScreen extends StatefulWidget {
     BuildContext context, {
     int? initialHeightInches,
   }) {
-    return Navigator.push<int>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ProfileHeightScreen(
-          initialHeightInches: initialHeightInches,
-        ),
+    return context.push<int>(
+      AppRoutes.profileEditHeightWith(
+        initialHeightInches: initialHeightInches,
       ),
     );
   }

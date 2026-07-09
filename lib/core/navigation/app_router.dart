@@ -10,7 +10,13 @@ import 'package:christian_dating_app/features/auth/presentation/auth_providers.d
 import 'package:christian_dating_app/features/auth/presentation/auth_screen.dart';
 import 'package:christian_dating_app/features/chat/presentation/chat_screen.dart';
 import 'package:christian_dating_app/features/onboarding/presentation/profile_setup_screen.dart';
+import 'package:christian_dating_app/core/navigation/profile_edit_route_args.dart';
 import 'package:christian_dating_app/features/profile/presentation/edit_profile_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/onboarding_prompt_answer_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/profile_birthdate_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/profile_height_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/profile_option_picker_screen.dart';
+import 'package:christian_dating_app/features/profile/presentation/widgets/profile_text_field_screen.dart';
 import 'package:christian_dating_app/features/settings/domain/faq_content.dart';
 import 'package:christian_dating_app/features/settings/presentation/blocked_users_screen.dart';
 import 'package:christian_dating_app/features/settings/presentation/deactivate_account_screen.dart';
@@ -126,6 +132,64 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.profileEdit,
         builder: (context, state) => const EditProfileScreen(),
+        routes: [
+          GoRoute(
+            path: 'text',
+            builder: (context, state) {
+              final args = state.extra as ProfileTextFieldRouteArgs?;
+              if (args == null) return const EditProfileScreen();
+              return ProfileTextFieldScreen(
+                title: args.title,
+                initial: args.initial,
+                hint: args.hint,
+                subtitle: args.subtitle,
+                keyboardType: args.keyboardType,
+                maxLength: args.maxLength,
+                inputFormatters: args.inputFormatters,
+              );
+            },
+          ),
+          GoRoute(
+            path: 'options',
+            builder: (context, state) {
+              final args = state.extra as ProfileOptionPickerRouteArgs?;
+              if (args == null) return const EditProfileScreen();
+              return ProfileOptionPickerScreen(
+                title: args.title,
+                options: args.options,
+                selected: args.selected,
+              );
+            },
+          ),
+          GoRoute(
+            path: 'birthdate',
+            builder: (context, state) {
+              final initialDigits =
+                  state.uri.queryParameters['initialDigits'] ?? '';
+              return ProfileBirthdateScreen(initialDigits: initialDigits);
+            },
+          ),
+          GoRoute(
+            path: 'height',
+            builder: (context, state) {
+              final raw = state.uri.queryParameters['initialHeightInches'];
+              final initial = raw != null ? int.tryParse(raw) : null;
+              return ProfileHeightScreen(initialHeightInches: initial);
+            },
+          ),
+          GoRoute(
+            path: 'prompt-answer',
+            builder: (context, state) {
+              final args = state.extra as ProfilePromptAnswerRouteArgs?;
+              if (args == null) return const EditProfileScreen();
+              return OnboardingPromptAnswerScreen(
+                question: args.question,
+                initialAnswer: args.initialAnswer,
+                showRemove: args.showRemove,
+              );
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.settings,

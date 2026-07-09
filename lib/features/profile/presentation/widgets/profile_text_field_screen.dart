@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
+import 'package:christian_dating_app/core/navigation/profile_edit_route_args.dart';
 
 import 'package:christian_dating_app/core/theme/app_typography.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
@@ -35,18 +39,16 @@ class ProfileTextFieldScreen extends StatefulWidget {
     int? maxLength,
     List<TextInputFormatter>? inputFormatters,
   }) {
-    return Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ProfileTextFieldScreen(
-          title: title,
-          initial: initial,
-          hint: hint,
-          subtitle: subtitle,
-          keyboardType: keyboardType,
-          maxLength: maxLength,
-          inputFormatters: inputFormatters,
-        ),
+    return context.push<String>(
+      AppRoutes.profileEditText,
+      extra: ProfileTextFieldRouteArgs(
+        title: title,
+        initial: initial,
+        hint: hint,
+        subtitle: subtitle,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        inputFormatters: inputFormatters,
       ),
     );
   }

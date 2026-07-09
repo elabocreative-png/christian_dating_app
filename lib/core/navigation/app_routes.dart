@@ -16,5 +16,23 @@ abstract final class AppRoutes {
 
   static String chat(String matchId) => '/chat/$matchId';
   static String settingsFaqItem(int index) => '/settings/faq/$index';
+
   static const profileEdit = '/profile/edit';
+  static const profileEditText = '/profile/edit/text';
+  static const profileEditOptions = '/profile/edit/options';
+  static const profileEditBirthdate = '/profile/edit/birthdate';
+  static const profileEditHeight = '/profile/edit/height';
+  static const profileEditPromptAnswer = '/profile/edit/prompt-answer';
+
+  static String profileEditBirthdateWith({
+    String initialDigits = '',
+  }) {
+    if (initialDigits.isEmpty) return profileEditBirthdate;
+    return '$profileEditBirthdate?initialDigits=${Uri.encodeComponent(initialDigits)}';
+  }
+
+  static String profileEditHeightWith({int? initialHeightInches}) {
+    if (initialHeightInches == null) return profileEditHeight;
+    return '$profileEditHeight?initialHeightInches=$initialHeightInches';
+  }
 }

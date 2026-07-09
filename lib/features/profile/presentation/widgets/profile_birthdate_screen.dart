@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
 
 import 'package:christian_dating_app/core/widgets/onboarding_birthday_input.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
@@ -20,11 +23,8 @@ class ProfileBirthdateScreen extends StatefulWidget {
     BuildContext context, {
     String initialDigits = '',
   }) {
-    return Navigator.push<BirthdateEditResult>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ProfileBirthdateScreen(initialDigits: initialDigits),
-      ),
+    return context.push<BirthdateEditResult>(
+      AppRoutes.profileEditBirthdateWith(initialDigits: initialDigits),
     );
   }
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:christian_dating_app/core/navigation/app_routes.dart';
+import 'package:christian_dating_app/core/navigation/profile_edit_route_args.dart';
 import 'package:christian_dating_app/core/theme/app_typography.dart';
-
 import 'package:christian_dating_app/core/widgets/app_dialog.dart';
 import 'package:christian_dating_app/core/widgets/app_back_button.dart';
 
@@ -37,14 +39,12 @@ class OnboardingPromptAnswerScreen extends StatefulWidget {
     String initialAnswer = '',
     bool showRemove = false,
   }) async {
-    final result = await Navigator.push<PromptAnswerPushResult>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OnboardingPromptAnswerScreen(
-          question: question,
-          initialAnswer: initialAnswer,
-          showRemove: showRemove,
-        ),
+    final result = await context.push<PromptAnswerPushResult>(
+      AppRoutes.profileEditPromptAnswer,
+      extra: ProfilePromptAnswerRouteArgs(
+        question: question,
+        initialAnswer: initialAnswer,
+        showRemove: showRemove,
       ),
     );
     return result ?? PromptAnswerPushResult.cancelled;
