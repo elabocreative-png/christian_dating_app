@@ -105,6 +105,8 @@ Keep both green when changing architecture or providers. CI runs the same checks
 
 Repository integration tests use `fake_cloud_firestore` (see `test/block_repository_test.dart`, `test/chat_repository_test.dart`, `test/discovery_repository_test.dart`, `test/issue_report_repository_test.dart`, `test/matches_repository_test.dart`, `test/profile_repository_test.dart`).
 
+Widget tests: `test/auth_screen_test.dart`, `test/nav_tab_badge_test.dart`.
+
 ## Git
 
 - Commits only when the user asks
