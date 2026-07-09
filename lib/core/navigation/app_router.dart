@@ -35,7 +35,7 @@ import 'package:christian_dating_app/features/discovery/presentation/discovery_s
 import 'package:christian_dating_app/features/matches/presentation/liked_you_screen.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_list_screen.dart';
 import 'package:christian_dating_app/features/profile/presentation/profile_screen.dart';
-import 'package:christian_dating_app/main_navigation.dart';
+import 'package:christian_dating_app/core/navigation/main_navigation.dart';
 
 /// Notifies [GoRouter] when auth, pending signup, or profile completion changes.
 class RouterRefreshNotifier extends ChangeNotifier {

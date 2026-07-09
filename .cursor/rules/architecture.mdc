@@ -18,7 +18,7 @@ lib/
     constants/     # *_options (gender, faith, denomination, ...), relationship_intent
     utils/         # geo_utils, firestore_value_utils
     models/        # block_source, profile_photo_urls
-    navigation/    # app_router, app_routes, app_navigator (rootNavigatorKey)
+    navigation/    # app_router, app_routes, main_navigation, nav_tab_badge, home_shell_providers
     widgets/       # app_icon, app_dialog, app_back_button, profile_avatar,
                    #   profile_photo_placeholder, user_profile_bottom_sheet, ...
     photo/         # profile_photo_picker + crop screens + face_crop_helper
@@ -30,8 +30,6 @@ lib/
       domain/       # OPTIONAL — pure, Firebase-free logic
       presentation/ # screens + widgets/
   main.dart            # entry point + auth UI
-  main_navigation.dart # app shell / bottom-nav host
-  widgets/nav_tab_badge.dart  # app-shell-only widget
 ```
 
 - **All imports use `package:christian_dating_app/...`** — no relative `../` imports across

@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:christian_dating_app/core/navigation/app_routes.dart';
 import 'package:christian_dating_app/core/navigation/home_shell_providers.dart';
+import 'package:christian_dating_app/core/navigation/nav_tab_badge.dart';
 import 'package:christian_dating_app/core/theme/app_icons.dart';
+import 'package:christian_dating_app/core/widgets/app_icon.dart';
+import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
+import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
 import 'package:christian_dating_app/features/discovery/domain/discovery_preferences.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
-import 'package:christian_dating_app/features/discovery/data/discovery_repository.dart';
-import 'package:christian_dating_app/features/auth/presentation/auth_providers.dart';
-import 'package:christian_dating_app/features/matches/presentation/nav_badge_providers.dart';
-import 'package:christian_dating_app/core/widgets/app_icon.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_distance_filter_sheet.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_mode_toggle.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_premium_pill.dart';
-import 'widgets/nav_tab_badge.dart';
+import 'package:christian_dating_app/features/matches/presentation/nav_badge_providers.dart';
 import 'package:christian_dating_app/features/settings/data/push_notification_service.dart';
 
 class MainNavigation extends ConsumerStatefulWidget {

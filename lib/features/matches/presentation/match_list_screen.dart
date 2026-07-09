@@ -12,7 +12,7 @@ import 'package:christian_dating_app/features/chat/data/chat_repository.dart';
 import 'package:christian_dating_app/features/matches/domain/liked_you_filters.dart';
 import 'package:christian_dating_app/features/matches/domain/match_entry.dart';
 import 'package:christian_dating_app/features/matches/presentation/matches_providers.dart';
-import 'package:christian_dating_app/main_navigation.dart';
+import 'package:christian_dating_app/core/navigation/main_navigation.dart';
 import 'package:christian_dating_app/features/matches/presentation/match_read_providers.dart';
 import 'package:christian_dating_app/features/matches/domain/match_unread.dart';
 import 'package:christian_dating_app/features/profile/presentation/profile_providers.dart';
