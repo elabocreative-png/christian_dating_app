@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:christian_dating_app/features/auth/data/auth_repository.dart';
 import 'package:christian_dating_app/features/profile/data/profile_repository.dart';
 
 /// Firebase Auth session stream for the app gate.
 final authStateProvider = StreamProvider<User?>((ref) {
-  return FirebaseAuth.instance.authStateChanges();
+  return ref.watch(authRepositoryProvider).authStateChanges();
 });
 
 /// Signed-in user's uid, or null when signed out. Presentation-layer reads use

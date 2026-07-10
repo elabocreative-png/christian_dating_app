@@ -256,5 +256,12 @@ void main() {
 
       await repo.reloadCurrentUser();
     });
+
+    test('authStateChanges forwards auth stream', () {
+      final stream = Stream<User?>.value(null);
+      when(() => auth.authStateChanges()).thenAnswer((_) => stream);
+
+      expect(repo.authStateChanges(), stream);
+    });
   });
 }

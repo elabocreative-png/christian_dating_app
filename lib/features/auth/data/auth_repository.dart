@@ -26,6 +26,9 @@ class AuthRepository {
     await _auth.currentUser?.reload();
   }
 
+  /// Live auth session stream for app gate and signed-in uid derivation.
+  Stream<User?> authStateChanges() => _auth.authStateChanges();
+
   /// Creates the Firebase Auth user only (no Firestore doc yet).
   Future<User> createAuthUser(String email, String password) async {
     try {
