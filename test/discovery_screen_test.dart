@@ -53,7 +53,7 @@ void main() {
       await pumpDiscoveryScreen(tester, deckState: const AsyncData([]));
       await tester.pumpAndSettle();
 
-      expect(find.text('Youve seen everyone for now'), findsOneWidget);
+      expect(find.text("You've seen everyone for now"), findsOneWidget);
       expect(find.text('Change filters'), findsOneWidget);
       expect(find.text('Review skipped profiles'), findsOneWidget);
       expect(
@@ -72,7 +72,7 @@ void main() {
       await tester.pump();
 
       expect(find.byType(DiscoveryRadarLoading), findsOneWidget);
-      expect(find.text('Youve seen everyone for now'), findsNothing);
+      expect(find.text("You've seen everyone for now"), findsNothing);
     });
 
     testWidgets('shows deck exhausted copy after passing the last profile',
@@ -105,7 +105,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("You've seen everyone for now"), findsOneWidget);
-      expect(find.text('Youve seen everyone for now'), findsNothing);
       expect(
         tester
             .widget<OutlinedButton>(

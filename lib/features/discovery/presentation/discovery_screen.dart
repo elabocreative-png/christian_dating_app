@@ -734,7 +734,7 @@ class DiscoveryScreenState extends ConsumerState<DiscoveryScreen>
             _buildDiscoveryEmptyIllustration(),
             const SizedBox(height: 20),
             Text(
-              'Youve seen everyone for now',
+              "You've seen everyone for now",
               textAlign: TextAlign.center,
               style: AppTypography.emptyStateTitle(),
             ),
