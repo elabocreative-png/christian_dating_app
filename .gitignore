@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Cursor hook state (local diff fingerprint for stop-hook review)
+.cursor/hooks/.last-reviewed-diff-hash

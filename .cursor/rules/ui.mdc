@@ -1,0 +1,19 @@
+---
+description: UI and presentation conventions for ChristMeets — typography, spacing, states, shared widgets
+globs: lib/**/presentation/**/*.dart
+alwaysApply: false
+---
+
+# UI — ChristMeets
+
+Full guide: `docs/ui_guidelines.md`. Layering rules: `flutter-standards.mdc`.
+
+## Enforced in presentation code
+
+1. **Screens ≤200 lines** — extract sections to `presentation/widgets/`.
+2. **No business logic in widgets** — no Firestore, filtering, or calculations in `build`; use providers and `domain/`.
+3. **Loading, empty, and error** — every user-facing async screen/section handles all three.
+4. **Theme** — use `AppTypography`, `AppIcons`, `AppIllustrations`, and `Theme.of(context)`; avoid one-off `TextStyle` and magic colors.
+5. **Reuse shared widgets** — `AppDialog`, `AppIcon`, `EmptyStateIllustration`, `AppSkeleton`, `ProfilePhotoPlaceholder`, etc. (see `docs/ui_guidelines.md`).
+6. **Composition** — small focused widgets; prefer `AsyncValue.when` over nested conditionals in one giant `build`.
+7. **Spacing** — default screen padding `16`; chips `12×8`; small gaps `8` / `4`.

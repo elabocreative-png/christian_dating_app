@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      {
+        "command": "dart .cursor/hooks/post_codegen_review.dart",
+        "timeout": 30,
+        "loop_limit": 5
+      }
+    ]
+  }
+}

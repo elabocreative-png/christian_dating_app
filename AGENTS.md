@@ -1,8 +1,12 @@
 # ChristMeets — agent guide
 
 Flutter dating app (`christian_dating_app`). Feature-first layout under `lib/features/`,
-shared code in `lib/core/`. Deeper rules live in `.cursor/rules/architecture.mdc` and
-`.cursor/rules/flutter-standards.mdc`.
+shared code in `lib/core/`. Deeper rules live in `.cursor/rules/architecture.mdc`,
+`.cursor/rules/flutter-standards.mdc`, and `.cursor/rules/ui.mdc`. Product context:
+`docs/product_spec.md`. UI patterns: `docs/ui_guidelines.md`.
+
+**Agent prompts:** `@prompts/build_feature.md` to start feature work;
+`@prompts/review_code.md` for post-generation review (also triggered by the stop hook).
 
 ## Architecture (current)
 
@@ -102,6 +106,11 @@ flutter test
 ```
 
 Keep both green when changing architecture or providers. CI runs the same checks on push/PR to `main` (`.github/workflows/flutter_ci.yml`).
+
+**Post-generation review (Cursor hook):** When an agent turn completes with `lib/` changes, the
+`.cursor/hooks.json` `stop` hook auto-submits a review follow-up using `prompts/review_code.md`.
+The hook skips aborted/error turns, empty diffs, and diffs already reviewed (see
+`.cursor/hooks/post_codegen_review.dart`). Check the **Hooks** output channel if it does not fire.
 
 Repository integration tests use `fake_cloud_firestore` (see `test/block_repository_test.dart`, `test/chat_repository_test.dart`, `test/discovery_repository_test.dart`, `test/issue_report_repository_test.dart`, `test/matches_repository_test.dart`, `test/profile_repository_test.dart`).
 
