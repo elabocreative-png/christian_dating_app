@@ -16,8 +16,30 @@ void main() {
   late MockChatRepository mockChat;
 
   const uid = 'user-1';
+  const otherUserId = 'user-2';
   const matchId = 'match-1';
   const contextKey = '$matchId|$uid';
+
+  final chatContext = ChatContext(
+    otherUser: const {'name': 'Sam', 'age': 27},
+    matchCreatedAt: DateTime(2026, 7, 9, 12),
+  );
+
+  final sampleThread = [
+    ChatMessage(
+      id: 'msg-1',
+      senderId: uid,
+      text: 'Hey there!',
+      createdAt: DateTime(2026, 7, 10, 14, 30),
+    ),
+    ChatMessage(
+      id: 'msg-2',
+      senderId: otherUserId,
+      text: 'Hi Alex!',
+      likedContent: 'Photo 1',
+      createdAt: DateTime(2026, 7, 10, 14, 35),
+    ),
+  ];
 
   setUp(() {
     mockChat = MockChatRepository();
@@ -40,13 +62,7 @@ void main() {
             messagesState ?? const AsyncData([]),
           ),
           chatContextProvider(contextKey).overrideWithValue(
-            contextState ??
-                AsyncData(
-                  ChatContext(
-                    otherUser: const {'name': 'Sam', 'age': 27},
-                    matchCreatedAt: DateTime(2026, 7, 9, 12),
-                  ),
-                ),
+            contextState ?? AsyncData(chatContext),
           ),
         ],
         child: const MaterialApp(home: ChatScreen(matchId: matchId)),
@@ -91,6 +107,60 @@ void main() {
           matchId: matchId,
           senderId: uid,
           text: 'Hello Sam',
+        ),
+      ).called(1);
+    });
+  });
+
+  group('ChatScreen message thread', () {
+    testWidgets('renders bubbles and compact match header', (tester) async {
+      await pumpChatScreen(
+        tester,
+        messagesState: AsyncData(sampleThread),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hey there!'), findsOneWidget);
+      expect(find.text('Hi Alex!'), findsOneWidget);
+      expect(find.text('Liked: Photo 1'), findsOneWidget);
+      expect(find.textContaining('You matched with Sam on 7/9/26'), findsOneWidget);
+      expect(find.textContaining('ago'), findsNothing);
+    });
+
+    testWidgets('likes an incoming message from the heart action', (tester) async {
+      when(
+        () => mockChat.toggleMessageLike(
+          matchId: matchId,
+          messageId: 'msg-2',
+          userId: uid,
+          currentlyLiked: false,
+        ),
+      ).thenAnswer((_) async {});
+
+      await pumpChatScreen(
+        tester,
+        messagesState: AsyncData(sampleThread),
+      );
+      await tester.pumpAndSettle();
+
+      final incomingBubble = find.ancestor(
+        of: find.text('Hi Alex!'),
+        matching: find.byType(Row),
+      );
+      final heartButton = find.descendant(
+        of: incomingBubble,
+        matching: find.byType(InkWell),
+      );
+
+      await tester.tap(heartButton);
+      await tester.pumpAndSettle();
+
+      verify(
+        () => mockChat.toggleMessageLike(
+          matchId: matchId,
+          messageId: 'msg-2',
+          userId: uid,
+          currentlyLiked: false,
         ),
       ).called(1);
     });
