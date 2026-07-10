@@ -24,3 +24,11 @@ String messageForAuthException(Object error) {
   }
   return 'Something went wrong. Please try again.';
 }
+
+/// User-facing copy when onboarding profile save fails.
+String onboardingProfileSaveErrorMessage(Object error) {
+  if (error is FirebaseAuthException) {
+    return messageForAuthException(error);
+  }
+  return 'Could not save profile: $error';
+}

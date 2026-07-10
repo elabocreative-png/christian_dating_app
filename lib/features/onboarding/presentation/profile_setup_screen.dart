@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -307,27 +306,26 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     setState(() => _isSaving = true);
 
     try {
+      final authRepo = ref.read(authRepositoryProvider);
       final pending = ref.read(pendingSignupProvider);
       final isDeferred = pending.isActive;
       final pendingEmail = pending.email;
       final pendingPassword = pending.password;
 
-      User user;
-      if (isDeferred) {
-        if (pendingEmail == null || pendingPassword == null) {
-          throw Exception('Missing sign-up credentials');
-        }
-        user = await ref.read(authRepositoryProvider).createOrSignInForDeferredSignup(
-          pendingEmail,
-          pendingPassword,
-        );
-      } else {
-        final current = FirebaseAuth.instance.currentUser;
-        if (current == null) {
-          if (mounted) setState(() => _isSaving = false);
-          return;
-        }
-        user = current;
+      final user = isDeferred
+          ? await (() async {
+              if (pendingEmail == null || pendingPassword == null) {
+                throw Exception('Missing sign-up credentials');
+              }
+              return authRepo.createOrSignInForDeferredSignup(
+                pendingEmail,
+                pendingPassword,
+              );
+            })()
+          : authRepo.currentUser;
+      if (user == null) {
+        if (mounted) setState(() => _isSaving = false);
+        return;
       }
 
       final imageResult = await _uploadImages(user.uid);
@@ -376,14 +374,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             .mergeProfile(user.uid, profileData);
       }
 
-      await FirebaseAuth.instance.currentUser?.reload();
+      await authRepo.reloadCurrentUser();
     } catch (e) {
       if (mounted) {
-        _showError(
-          e is FirebaseAuthException
-              ? messageForAuthException(e)
-              : 'Could not save profile: $e',
-        );
+        _showError(onboardingProfileSaveErrorMessage(e));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -437,8 +431,9 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
 
   Future<void> _exitOnboardingToAuth() async {
     ref.read(pendingSignupProvider.notifier).clear();
-    if (FirebaseAuth.instance.currentUser != null) {
-      await ref.read(authRepositoryProvider).logout();
+    final authRepo = ref.read(authRepositoryProvider);
+    if (authRepo.currentUser != null) {
+      await authRepo.logout();
       ref.read(matchReadStateProvider.notifier).clear();
     }
   }

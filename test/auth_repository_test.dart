@@ -232,4 +232,29 @@ void main() {
       );
     });
   });
+
+  group('currentUser helpers', () {
+    test('currentUser returns auth current user', () {
+      final user = MockUser();
+      when(() => auth.currentUser).thenReturn(user);
+
+      expect(repo.currentUser, user);
+    });
+
+    test('reloadCurrentUser reloads signed-in user', () async {
+      final user = MockUser();
+      when(() => auth.currentUser).thenReturn(user);
+      when(() => user.reload()).thenAnswer((_) async {});
+
+      await repo.reloadCurrentUser();
+
+      verify(() => user.reload()).called(1);
+    });
+
+    test('reloadCurrentUser no-ops when signed out', () async {
+      when(() => auth.currentUser).thenReturn(null);
+
+      await repo.reloadCurrentUser();
+    });
+  });
 }

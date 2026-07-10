@@ -18,6 +18,14 @@ class AuthRepository {
   final ProfileRepository _profiles;
   final PushNotificationService? _push;
 
+  /// Currently signed-in Firebase user, if any.
+  User? get currentUser => _auth.currentUser;
+
+  /// Refreshes the signed-in user from Firebase (e.g. after profile updates).
+  Future<void> reloadCurrentUser() async {
+    await _auth.currentUser?.reload();
+  }
+
   /// Creates the Firebase Auth user only (no Firestore doc yet).
   Future<User> createAuthUser(String email, String password) async {
     try {
