@@ -10,6 +10,7 @@ import 'package:christian_dating_app/features/discovery/domain/nearby_user.dart'
 import 'package:christian_dating_app/features/discovery/presentation/discovery_deck_providers.dart';
 import 'package:christian_dating_app/features/discovery/presentation/discovery_screen.dart';
 import 'package:christian_dating_app/features/discovery/presentation/widgets/discovery_radar_loading.dart';
+import 'package:christian_dating_app/features/discovery/presentation/widgets/user_profile_discovery_card.dart';
 
 class MockDiscoveryRepository extends Mock implements DiscoveryRepository {}
 
@@ -42,6 +43,11 @@ void main() {
     );
   }
 
+  const sampleNearbyUser = NearbyUser(
+    id: 'other-1',
+    profile: {'name': 'Jordan', 'age': 28},
+  );
+
   group('DiscoveryScreen empty state', () {
     testWidgets('shows empty deck copy and filter actions', (tester) async {
       await pumpDiscoveryScreen(tester, deckState: const AsyncData([]));
@@ -67,6 +73,47 @@ void main() {
 
       expect(find.byType(DiscoveryRadarLoading), findsOneWidget);
       expect(find.text('Youve seen everyone for now'), findsNothing);
+    });
+
+    testWidgets('shows deck exhausted copy after passing the last profile',
+        (tester) async {
+      await pumpDiscoveryScreen(
+        tester,
+        deckState: const AsyncData([sampleNearbyUser]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(UserProfileDiscoveryCard), findsOneWidget);
+      expect(find.textContaining('Jordan'), findsWidgets);
+      expect(find.text("You've seen everyone for now"), findsNothing);
+
+      await tester.drag(
+        find.byType(UserProfileDiscoveryCard),
+        const Offset(0, -1200),
+        warnIfMissed: false,
+      );
+      await tester.pumpAndSettle();
+
+      final passButton = find.descendant(
+        of: find.byType(UserProfileDiscoveryCard),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is InkWell && widget.onTap != null,
+        ),
+      );
+      await tester.tap(passButton.first);
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpAndSettle();
+
+      expect(find.text("You've seen everyone for now"), findsOneWidget);
+      expect(find.text('Youve seen everyone for now'), findsNothing);
+      expect(
+        tester
+            .widget<OutlinedButton>(
+              find.widgetWithText(OutlinedButton, 'Review skipped profiles'),
+            )
+            .onPressed,
+        isNotNull,
+      );
     });
   });
 }
